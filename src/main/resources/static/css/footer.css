@@ -1,0 +1,6 @@
+#footer {position: fixed; z-index: 300; bottom: 0; left: 0; width: 100%; height: 48px; background: #194f37;}
+#footer .inner {display: flex; justify-content: space-between; margin: 0 auto; width: 100%; max-width: 1024px; height: 100%;}
+#footer .inner > ul {display: flex; justify-content: space-around; align-items: center; width: 768px;}
+#footer .inner > ul > li > a {font-size: 14px; font-weight: 700; color: #fff;}
+#footer .inner > .copy {display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px;;}
+#footer .inner > .copy > span { font-size: 11px; color: #e3e6e9}
