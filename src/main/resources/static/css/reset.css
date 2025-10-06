@@ -1,6 +1,6 @@
 * {margin: 0; padding: 0;}
-a, p, span, h1, h2, h3, h4, h5, button, input, select, textarea, select , ul, li, ol, oi {font-weight: 400; list-style: none; background: none; text-decoration: none; background: transparent; color: #141414;}
-input, select, textarea, select {border: 0; outline: none; resize: none; }
+a, p, span, em, h1, h2, h3, h4, h5, button, input, select, textarea, button , ul, li, ol, oi {font-weight: 400; list-style: none; background: none; text-decoration: none; background: transparent; color: #141414;}
+input, button, textarea, select {border: 0; outline: none; resize: none; box-shadow:none;}
 a, button {cursor: pointer;}
 
 html {font-family: "Noto Sans", sans-serif; font-size: 16px; color: #141414;}
