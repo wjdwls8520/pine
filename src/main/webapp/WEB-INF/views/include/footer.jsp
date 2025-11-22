@@ -11,7 +11,7 @@
         </ul>
         <div class="copy">
             <span>© 2025 Fine. All rights reserved.</span>
-            <span>제작: Fine Dev Team</span>
+            <span>제작: Fine Dev Team </span>
         </div>
     </div>
 </footer>
