@@ -9,4 +9,5 @@ public class MemberController {
 
     @Autowired
     MemberService ms;
+    //test은정
 }
