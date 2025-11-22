@@ -9,4 +9,6 @@ public class MemberController {
 
     @Autowired
     MemberService ms;
+
+    //헐
 }
