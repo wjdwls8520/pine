@@ -1,0 +1,5 @@
+.wrap {display: flex; height: calc(100% - 96px);}
+.article {display: flex; flex-direction: column; padding:0 40px 40px; width: calc(100% - 250px); height: 100%; box-sizing: border-box; overflow: auto;}
+section.section .bigTitle {display: flex; justify-content: space-between; padding-top: 64px; padding-bottom: 42px; font-size: 32px; font-weight: 600; color: #272B27;}
+section.section .bigTitle > a {display: flex; align-items: flex-end; font-size: 16px; font-weight: 700; color: #141414;}
+section.section .subTitle {margin-top:-32px; padding-bottom: 14px; font-size: 16px; font-weight: 500; color: #cdd8cd;}

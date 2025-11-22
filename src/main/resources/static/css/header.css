@@ -1,0 +1,15 @@
+#header {display: flex; flex-direction: column; width: 100%; background: #fff;}
+#header .inner {display: flex; justify-content: space-between; align-items: center; padding: 0 30px; height: 48px; border-bottom: 1px solid #E3E6E9; box-sizing: border-box;}
+#header .inner .logo {height: 42px;}
+#header .inner .logo > a {height: 100%;}
+#header .inner .logo > a > img {height: 100%; object-fit: contain;}
+
+#header .inner .searchWrap {display: flex; align-items: center; width: 280px; border: 1px solid #E3E6E9; border-radius: 4px;}
+#header .inner .searchWrap .searchBar {padding: 0px 8px; width: calc(100% - 32px); font-size: 14px; color: #141414;}
+#header .inner .searchWrap .searchBar::placeholder {font-size: 14px; color: #e3e6e9;}
+#header .inner .searchWrap .btnSearch {display: flex; justify-content: center; align-items: center; flex-shrink: 0; width: 32px; height: 32px; border-left: 1px solid #e3e6e9;}
+#header .inner .searchWrap .btnSearch > img {width: 18px; height: 18px; object-fit: contain;}
+
+#header .inner .util {display: flex; align-items: center; gap: 20px; height: 100%;}
+#header .inner .util > a {font-size: 14px; font-weight: 700; color: #141414;}
+#header .inner .util > a.join {display: flex; justify-content: center; align-items: center; width: 72px; height: 30px; background: #194f37; border-radius: 6px; color: #fff;}

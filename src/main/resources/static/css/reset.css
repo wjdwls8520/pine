@@ -1,0 +1,22 @@
+* {margin: 0; padding: 0;}
+a, p, span, em, h1, h2, h3, h4, h5, button, input, select, textarea, button , ul, li, ol, oi {font-weight: 400; list-style: none; background: none; text-decoration: none; background: transparent; color: #141414;}
+input, button, textarea, select {border: 0; outline: none; resize: none; box-shadow:none;}
+a, button {cursor: pointer;}
+
+html {font-family: "Noto Sans", sans-serif; font-size: 16px; color: #141414;}
+
+.hidden {position: fixed !important; z-index: -100 !important; top: -200%; left: -200%; margin: 0 !important; padding: 0 !important; width: 0 !important; height: 0 !important; opacity: 0 !important; overflow: hidden !important; pointer-events: none !important;}
+.display-none {display: none !important;}
+.dim {display: none; position: fixed; z-index: 8000; top: 0; left: 0; width: 100%; height: 100%; background: hsla(0, 0%, 0%, 0.7);}
+.dim.on {display: block;}
+
+
+br.pc {display: block !important;}
+br.t {display: none !important;}
+br.m {display: none !important;}
+
+
+@media screen and (max-width:1024px) {
+    br.pc {display: none !important;}
+    br.m {display: block !important;}
+}

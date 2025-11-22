@@ -1,0 +1,107 @@
+vi 에디터 명령
+
+i or a : 편집모드 시작  
+esc    : 편집모드 종료
+
+:w     : 저장  
+:q     : 종료  
+:wq    : 저장하고 종료  
+:q!    : 강제 종료
+
+----------------------------------------------------------------------------------------------
+리눅스 세팅 ----
+
+sudo dd if=/dev/zero of=/swapfile bs=128M count=16
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+sudo swapon -s
+sudo vi /etc/fstab
+
+----------------------------------------------------------------------------------------------
+
+/swapfile swap swap defaults 0 0
+
+sudo apt update
+
+
+sudo apt install openjdk-17-jdk -y   -- 자바설치 ----
+
+java -version
+
+-------mysql설치---------------------------------------------------------------------------------------
+
+sudo apt-get install mysql-server       y 눌러서 설치
+
+sudo mysql –u root –p      직접입력 후 -  패스워드 엔터로 넘어가기
+
+alter user "root"@"localhost" identified with mysql_native_password by "adminuser";
+
+create schema `board` default character set utf8mb4 collate 
+utf8mb4_0900_ai_ci ;
+
+create schema `shop` default character set utf8mb4 collate 
+utf8mb4_0900_ai_ci ;
+
+show databases;
+
+--------------------------------------------------------------------------------------------------------
+sudo mysql -u root -p
+
+source ./board.sql;
+
+show tables;
+
+-----------------스키마 삭제 후 다시 만들기----------------------------------------------------
+drop database 스키마이름;
+
+show databases;
+create database 스키마이름;
+use 스키마이름;
+source ./board.sql;
+
+show tables;
+
+-----------------------------자바 빌드 및 서버 열기----------------------------------------
+gradlew 파일 권한 변경
+sudo chmod 777 ./gradlew     -- 해당파일 권한 부여
+
+build 명령  
+./gradlew clean build     -- 해당 파일 빌드하기
+
+서버 구동  
+sudo java -jar 자기 주소    -- (자기주소 :  cd build-> cd libs --> 파일이름-snapshot.war 실행)
+
+publicip:8070 으로 접속
+
+------------------------------------------리눅스 명령 ------------------------------------------------------
+
+sudo rm -rf board -- 폴더/파일 삭제 명령
+
+--------------git-------------
+git clone 깃주소
+.userid와 패스워드토큰입력
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
