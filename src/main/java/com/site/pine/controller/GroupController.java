@@ -11,4 +11,16 @@ public class GroupController {
 
         return "group/group";
     }
+
+    @GetMapping("/group/gcreate")
+    public String create(){
+
+        return "group/gCreate";
+    }
+
+    @GetMapping("/group/gupdate")
+    public String update(){
+
+        return "group/gUpdate";
+    }
 }
