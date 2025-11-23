@@ -18,3 +18,128 @@
 .groupMain .groupList .groupInfo .bot .writeDate {font-size: 12px; font-weight: 400; color: #272B27;}
 .groupMain .groupList .groupInfo .bot .likeCount {font-size: 12px; font-weight: 500; color: #272B27;}
 .groupMain .groupList .groupInfo .bot .replyCount {font-size: 12px; font-weight: 400; color: #272B27;}
+
+/* 그룹 만들기 폼 스타일 */
+.groupCreateForm {max-width: 800px; margin: 0 auto; padding: 0 20px;}
+
+.groupCreateForm .formSection {margin-bottom: 32px; padding: 24px; background: #fff; border: 1px solid #e3e6e9; border-radius: 8px; box-sizing: border-box;}
+
+.groupCreateForm .formHeader {margin-bottom: 16px;}
+
+.groupCreateForm .formTitle {margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #141414;}
+
+.groupCreateForm .formDescription {margin: 0; font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5;}
+
+/* 입력 필드 스타일 */
+.groupCreateForm .formInputWrapper {position: relative; display: flex; align-items: center;}
+
+.groupCreateForm .inputPrefix {padding: 12px 16px; background: #f8f8f8; border: 1px solid #e3e6e9; border-right: none; border-radius: 6px 0 0 6px; font-size: 16px; font-weight: 500; color: #272B27;}
+
+.groupCreateForm .formInput {flex: 1; padding: 12px 16px; border: 1px solid #e3e6e9; border-radius: 0 6px 6px 0; font-size: 16px; font-weight: 400; color: #141414; background: #fff; box-sizing: border-box; transition: border-color 0.2s;}
+
+.groupCreateForm .formInput:focus {outline: none; border-color: #194f37;}
+
+.groupCreateForm .groupNameInput {border-left: none;}
+
+.groupCreateForm .formTextarea {width: 100%; padding: 12px 16px; border: 1px solid #e3e6e9; border-radius: 6px; font-size: 16px; font-weight: 400; color: #141414; background: #fff; resize: vertical; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s;}
+
+.groupCreateForm .formTextarea:focus {outline: none; border-color: #194f37;}
+
+.groupCreateForm .inputHelper {display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 12px; color: #6b7280;}
+
+.groupCreateForm .charCount {font-weight: 500;}
+
+.groupCreateForm .inputHint {font-size: 12px; color: #9ca3af;}
+
+/* 라디오 버튼 스타일 */
+.groupCreateForm .radioGroup {display: flex; flex-direction: column; gap: 12px;}
+
+.groupCreateForm .radioOption {display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid #e3e6e9; border-radius: 6px; cursor: pointer; transition: all 0.2s;}
+
+.groupCreateForm .radioOption:hover {border-color: #cdd8cd; background: #f8f8f8;}
+
+.groupCreateForm .radioOption input[type="radio"] {margin-top: 4px; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;}
+
+.groupCreateForm .radioOption input[type="radio"]:checked + .radioContent .radioTitle {color: #194f37; font-weight: 600;}
+
+.groupCreateForm .radioOption:has(input[type="radio"]:checked) {border-color: #194f37; background: #f0f9f4;}
+
+.groupCreateForm .radioContent {flex: 1;}
+
+.groupCreateForm .radioTitle {margin-bottom: 4px; font-size: 16px; font-weight: 500; color: #141414;}
+
+.groupCreateForm .radioDescription {font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5;}
+
+/* 체크박스 스타일 */
+.groupCreateForm .checkboxOption {display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid #e3e6e9; border-radius: 6px; cursor: pointer; transition: all 0.2s;}
+
+.groupCreateForm .checkboxOption:hover {border-color: #cdd8cd; background: #f8f8f8;}
+
+.groupCreateForm .checkboxOption input[type="checkbox"] {margin-top: 4px; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;}
+
+.groupCreateForm .checkboxOption input[type="checkbox"]:checked + .checkboxContent .checkboxTitle {color: #194f37; font-weight: 600;}
+
+.groupCreateForm .checkboxOption:has(input[type="checkbox"]:checked) {border-color: #194f37; background: #f0f9f4;}
+
+.groupCreateForm .checkboxContent {flex: 1;}
+
+.groupCreateForm .checkboxTitle {margin-bottom: 4px; font-size: 16px; font-weight: 500; color: #141414;}
+
+.groupCreateForm .checkboxDescription {font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5;}
+
+/* 카테고리 그리드 */
+.groupCreateForm .categoryGrid {display: flex; flex-flow: wrap; gap: 12px;}
+
+.groupCreateForm .categoryCheckbox {position: relative; display: inline-block;}
+
+.groupCreateForm .categoryInput {position: absolute; opacity: 0; width: 0; height: 0;}
+
+.groupCreateForm .categoryLabel {display: inline-block; padding: 10px 20px; border: 1px solid #e3e6e9; border-radius: 20px; font-size: 14px; font-weight: 400; color: #272B27; background: #fff; cursor: pointer; transition: all 0.2s;}
+
+.groupCreateForm .categoryInput:checked + .categoryLabel {border-color: #194f37; background: #194f37; color: #fff; font-weight: 500;}
+
+.groupCreateForm .categoryInput:disabled + .categoryLabel {opacity: 0.5; cursor: not-allowed;}
+
+.groupCreateForm .categoryCount {font-weight: 500;}
+
+/* 이미지 업로드 영역 */
+.groupCreateForm .imageUploadArea {display: flex; flex-direction: column; gap: 12px;}
+
+.groupCreateForm .imagePreview {position: relative; width: 100px; height: 100px; border: 2px dashed #e3e6e9; border-radius: 8px; overflow: hidden; background: #f8f8f8;}
+
+.groupCreateForm .bannerPreview {width: 100%; height: 200px;}
+
+.groupCreateForm .imagePreview img {width: 100%; height: 100%; object-fit: cover;}
+
+.groupCreateForm .imagePlaceholder {display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 12px; color: #9ca3af; text-align: center;}
+
+.groupCreateForm .fileInput {display: none;}
+
+.groupCreateForm .uploadButton {display: inline-block; padding: 10px 20px; border: 1px solid #194f37; border-radius: 6px; font-size: 14px; font-weight: 500; color: #194f37; background: #fff; cursor: pointer; transition: all 0.2s; text-align: center;}
+
+.groupCreateForm .uploadButton:hover {background: #194f37; color: #fff;}
+
+/* 폼 액션 버튼 */
+.groupCreateForm .formActions {display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #e3e6e9;}
+
+.groupCreateForm .btnCancel {padding: 12px 24px; border: 1px solid #e3e6e9; border-radius: 6px; font-size: 16px; font-weight: 500; color: #272B27; background: #fff; cursor: pointer; transition: all 0.2s;}
+
+.groupCreateForm .btnCancel:hover {background: #f8f8f8; border-color: #cdd8cd;}
+
+.groupCreateForm .btnSubmit {padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; color: #fff; background: #194f37; cursor: pointer; transition: all 0.2s;}
+
+.groupCreateForm .btnSubmit:hover {background: #0f3d26;}
+
+.groupCreateForm .btnSubmit:disabled {opacity: 0.5; cursor: not-allowed;}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .groupCreateForm {padding: 0 16px;}
+
+    .groupCreateForm .formSection {padding: 16px;}
+
+    .groupCreateForm .formActions {flex-direction: column-reverse;}
+
+    .groupCreateForm .btnCancel,
+    .groupCreateForm .btnSubmit {width: 100%;}
+}
