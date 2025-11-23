@@ -37,7 +37,7 @@
       </a>
     </li>
     <li>
-      <a href="#">
+      <a href="/community">
         <div class="iconBox">
           <img src="/images/ico_chat.png" alt="커뮤니티" />
         </div>
