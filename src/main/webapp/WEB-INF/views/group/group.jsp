@@ -17,7 +17,7 @@
 
         <%-- section page--%>
         <section class="section section01">
-
+            그룹입니다
         </section>
 
 
