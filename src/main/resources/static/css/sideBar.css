@@ -1,7 +1,7 @@
-.lnb {flex-shrink: 0; padding: 42px 0; width: 250px; height: calc(100%); background: #fff; border-right: 1px solid #e3e6e9; box-sizing: border-box;}
+.lnb {flex-shrink: 0; padding: 22px 0; width: 250px; height: calc(100%); background: #fff; border-right: 1px solid #e3e6e9; box-sizing: border-box;}
 
 .menu {display: flex; flex-direction: column; justify-content: center; align-items: flex-start; width: 100%;}
-.menu > li {padding: 0 30px; width: 100%; box-sizing: border-box; transition: all 0.3s;}
+.menu > li {padding: 0 15px; width: 100%; box-sizing: border-box; transition: all 0.3s;}
 .menu > li:hover {background: #e3e6e9;}
 .menu > li.active {}
 .menu > li.line {margin: 10px auto; width: 92%; height: 1px; background: #e3e6e9; border-radius: 8px; box-sizing: border-box; }
@@ -10,3 +10,11 @@
 .menu > li > a .iconBox {height: 26px;}
 .menu > li > a .iconBox > img {height: 100%; object-fit: contain;}
 .menu > li > a > span {display: flex; align-items: center; text-align: center; font-size: 16px;}
+
+
+
+@media (max-width: 1440px){
+    .lnb {width: 184px}
+    .menu > li > a .iconBox {height: 22px}
+    .menu > li > a > span {font-size: 15px}
+}
