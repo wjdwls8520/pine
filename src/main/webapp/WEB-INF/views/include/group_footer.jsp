@@ -24,7 +24,7 @@
         // 1. 조건 비교
         if (path === "/group") {
             menu.innerHTML = `
-                <li><a href="/group/create">글쓰기</a></li>
+                <li><a href="/group/gcreate">글쓰기</a></li>
                 <li><a>맨위로</a></li>
             `;
         } else if (path === "/group/gcreate") {

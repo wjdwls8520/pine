@@ -16,11 +16,20 @@
 
         <%-- section page--%>
         <section class="section groupMain">
-            그룹크리에이트
+            <h2 class="bigTitle">그룹 만들기</h2>
+
+            <div class="contentsWrap">
+
+            </div>
         </section>
 
 
 
-    </article
+    </article>
+    <script src="/js/groupjs/group_common.js"></script>
+    <script>
+        // 카테고리가져오는 에이잭스
+        getCategory();
+    </script>
 </div>
 <jsp:include page="../include/group_footer.jsp"></jsp:include>
