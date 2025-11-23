@@ -1,4 +1,4 @@
-package com.site.pine.entity;
+package com.site.pine.entity.group;
 
 import jakarta.persistence.*;
 import lombok.Data;
