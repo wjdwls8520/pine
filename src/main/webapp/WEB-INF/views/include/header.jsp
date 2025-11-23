@@ -2,7 +2,7 @@
 <header id="header">
     <div class="inner">
         <h1 class="logo">
-            <a href="#">
+            <a href="/">
                 <img src="/images/pine_logo.png" alt="로고(pine)" />
             </a>
         </h1>
