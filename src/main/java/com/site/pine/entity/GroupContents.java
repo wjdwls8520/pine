@@ -3,6 +3,9 @@ package com.site.pine.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.sql.Timestamp;
 
 @Entity
 @Data
@@ -32,7 +35,18 @@ public class GroupContents {
     private Integer autoJoin = 1;
 
     @Comment("그룹의 가입 승인 여부, 기본값은 10명")
+    @Column(nullable = false)
     private Integer userLimit = 10;
+
+    @Comment("오늘 하루 방문자 수")
+    @Column(nullable = false)
+    private Integer todayView = 0;
+
+    @Comment("그룹 생성 날짜")
+    @CreationTimestamp
+    private Timestamp indate;
+
+
 
 
 }
