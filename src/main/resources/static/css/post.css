@@ -1,0 +1,56 @@
+/*           포스트리스트      */
+.pageTitle {margin:20px 0;}
+.commuSection {display: flex; justify-content: start;gap:20px;}
+.postSection{}
+.postSection .postBox {width: 700px;border: 1px solid #ccc;}
+.postSection .postBox .postInner {padding:20px;}
+.postSection .postBox .postWrap {}
+
+.postSection .postBox .postWrap .postTop {display:flex;justify-content:space-between;align-items:center;}
+.postSection .postBox .postWrap .postTop .postInfo {display: flex;
+    align-items: center;}
+.postSection .postBox .postWrap .postTop .postProfileImgBox {width:40px;height:40px;border-radius:50%;border: 1px solid #ccc;overflow: hidden;}
+.postSection .postBox .postWrap .postTop .postProfileImgBox .profileImg {width: 100%;height: 40px;object-fit: cover}
+.postSection .postBox .postWrap .postTop .userNick{margin:0 20px 0 10px}
+
+.postSection .postBox .postWrap .postMiddle {    margin: 20px 0;}
+.postSection .postBox .postWrap .postMiddle .postImgBox{}
+.postSection .postBox .postWrap .postMiddle .postImg{    border: 1px solid #ccc;
+    width: 500px;
+    height: 500px;
+    margin-top: 20px;}
+
+.postSection .postBox .postWrap .postBottom{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;}
+
+/*---그룹랭크---*/
+.groupSection {width: 250px;
+    height: 500px;
+    border: 1px solid #ccc;}
+
+.groupSection .inner {padding:20px;}
+.groupSection .bestGroupTitle {margin-bottom: 10px;}
+
+.bestGroupList > li > a{    display: flex;
+    gap: 10px;}
+.groupSection .bestGroupList .bGroupImg{width: 30px;
+    height: 30px;border-radius: 50%;overflow: hidden;}
+.groupSection .bestGroupList .bGroupImg img{width: 100%;
+    height: 30px; object-fit: cover;}
+.bestGroupList .bGroupInfo{display: flex;flex-direction: column;}
+
+
+/*//////////////////////*/
+/*       포스트작성       */
+
+
+
+
+/*//////////////////////*/
+.commuCreate {width:700px;border:1px solid #ccc;}
+.commuCreate .pCategorySelect {border:1px solid #ccc;}
+.commuCreate .pMideaUploadBox {border:1px solid #ccc;}
+.commuCreate .pTxtBox {border:1px solid #ccc;}
+.commuCreate .btnPost {border:1px solid #ccc;}
