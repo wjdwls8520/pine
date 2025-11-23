@@ -4,3 +4,7 @@
 #footer .inner > ul > li > a {font-size: 14px; font-weight: 700; color: #fff;}
 #footer .inner > .copy {display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 0px;;}
 #footer .inner > .copy > span { font-size: 11px; color: #e3e6e9}
+
+#footer.subFooter .inner > ul {justify-content: center; gap: 22px; width: 100%;}
+#footer.subFooter .inner > ul > li {padding: 3px 10px; background: #ffffff; border-radius: 4px; box-sizing: border-box;}
+#footer.subFooter .inner > ul > li > a {color: #194f37}
