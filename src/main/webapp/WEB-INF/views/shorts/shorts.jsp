@@ -19,6 +19,7 @@
         <section class="section section01">
             <div class="shorts-page">
                 <div class="shorts-video">
+<%--                    <video src="video1.mp4" autoplay muted loop playsinline></video>--%>
                     <div class="comment-btn" onclick="openComments()">댓글</div>
                 </div>
             </div>

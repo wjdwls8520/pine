@@ -1,11 +1,19 @@
+body {
+    margin: 0;
+    background: #f5f5f5;
+    font-family: Arial, sans-serif;
+}
+
+/* 전체 화면을 정확히 한 페이지로 */
 .section01 {
-    height: calc(100vh - 48px);
+    height: calc(100vh - 48px); /* 헤더 제외하고 정확히 한 화면 */
     display: flex;
     justify-content: center;
     align-items: center;
     padding-top: 40px;
 }
 
+/* 가운데 쇼츠를 정렬 */
 .shorts-page {
     display: flex;
     justify-content: center;
@@ -14,22 +22,15 @@
     height: 100%;
 }
 
-/* 핵심: 비디오 9:16 비율 유지 */
+/* 핵심: 비디오를 유튜브 쇼츠처럼 9:16 비율 유지 */
 .shorts-video {
-    aspect-ratio: 9 / 16;             /* 유튜브 쇼츠 비율 */
-    height: 100%;                      /* 화면 높이 기준 */
-    max-height: 100%;                  /* 화면 넘어가지 않도록 */
-    max-width: calc((100vh - 48px) * 9 / 16); /* 높이 기반으로 너비 자동 계산 */
+    aspect-ratio: 9 / 16;       /* 비율 유지 */
+    height: 100%;               /* 남는 공간을 채움 */
+    max-height: 100%;           /* 화면을 넘지 않도록 */
+    max-width: calc((100vh - 48px) * 9 / 16); /* 화면 기준 너비 자동 계산 */
     background: black;
     border-radius: 12px;
     position: relative;
-    overflow: hidden;
-}
-
-.shorts-video video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 }
 
 /* 댓글 버튼 */
