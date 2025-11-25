@@ -1,51 +1,187 @@
-body {
-    margin: 0;
-    background: #f5f5f5;
-    font-family: Arial, sans-serif;
+:root {
+    --shorts-bg: #f5f6f9;
+    --card-shadow: 0 30px 45px rgba(15, 23, 42, 0.25);
+    --panel-shadow: -12px 0 30px rgba(15, 23, 42, 0.08);
+    --primary: #4f46e5;
+    --accent: #ff595a;
 }
 
-/* 전체 화면을 정확히 한 페이지로 */
-.section01 {
-    height: calc(100vh - 48px); /* 헤더 제외하고 정확히 한 화면 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-top: 40px;
+* {
+    box-sizing: border-box;
 }
 
-/* 가운데 쇼츠를 정렬 */
-.shorts-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+html, body {
     height: 100%;
 }
 
-/* 핵심: 비디오를 유튜브 쇼츠처럼 9:16 비율 유지 */
-.shorts-video {
-    aspect-ratio: 9 / 16;       /* 비율 유지 */
-    height: 100%;               /* 남는 공간을 채움 */
-    max-height: 100%;           /* 화면을 넘지 않도록 */
-    max-width: calc((100vh - 48px) * 9 / 16); /* 화면 기준 너비 자동 계산 */
-    background: black;
-    border-radius: 12px;
+body {
+    margin: 0;
+    background: var(--shorts-bg);
+    font-family: "Pretendard", "Noto Sans KR", sans-serif;
+    color: #111827;
+}
+
+.article.workspace.shorts {
+    background: var(--shorts-bg);
+}
+
+.section01 {
+    height: calc(100vh - 48px);
+    padding: 32px 0 32px 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.shorts-feed {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    padding-right: 140px;
+}
+
+.shorts-feed::-webkit-scrollbar {
+    width: 6px;
+}
+
+.shorts-feed::-webkit-scrollbar-thumb {
+    background: rgba(17, 24, 39, 0.25);
+    border-radius: 3px;
+}
+
+.shorts-card {
+    scroll-snap-align: start;
+    min-height: calc(100vh - 48px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
 }
 
-/* 댓글 버튼 */
-.comment-btn {
-    position: absolute;
-    bottom: 0px;
-    right: -90px;
-    background: #ff5252;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 8px;
-    cursor: pointer;
+.card-inner {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    position: relative;
 }
 
-/* 댓글 패널 */
+.user-panel {
+    position: absolute;
+    left: -220px;
+    width: 200px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px 20px;
+    box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
+}
+
+.avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--primary);
+    margin-bottom: 12px;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-meta strong {
+    display: block;
+    font-size: 17px;
+    color: #0f172a;
+}
+
+.user-meta span {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.user-meta p {
+    margin: 10px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #4b5563;
+}
+
+.video-shell {
+    width: 420px;
+    max-width: 430px;
+    aspect-ratio: 9 / 16;
+    border-radius: 26px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+    box-shadow: var(--card-shadow);
+}
+
+.video-shell video,
+.video-shell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.action-panel {
+    position: absolute;
+    right: -120px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.action-btn {
+    width: 96px;
+    border: none;
+    outline: none;
+    border-radius: 28px;
+    padding: 14px 8px;
+    background: #fff;
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.action-btn span {
+    font-weight: 600;
+    font-size: 14px;
+    color: #0f172a;
+}
+
+.action-btn em {
+    font-style: normal;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.action-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.2);
+}
+
+.action-btn.comment-toggle {
+    background: var(--accent);
+}
+
+.action-btn.comment-toggle span,
+.action-btn.comment-toggle em {
+    color: #fff;
+}
+
 .comments-panel {
     position: fixed;
     top: 48px;
@@ -53,21 +189,112 @@ body {
     width: 420px;
     height: calc(100vh - 48px);
     background: #fff;
-    box-shadow: -2px 0 6px rgba(0,0,0,0.2);
+    border-left: 1px solid #e5e7eb;
+    box-shadow: var(--panel-shadow);
     transform: translateX(100%);
     transition: transform 0.3s ease;
-    padding: 20px;
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    padding: 0 24px 24px;
 }
 
 .comments-panel.open {
     transform: translateX(0);
 }
 
-.close-btn {
-    cursor: pointer;
-    padding: 10px;
-    font-size: 16px;
-    background: #eee;
-    border-radius: 6px;
-    display: inline-block;
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 24px 0 18px;
+    border-bottom: 1px solid #f1f5f9;
 }
+
+.panel-title strong {
+    display: block;
+    font-size: 18px;
+    color: #0f172a;
+}
+
+.panel-title span {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.close-btn {
+    border: none;
+    background: #e2e8f0;
+    border-radius: 999px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.panel-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-top: 24px;
+}
+
+.comment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    overflow-y: auto;
+}
+
+.comment-list li {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: inset 0 0 0 1px #edf2f7;
+}
+
+.comment-list b {
+    display: block;
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+.comment-list p {
+    margin: 0;
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.5;
+}
+
+.comment-input {
+    margin-top: auto;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 16px;
+    display: flex;
+    gap: 12px;
+}
+
+.comment-input input {
+    flex: 1;
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+.comment-input button {
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
