@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
@@ -40,7 +41,7 @@ public class Post {
     private Timestamp writeDate;
 
     @Comment("수정 날짜")
-    @CreationTimestamp
+    @UpdateTimestamp
     private Timestamp updateDate;
 
 
