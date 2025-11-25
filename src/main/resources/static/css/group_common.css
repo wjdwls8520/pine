@@ -119,18 +119,29 @@
 
 .groupCreateForm .uploadButton:hover {background: #194f37; color: #fff;}
 
-/* 폼 액션 버튼 */
-.groupCreateForm .formActions {display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #e3e6e9;}
+/* 스텝 인디케이터 */
+.groupCreateForm .stepIndicator {display: flex; align-items: center; gap: 16px; margin-bottom: 32px;}
 
-.groupCreateForm .btnCancel {padding: 12px 24px; border: 1px solid #e3e6e9; border-radius: 6px; font-size: 16px; font-weight: 500; color: #272B27; background: #fff; cursor: pointer; transition: all 0.2s;}
+.groupCreateForm .stepItem {flex: 1; display: flex; align-items: center; gap: 12px; padding: 14px 18px; border: 1px solid #e3e6e9; border-radius: 10px; background: #fff; transition: border-color 0.2s, background 0.2s;}
 
-.groupCreateForm .btnCancel:hover {background: #f8f8f8; border-color: #cdd8cd;}
+.groupCreateForm .stepNumber {display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #cdd8cd; font-weight: 600; color: #6b7280;}
 
-.groupCreateForm .btnSubmit {padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; color: #fff; background: #194f37; cursor: pointer; transition: all 0.2s;}
+.groupCreateForm .stepLabel {font-size: 15px; font-weight: 500; color: #6b7280;}
 
-.groupCreateForm .btnSubmit:hover {background: #0f3d26;}
+.groupCreateForm .stepItem.active {border-color: #194f37; background: #f0f9f4;}
 
-.groupCreateForm .btnSubmit:disabled {opacity: 0.5; cursor: not-allowed;}
+.groupCreateForm .stepItem.active .stepNumber {border-color: #194f37; color: #194f37;}
+
+.groupCreateForm .stepItem.active .stepLabel {color: #194f37;}
+
+.groupCreateForm .stepItem.completed .stepNumber {border-color: #194f37; background: #194f37; color: #fff;}
+
+.groupCreateForm .stepItem.completed .stepLabel {color: #272B27;}
+
+/* 단계별 섹션 */
+.groupCreateForm .formStep {display: none;}
+
+.groupCreateForm .formStep.active {display: block;}
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
@@ -138,8 +149,7 @@
 
     .groupCreateForm .formSection {padding: 16px;}
 
-    .groupCreateForm .formActions {flex-direction: column-reverse;}
+    .groupCreateForm .stepIndicator {flex-direction: column;}
 
-    .groupCreateForm .btnCancel,
-    .groupCreateForm .btnSubmit {width: 100%;}
+    .groupCreateForm .stepItem {width: 100%;}
 }

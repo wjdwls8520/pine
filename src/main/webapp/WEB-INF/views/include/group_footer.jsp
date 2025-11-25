@@ -1,8 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<footer id="footer" class="subFooter">
+<footer id="footer" class="subFooter groupFooter">
     <div class="inner">
-        <ul id="bindingTag">
-        </ul>
+        <div class="formActions" id="formActions"></div>
     </div>
 </footer>
 
@@ -16,33 +15,68 @@
 
     }
 
+    function moveGcreate() {
+        return location.href='/group/gcreate';
+    }
+
+    function createGroup() {
+        alert("해당 내용으로 그룹을 만드시겠습니까?");
+    }
+
     window.addEventListener("load", () => {
 
         // 메뉴가 들어갈 div
-        const menu = document.getElementById("bindingTag");
+        const formActions = document.getElementById("formActions");
 
         // 1. 조건 비교
         if (path === "/group") {
-            menu.innerHTML = `
-                <li><a href="/group/gcreate">글쓰기</a></li>
-                <li><a>맨위로</a></li>
-            `;
+            if (formActions) {
+                formActions.innerHTML = `
+                    <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
+                    <div class="stepButtons">
+                        <button type="button" class="btnWH btnSubmit" id="" onclick="moveGcreate();">그룹 만들기</button>
+                    </div>
+                `;
+            }
         } else if (path === "/group/gcreate") {
-            menu.innerHTML = `
-                <li><a onclick="testFnc(); return false;">등록하기</a></li>
-                <li><a href="/group">취소</a></li>
-            `;
+            if (formActions) {
+                formActions.innerHTML = `
+                    <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
+                    <div class="stepButtons">
+                        <button type="button" class="btnWH btnPrev" id="prevStepBtn" disabled>이전</button>
+                        <button type="button" class="btnWH btnNext" id="nextStepBtn">다음</button>
+                        <button type="submit" class="btnWH btnSubmit hidden" id="submitBtn" onclick="createGroup();">그룹 만들기</button>
+                    </div>
+                `;
+
+                if (typeof window.handleGroupButtonsReady === "function") {
+                    window.handleGroupButtonsReady();
+                }
+            }
         } else if (path === "/group/gupdate") {
-            menu.innerHTML = `
-                <li><a onclick="testFnc(); return false;">수정 완료</a></li>
-                <li><a onclick="testFnc(); return false">취소</a></li>
-                <li><a onclick="testFnc(); return false;">삭제</a></li>
-            `;
+            if (formActions) {
+                formActions.innerHTML = `
+                    <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
+                    <div class="stepButtons">
+                        <button type="button" class="btnWH btnPrev" id="prevStepBtn" disabled>이전</button>
+                        <button type="button" class="btnWH btnNext" id="nextStepBtn">다음</button>
+                        <button type="submit" class="btnWH btnSubmit hidden" id="submitBtn" onclick="createGroup();">그룹 수정하기</button>
+                    </div>
+                `;
+
+                if (typeof window.handleGroupButtonsReady === "function") {
+                    window.handleGroupButtonsReady();
+                }
+            }
         } else if (path === "/group/detail") {
-            menu.innerHTML = `
-                <li><a onclick="testFnc(); return false">수정 하기</a></li>
-                <li><a href="/group">취소</a></li>
-            `;
+            if (formActions) {
+                formActions.innerHTML = `
+                    <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
+                    <div class="stepButtons">
+                        <button type="button" class="btnWH btnNext" id="" onclick="moveGcreate();">수정하기</button>
+                    </div>
+                `;
+            }
         }
     });
 </script>
