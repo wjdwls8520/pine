@@ -13,7 +13,7 @@
         <div class="util">
 <%--                <a href="#">Logout</a>--%>
 <%--                <a href="#">MyPage</a>--%>
-            <a href="#">Login</a>
+            <a href="/login">Login</a>
             <a href="#" class="join">Join</a>
         </div>
     </div>
