@@ -5,12 +5,10 @@ import com.site.pine.repository.MemberRepository;
 import com.site.pine.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -21,7 +19,10 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import org.json.JSONObject;
 
 
@@ -59,13 +60,22 @@ public class MemberController {
         response.sendRedirect(naverUrl); // 브라우저를 네이버 로그인 페이지로 이동
     }
 
-    @GetMapping("/auth/naver/callback")
+    @GetMapping("/naver/callback")
     public String callback(@RequestParam String code,
                            @RequestParam String state,
                            HttpServletRequest request)  {
 
+        System.out.println("code: " + code);
+        System.out.println("state: " + state);
+        System.out.println("request: " + request);
+
         // 1) 토큰 요청
         String tokenUrl = "https://nid.naver.com/oauth2.0/token";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.set("charset", "UTF-8");
+
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
@@ -73,39 +83,72 @@ public class MemberController {
         params.add("code", code);
         params.add("state", state);
 
+        HttpEntity<MultiValueMap<String, String>> requestEntity =
+                new HttpEntity<>(params, headers);
+
         RestTemplate rt = new RestTemplate();
-        HttpEntity<MultiValueMap<String, String>> req = new HttpEntity<>(params);
-        ResponseEntity<String> tokenRes = rt.postForEntity(tokenUrl, req, String.class);
+        ResponseEntity<String> tokenRes =
+                rt.exchange(tokenUrl, HttpMethod.POST, requestEntity, String.class);
+
+        System.out.println("tokenRes: " + tokenRes.getBody());
 
         // 2) access_token으로 사용자 정보 가져오기
         String accessToken = new JSONObject(tokenRes.getBody()).getString("access_token");
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
+        HttpHeaders headers1 = new HttpHeaders();
+        headers1.add("Authorization", "Bearer " + accessToken);
         ResponseEntity<String> userRes = rt.exchange(
                 "https://openapi.naver.com/v1/nid/me",
                 HttpMethod.GET,
-                new HttpEntity<>(headers),
+                new HttpEntity<>(headers1),
                 String.class
         );
 
         // 3) 사용자 정보 DB 처리
         JSONObject profile = new JSONObject(userRes.getBody()).getJSONObject("response");
+
+        System.out.println(profile);
         String email = profile.getString("email");
 
         Member member = mr.findByEmail(email);
 
         if(member == null){
+            Map<String, Object> naveruserinfo = new HashMap<>();
+            naveruserinfo.put("email", profile.optString("email"));
+            naveruserinfo.put("name", profile.optString("name"));
+            naveruserinfo.put("profile_image", profile.optString("profile_image"));
+            naveruserinfo.put("phone", profile.optString("mobile"));
+            naveruserinfo.put("provider", "NAVER");
+            request.getSession().setAttribute("naveruserinfo", naveruserinfo);
             return "member/jointerms";
+        }else{
+            request.getSession().setAttribute("member", member);
+            return "index";
         }
 
+    }
 
-        // memberService.loginOrRegister(email, ...);
 
-        // 4) 세션에 로그인 정보 저장
-        request.getSession().setAttribute("loginUserEmail", email);
+    @GetMapping("/goJoin")
+    public String goJoin(HttpServletRequest request) {
 
-         //5) JSP 페이지로 이동
-        return "redirect:/index.jsp";  // 메인 페이지로 이동
+        Date today = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = sdf.format(today);
+
+        HttpSession session = request.getSession(false);
+
+        if(session != null){
+            Map<String , Object> loginInfo = (Map<String, Object>)session.getAttribute("naveruserinfo");
+            loginInfo.put("terms_agreed", 1);
+            loginInfo.put("terms_agreed_date", formattedDate);
+
+            request.getSession().setAttribute("naveruserinfo", loginInfo);
+
+        }else {
+            System.out.println("세션이 없음");
+        }
+
+        return "member/join";
     }
 
 
