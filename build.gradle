@@ -53,6 +53,9 @@ dependencies {
     // JSONObject(네이버 로그인 토큰용)
     implementation 'org.json:json:20230227'
 
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
 }
 
 tasks.named('test') {
