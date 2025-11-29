@@ -10,18 +10,6 @@
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
     <article class="article workspace commuCreatePage">
-<%--        <header class="createHero">--%>
-<%--            <div>--%>
-<%--                <p class="createEyebrow">Pine Commu · Powered by Tiptap</p>--%>
-<%--                <h2 class="createTitle">레딧 감성으로 새로운 스레드를 시작하세요</h2>--%>
-<%--                <p class="createSubtitle">slash command, 미디어 업로드, 업보트 친화적 본문까지 한 번에 작성 가능합니다.</p>--%>
-<%--            </div>--%>
-<%--            <div class="heroActions">--%>
-<%--                <button type="button" class="ghostButton">임시저장</button>--%>
-<%--                <button type="button" class="ghostButton">미리보기</button>--%>
-<%--            </div>--%>
-<%--        </header>--%>
-
         <form class="createForm" id="commuCreateForm" method="post" action="/community/cCreate">
             <section class="formGrid">
                 <div class="formMain">
@@ -39,29 +27,10 @@
 <%--                        <input id="postTitle" type="text" class="fieldControl" placeholder="제목을 입력하세요" />--%>
 <%--                    </div>--%>
 
-                    <div class="editorShell">
-                        <div class="editorToolbar">
-                            <button type="button" data-editor-action="bold">B</button>
-                            <button type="button" data-editor-action="italic"><em>I</em></button>
-                            <button type="button" data-editor-action="strike">S</button>
-                            <span class="toolbarDivider"></span>
-                            <button type="button" data-editor-action="heading" data-heading-level="2">H2</button>
-                            <button type="button" data-editor-action="heading" data-heading-level="3">H3</button>
-                            <button type="button" data-editor-action="bullet-list">• list</button>
-                            <button type="button" data-editor-action="ordered-list">1. list</button>
-                            <button type="button" data-editor-action="blockquote">“”</button>
-                            <button type="button" data-editor-action="code-block">{ }</button>
-                            <span class="toolbarDivider"></span>
-                            <button type="button" data-editor-action="undo">↺</button>
-                            <button type="button" data-editor-action="redo">↻</button>
-                        </div>
-                        <div id="tiptapEditor"></div>
-                        <div class="editorFooter">
-                            <span class="editorHint">텍스트는 Tiptap 영역에서 작성됩니다.</span>
-                            <span id="tiptapCharCount" class="charCount">0 / 10,000</span>
-                        </div>
-                        <input type="hidden" id="tiptapContentInput" name="bodyHtml" />
-                        <input type="hidden" id="tiptapJsonInput" name="bodyJson" />
+                    <div class="fieldGroup">
+                        <label for="postBody" class="fieldLabel">본문</label>
+                        <textarea id="postBody" class="fieldControl" name="bodyHtml" rows="12"
+                                  placeholder="본문을 입력하세요."></textarea>
                     </div>
 
                     <section class="mediaManager">
@@ -147,7 +116,6 @@
     </article>
 </div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
-<script type="module" src="/js/tiptap.bundle.js"></script>
 </body>
 </html>
 

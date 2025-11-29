@@ -32,7 +32,10 @@
                                             <img class="profileImg" src="/images/banner02.png" />
                                         </div>
                                         <div class="userNick">둘리둘리짱</div>
-                                        <div class="postTime">${post.updateDate}</div>
+                                        <div id="timeAgo" class="postTime relative-time"
+                                             data-write-date="${post.updateDate}">
+                                            ${post.updateDate}
+                                        </div>
                                     </div>
                                     <div class="moreIcon">...</div>
                                 </div>
@@ -87,3 +90,4 @@
     </article
 </div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
+<script src="/js/timeAgo.js"></script>
