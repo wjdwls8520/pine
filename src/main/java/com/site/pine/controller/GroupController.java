@@ -1,17 +1,19 @@
 package com.site.pine.controller;
 
+import com.site.pine.dto.community.PostResDto;
 import com.site.pine.dto.group.GroupCategoryDto;
 import com.site.pine.dto.group.GroupContentReqDto;
+import com.site.pine.dto.group.GroupContentResDto;
 import com.site.pine.service.GroupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 @Controller
@@ -23,9 +25,21 @@ public class GroupController {
     // 그룹페이지화면
     @GetMapping("/group")
     public String groups(){
-
         return "group/group";
     }
+    @GetMapping("/group/{page}")
+    @ResponseBody
+    public HashMap<String, Object> getAllGroups(@PathVariable("page") Integer page) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        // 초기 페이지는 첫 페이지(0페이지)만 가져오기
+        HashMap<String, Object> gorupsResDto = gs.getAllGroups(page);
+
+        result.put("resDto", gorupsResDto);
+        return result;
+    }
+
+
 
     //그룹 생성
     @GetMapping("/group/gcreate")

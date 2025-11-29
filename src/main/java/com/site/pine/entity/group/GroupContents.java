@@ -56,14 +56,15 @@ public class GroupContents {
 
     @Comment("그룹 멤버 수")
     @Column(nullable = false)
-    private Integer gMemberCount = 0;
+    private Integer groupMemberCount = 0;
 
     @Comment("그룹 생성 날짜")
     @CreationTimestamp
     private Timestamp indate;
 
-    @OneToOne
-    @JoinColumn(name = "file_id")
-    private File files;
+    @Comment("그룹 대표 이미지 1장")
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "file_id", nullable = false)
+    private File file;
 
 }

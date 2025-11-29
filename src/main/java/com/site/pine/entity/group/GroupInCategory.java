@@ -11,9 +11,10 @@ public class GroupInCategory {
     private Long id;
 
     private Integer categoryId;
-    private String categoryName;
+    private String categoryNameKor;
+    private String categoryNameEng;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="groupContents")
     private GroupContents groupContents;
 }
