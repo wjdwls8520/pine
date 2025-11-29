@@ -12,5 +12,10 @@ public class ShortsController {
         return "shorts/shorts";
     }
 
+    @GetMapping("/shorts/shortsUpload")
+    public String shortsUpload(){
+
+        return "shorts/shortsUpload";
+    }
 
 }

@@ -307,6 +307,24 @@
     function closeComments() {
         document.getElementById("commentsPanel").classList.remove("open");
     }
+
+    document.body.addEventListener("click", function (e) {
+        const commentsPanel = document.getElementById("commentsPanel");
+
+        // 패널이 없거나 열려있지 않으면 무시
+        if (!commentsPanel || !commentsPanel.classList.contains("open")) return;
+
+        // 패널 외부 + 댓글 버튼이 아닐 때만 닫기
+        if (
+            !commentsPanel.contains(e.target) &&
+            !e.target.closest(".comment-toggle")
+        ) {
+            // 부드럽게 닫히도록 살짝 딜레이
+            setTimeout(() => {
+                commentsPanel.classList.remove("open");
+            }, 50);
+        }
+    });
 </script>
 
 <jsp:include page="../include/shorts_footer.jsp"></jsp:include>
