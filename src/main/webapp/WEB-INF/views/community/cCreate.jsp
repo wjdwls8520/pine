@@ -4,66 +4,40 @@
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
     <link rel="stylesheet" href="/css/post.css">
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
 </head>
 <body>
+
 <jsp:include page="../include/header.jsp"></jsp:include>
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
-    <article class="article workspace commuCreatePage">
-<%--        <header class="createHero">--%>
-<%--            <div>--%>
-<%--                <p class="createEyebrow">Pine Commu · Powered by Tiptap</p>--%>
-<%--                <h2 class="createTitle">레딧 감성으로 새로운 스레드를 시작하세요</h2>--%>
-<%--                <p class="createSubtitle">slash command, 미디어 업로드, 업보트 친화적 본문까지 한 번에 작성 가능합니다.</p>--%>
-<%--            </div>--%>
-<%--            <div class="heroActions">--%>
-<%--                <button type="button" class="ghostButton">임시저장</button>--%>
-<%--                <button type="button" class="ghostButton">미리보기</button>--%>
-<%--            </div>--%>
-<%--        </header>--%>
 
+    <article class="article workspace commuCreatePage">
         <form class="createForm" id="commuCreateForm" method="post" action="/community/cCreate">
             <section class="formGrid">
                 <div class="formMain">
+
+<%--                카테고리--%>
                     <div class="fieldGroup">
-                        <label for="communitySelect" class="fieldLabel">커뮤니티</label>
+                        <label for="communitySelect" class="fieldLabel">카테고리</label>
                         <select id="communitySelect" class="fieldControl" name="category">
-                            <option value="1">r/pinecommunity</option>
-                            <option value="2">r/kculturetalk</option>
-                            <option value="3">r/kpopdaily</option>
+                            <option value="1">General</option>
+                            <option value="2">Travel</option>
+                            <option value="3">K-POP</option>
+                            <option value="4">Trend</option>
+                            <option value="5">Game</option>
+                            <option value="6">Ask</option>
                         </select>
                     </div>
 
-<%--                    <div class="fieldGroup">--%>
-<%--                        <label for="postTitle" class="fieldLabel">제목</label>--%>
-<%--                        <input id="postTitle" type="text" class="fieldControl" placeholder="제목을 입력하세요" />--%>
-<%--                    </div>--%>
-
-                    <div class="editorShell">
-                        <div class="editorToolbar">
-                            <button type="button" data-editor-action="bold">B</button>
-                            <button type="button" data-editor-action="italic"><em>I</em></button>
-                            <button type="button" data-editor-action="strike">S</button>
-                            <span class="toolbarDivider"></span>
-                            <button type="button" data-editor-action="heading" data-heading-level="2">H2</button>
-                            <button type="button" data-editor-action="heading" data-heading-level="3">H3</button>
-                            <button type="button" data-editor-action="bullet-list">• list</button>
-                            <button type="button" data-editor-action="ordered-list">1. list</button>
-                            <button type="button" data-editor-action="blockquote">“”</button>
-                            <button type="button" data-editor-action="code-block">{ }</button>
-                            <span class="toolbarDivider"></span>
-                            <button type="button" data-editor-action="undo">↺</button>
-                            <button type="button" data-editor-action="redo">↻</button>
-                        </div>
-                        <div id="tiptapEditor"></div>
-                        <div class="editorFooter">
-                            <span class="editorHint">텍스트는 Tiptap 영역에서 작성됩니다.</span>
-                            <span id="tiptapCharCount" class="charCount">0 / 10,000</span>
-                        </div>
-                        <input type="hidden" id="tiptapContentInput" name="bodyHtml" />
-                        <input type="hidden" id="tiptapJsonInput" name="bodyJson" />
+<%--                    본문    --%>
+                    <div class="fieldGroup">
+                        <label for="postBody" class="fieldLabel">본문</label>
+                        <div id="editor"></div>
+                        <textarea id="postBody" name="postBody" hidden></textarea>
                     </div>
 
+<%--                        업로드--%>
                     <section class="mediaManager">
                         <div class="mediaHeader">
                             <div>
@@ -100,54 +74,20 @@
                         </div>
                     </div>
 
-<%--                    <div class="toggleRow">--%>
-<%--                        <label class="toggleItem">--%>
-<%--                            <input type="checkbox" checked /> 댓글 허용--%>
-<%--                        </label>--%>
-<%--                        <label class="toggleItem">--%>
-<%--                            <input type="checkbox" /> 스포일러--%>
-<%--                        </label>--%>
-<%--                        <label class="toggleItem">--%>
-<%--                            <input type="checkbox" /> NSFW--%>
-<%--                        </label>--%>
-<%--                    </div>--%>
-
                     <div class="submitRow">
                         <button type="button" class="ghostButton">취소</button>
                         <button type="submit" class="primaryButton">게시하기</button>
                     </div>
+
                 </div>
-
-<%--                <aside class="formSidebar">--%>
-<%--                    <div class="guideCard">--%>
-<%--                        <h3>커뮤니티 가이드</h3>--%>
-<%--                        <ul>--%>
-<%--                            <li>커뮤니티 주제와 맞는 내용을 올려주세요.</li>--%>
-<%--                            <li>근거 없는 주장보다 팩트·출처를 명시하면 업보트 상승!</li>--%>
-<%--                            <li>slash 명령으로 블록을 빠르게 바꿔보세요.</li>--%>
-<%--                        </ul>--%>
-<%--                    </div>--%>
-
-<%--                    <div class="previewCard">--%>
-<%--                        <div class="previewHeader">--%>
-<%--                            <span class="badge">미리보기</span>--%>
-<%--                            <span>r/pinecommunity</span>--%>
-<%--                        </div>--%>
-<%--                        <p class="previewHint">작성 중인 내용이 여기에 표시됩니다.</p>--%>
-<%--                        <div class="previewMeta">--%>
-<%--                            <span>⬆ 0</span>--%>
-<%--                            <span>💬 0</span>--%>
-<%--                            <span>저장 0</span>--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
-<%--                </aside>--%>
 
             </section>
         </form>
     </article>
 </div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
-<script type="module" src="/js/tiptap.bundle.js"></script>
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script src="/js/toastUI.js"></script>
 </body>
 </html>
 

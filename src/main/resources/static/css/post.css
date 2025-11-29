@@ -52,7 +52,7 @@
 .commuCreate .pTxtBox {border:1px solid #ccc;}
 .commuCreate .btnPost {border:1px solid #ccc;}
 
-/* ========= Tiptap create page ========= */
+/* ========= 커뮤니티 작성 페이지 ========= */
 .commuCreatePage {
     width: 100%;
     padding: 40px 48px 80px;
@@ -149,69 +149,6 @@
     font-size: 15px;
     color: #0f172a;
     background: #fff;
-}
-
-.editorShell {
-    border: 1px solid #e0e7ff;
-    border-radius: 26px;
-    background: #f8fafc;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.editorToolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.editorToolbar button {
-    border: 1px solid #cbd5f5;
-    background: #fff;
-    border-radius: 12px;
-    padding: 8px 12px;
-    font-weight: 600;
-    color: #475569;
-    cursor: pointer;
-}
-
-.toolbarDivider {
-    width: 1px;
-    background: #e2e8f0;
-    margin: 0 4px;
-}
-
-#tiptapEditor {
-    min-height: 240px;
-    background: #fff;
-    border-radius: 18px;
-    padding: 20px;
-    border: 1px solid #e2e8f0;
-}
-
-.tiptapProse {
-    min-height: 200px;
-    outline: none;
-}
-
-.editorFooter {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 4px;
-}
-
-.editorHint {
-    font-size: 13px;
-    color: #94a3b8;
-}
-
-.charCount {
-    font-size: 13px;
-    font-weight: 600;
-    color: #475569;
 }
 
 .mediaManager {

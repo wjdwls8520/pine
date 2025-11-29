@@ -22,7 +22,7 @@ public class CommunityService {
     public void insertPost(PostReqDto reqDto) {
         Post postEntity = new Post();
         postEntity.setCategory(reqDto.getCategory());
-        postEntity.setContent(reqDto.getBodyHtml());
+        postEntity.setContent(reqDto.getPostBody());
         postEntity.setStatus(reqDto.getStatus());
         cr.save(postEntity);
     }
@@ -30,7 +30,7 @@ public class CommunityService {
     public List<PostResDto> getAllPost() {
         List<PostResDto> resDtoList = new ArrayList<>();
 
-        List<Post> postsEntity = cr.findAll();
+        List<Post> postsEntity = cr.findAllByOrderByWriteDateDesc();
         for(Post postEntity : postsEntity ) {
             PostResDto resDto = new PostResDto();
             resDto.setId(postEntity.getId());
