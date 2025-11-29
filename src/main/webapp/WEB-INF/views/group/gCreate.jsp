@@ -21,7 +21,7 @@
             <h2 class="bigTitle">그룹 만들기</h2>
 
             <div id="contentsWrap" class="contentsWrap groupCreateForm">
-                <form id="groupCreateForm" method="post" action="/group/create" enctype="multipart/form-data">
+                <form id="groupCreateForm" method="post" action="/group/gcreate" enctype="multipart/form-data">
 
                     <div class="stepIndicator">
                         <div class="stepItem active" data-step="1">
@@ -216,6 +216,10 @@
         </section>
 
     <script>
+        window.onload = function() {
+            document.getElementById('groupCreateForm').reset();
+        };
+
         const groupNameInput = document.getElementById('groupName');
         const groupDescriptionInput = document.getElementById('groupDescription');
         const userLimitInput = document.getElementById('userLimit');

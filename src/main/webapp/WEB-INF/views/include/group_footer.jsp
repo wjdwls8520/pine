@@ -21,6 +21,7 @@
 
     function createGroup() {
         alert("해당 내용으로 그룹을 만드시겠습니까?");
+        document.getElementById("groupCreateForm").submit();
     }
 
     window.addEventListener("load", () => {
@@ -45,7 +46,7 @@
                     <div class="stepButtons">
                         <button type="button" class="btnWH btnPrev" id="prevStepBtn" disabled>이전</button>
                         <button type="button" class="btnWH btnNext" id="nextStepBtn">다음</button>
-                        <button type="submit" class="btnWH btnSubmit hidden" id="submitBtn" onclick="createGroup();">그룹 만들기</button>
+                        <button type="button" class="btnWH btnSubmit hidden" id="submitBtn" onclick="createGroup();">그룹 만들기</button>
                     </div>
                 `;
 

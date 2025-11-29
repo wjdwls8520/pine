@@ -6,6 +6,8 @@ import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -17,10 +19,6 @@ public class GroupContents {
     @Comment("그룹명")
     @Column(nullable = false)
     private String groupName;
-
-    @Comment("그룹 대표 이미지")
-    @Column(nullable = false)
-    private String groupImg;
 
     @Comment("그룹의 소개글")
     @Column(nullable = false)
@@ -40,13 +38,26 @@ public class GroupContents {
 
     @Comment("오늘 하루 방문자 수")
     @Column(nullable = false)
-    private Integer todayView = 0;
+    private Integer todayViewCount = 0;
+
+    @Comment("총 방문자 수")
+    @Column(nullable = false)
+    private Integer allViewCount = 0;
+
+    @Comment("좋아요 수")
+    @Column(nullable = false)
+    private Integer likeCount = 0;
+
+    @Comment("게시글 수")
+    @Column(nullable = false)
+    private Integer postCount = 0;
+
+    @Comment("그룹 멤버 수")
+    @Column(nullable = false)
+    private Integer gMemberCount = 0;
 
     @Comment("그룹 생성 날짜")
     @CreationTimestamp
     private Timestamp indate;
-
-
-
 
 }
