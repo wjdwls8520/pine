@@ -2,7 +2,6 @@ package com.site.pine.controller;
 
 import com.site.pine.dto.group.GroupCategoryDto;
 import com.site.pine.dto.group.GroupContentReqDto;
-import com.site.pine.entity.group.GroupContents;
 import com.site.pine.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -10,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,15 +36,15 @@ public class GroupController {
         return "group/gCreate";
     }
     @PostMapping("/group/gcreate")
-    public String create(@ModelAttribute GroupContentReqDto groupContentReqDto, Model model) throws IOException {
+    public String create(@ModelAttribute GroupContentReqDto groupContentReqDto, RedirectAttributes redirectAttrs) throws IOException {
         System.out.println(groupContentReqDto);
 
         if(groupContentReqDto.getGroupImg() == null || groupContentReqDto.getGroupImg().isEmpty()){
-            model.addAttribute("msg", "[error] 파일이 비어있어 그룹생성을 하지 못했습니다.");
+            redirectAttrs.addFlashAttribute("msg", "[error] 파일이 비어있어 그룹생성을 하지 못했습니다.");
             return "redirect:/group";
         }
         gs.insertGroupContent(groupContentReqDto);
-        model.addAttribute("msg", "그룹이 정상적으로 생성되었습니다.");
+        redirectAttrs.addFlashAttribute("msg", "그룹이 정상적으로 생성되었습니다.");
         return "redirect:/group";
     }
 

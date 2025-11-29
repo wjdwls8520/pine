@@ -14,6 +14,12 @@
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
     <article class="article workspace group">
 
+        <c:if test="${not empty msg}">
+            <script>
+                alert('${msg}');
+            </script>
+        </c:if>
+
         <%-- section page--%>
         <section class="section groupMain">
             <div class="tabWrap">

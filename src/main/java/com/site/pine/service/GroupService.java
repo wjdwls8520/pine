@@ -64,7 +64,7 @@ public class GroupService {
         }
 
         // 원래 파일 이름
-        String filePageType = "group";
+        String filePageType = "groupBanner";
         String originalFileName = groupContentReqDto.getGroupImg().getOriginalFilename();
         Long fileSize = groupContentReqDto.getGroupImg().getSize();
         String filePath = sus.saveFile(groupContentReqDto.getGroupImg());

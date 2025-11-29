@@ -15,7 +15,7 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Comment("파일의 페이지 타입 ex) community, group, shorts")
+    @Comment("파일의 페이지 타입 ex) community, groupBanner. groupPost, shorts")
     @Column(nullable = false)
     private String pageType;
 
@@ -39,11 +39,11 @@ public class File {
     private Timestamp indate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post")
+    @JoinColumn(name = "post_id")
     private Post post;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "groupPost")
+//    @JoinColumn(name = "groupPost_id")
 //    private GroupPost groupPost;
 
 }
