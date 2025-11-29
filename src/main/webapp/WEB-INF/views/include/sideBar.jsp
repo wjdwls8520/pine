@@ -2,7 +2,7 @@
 <div class="lnb">
   <ul class="menu">
     <li>
-      <a href="#">
+      <a href="/">
         <div class="iconBox">
           <img src="/images/icon_pinedory.png" alt="home" />
         </div>
@@ -10,7 +10,7 @@
       </a>
     </li>
     <li>
-      <a href="#">
+      <a href="/shorts">
         <div class="iconBox">
           <img src="/images/kpop.png" alt="Shorts" />
         </div>
@@ -29,7 +29,7 @@
       </a>
     </li>
     <li>
-      <a href="#">
+      <a href="/group">
         <div class="iconBox">
           <img src="/images/ico_group.png" alt="그룹" />
         </div>

@@ -1,10 +1,12 @@
 package com.site.pine.entity.group;
 
+import com.site.pine.entity.File;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,5 +61,9 @@ public class GroupContents {
     @Comment("그룹 생성 날짜")
     @CreationTimestamp
     private Timestamp indate;
+
+    @OneToOne
+    @JoinColumn(name = "file_id")
+    private File files;
 
 }

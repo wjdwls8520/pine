@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class GroupInCategory {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Integer categoryId;
