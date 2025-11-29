@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class GroupCategory {
+public class GroupCategoryList {
     @Id
     private Integer id;
 
