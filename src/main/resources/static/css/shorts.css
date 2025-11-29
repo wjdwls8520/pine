@@ -21,15 +21,20 @@ body {
     color: #111827;
 }
 
+.article{
+    padding: 0;
+}
+
 .article.workspace.shorts {
     background: var(--shorts-bg);
 }
 
 .section01 {
     height: calc(100vh - 48px);
-    padding: 32px 0 32px 40px;
+    padding: 0 0 0 40px;
     display: flex;
     justify-content: center;
+    overflow: hidden;
 }
 
 .shorts-feed {
@@ -37,9 +42,11 @@ body {
     height: 100%;
     overflow-y: auto;
     scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
-    gap: 60px;
+    gap: 0;
     padding-right: 140px;
 }
 
@@ -54,11 +61,16 @@ body {
 
 .shorts-card {
     scroll-snap-align: start;
+    scroll-snap-stop: always;
+    scroll-margin: 0;
+    height: calc(100vh - 48px);
     min-height: calc(100vh - 48px);
+    max-height: calc(100vh - 48px);
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
+    flex-shrink: 0;
 }
 
 .card-inner {

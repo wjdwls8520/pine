@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page isELIgnored="false" %>
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -160,7 +162,10 @@
         const commentsPanel = document.getElementById("commentsPanel");
         const titleEl = commentsPanel.querySelector(".comment-header-title");
         const userEl = commentsPanel.querySelector(".comment-header-user");
+        const shortsFeed = document.querySelector(".shorts-feed");
+        const shortsCards = document.querySelectorAll(".shorts-card");
 
+        // 댓글 토글 기능
         commentButtons.forEach(function (btn) {
             btn.addEventListener("click", function () {
                 const card = btn.closest(".shorts-card");
@@ -169,6 +174,134 @@
                 commentsPanel.classList.add("open");
             });
         });
+
+        // 스크롤 스냅 기능 강화
+        if (shortsFeed && shortsCards.length > 0) {
+            let isScrolling = false;
+            let scrollTimeout = null;
+
+            // 휠 이벤트로 스냅 제어
+            shortsFeed.addEventListener("wheel", function (e) {
+                if (isScrolling) {
+                    e.preventDefault();
+                    return;
+                }
+
+                const delta = e.deltaY;
+                const currentScrollTop = shortsFeed.scrollTop;
+                const cardHeight = shortsFeed.clientHeight;
+                const currentIndex = Math.round(currentScrollTop / cardHeight);
+
+                let targetIndex = currentIndex;
+
+                if (delta > 0) {
+                    // 아래로 스크롤
+                    targetIndex = Math.min(currentIndex + 1, shortsCards.length - 1);
+                } else {
+                    // 위로 스크롤
+                    targetIndex = Math.max(currentIndex - 1, 0);
+                }
+
+                if (targetIndex !== currentIndex) {
+                    e.preventDefault();
+                    isScrolling = true;
+
+                    const targetCard = shortsCards[targetIndex];
+                    if (targetCard) {
+                        targetCard.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+
+                        setTimeout(function () {
+                            isScrolling = false;
+                        }, 500);
+                    }
+                }
+            }, { passive: false });
+
+            // 스크롤 이벤트로 자동 스냅 조정
+            shortsFeed.addEventListener("scroll", function () {
+                clearTimeout(scrollTimeout);
+                
+                scrollTimeout = setTimeout(function () {
+                    if (!isScrolling) {
+                        const scrollTop = shortsFeed.scrollTop;
+                        const cardHeight = shortsFeed.clientHeight;
+                        const currentIndex = Math.round(scrollTop / cardHeight);
+                        const targetCard = shortsCards[currentIndex];
+
+                        if (targetCard) {
+                            const targetScrollTop = currentIndex * cardHeight;
+                            const scrollDiff = Math.abs(scrollTop - targetScrollTop);
+
+                            // 스냅 위치에서 벗어났을 경우 자동 조정
+                            if (scrollDiff > 50) {
+                                isScrolling = true;
+                                targetCard.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start"
+                                });
+
+                                setTimeout(function () {
+                                    isScrolling = false;
+                                }, 500);
+                            }
+                        }
+                    }
+                }, 100);
+            });
+
+            // 터치 이벤트 지원 (모바일)
+            let touchStartY = 0;
+            let touchEndY = 0;
+
+            shortsFeed.addEventListener("touchstart", function (e) {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            shortsFeed.addEventListener("touchend", function (e) {
+                touchEndY = e.changedTouches[0].clientY;
+                handleTouchSwipe();
+            }, { passive: true });
+
+            function handleTouchSwipe() {
+                const swipeThreshold = 50;
+                const diff = touchStartY - touchEndY;
+
+                if (Math.abs(diff) > swipeThreshold && !isScrolling) {
+                    const currentScrollTop = shortsFeed.scrollTop;
+                    const cardHeight = shortsFeed.clientHeight;
+                    const currentIndex = Math.round(currentScrollTop / cardHeight);
+
+                    let targetIndex = currentIndex;
+
+                    if (diff > 0) {
+                        // 위로 스와이프 (다음 카드)
+                        targetIndex = Math.min(currentIndex + 1, shortsCards.length - 1);
+                    } else {
+                        // 아래로 스와이프 (이전 카드)
+                        targetIndex = Math.max(currentIndex - 1, 0);
+                    }
+
+                    if (targetIndex !== currentIndex) {
+                        isScrolling = true;
+                        const targetCard = shortsCards[targetIndex];
+                        
+                        if (targetCard) {
+                            targetCard.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start"
+                            });
+
+                            setTimeout(function () {
+                                isScrolling = false;
+                            }, 500);
+                        }
+                    }
+                }
+            }
+        }
     });
 
     function closeComments() {
