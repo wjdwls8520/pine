@@ -1,0 +1,38 @@
+// 노드js
+axios.post(`/community/${page}`, {title: "제목", content: "내용", userId: 123})
+    .then((result)=> {
+
+    }).catch(err=>console.error(err));
+
+
+
+
+// 자바스크립트
+fetch(`/community/${page}`, {method: "GET", body: JSON.stringify({title: "제목", content: "내용", userId: 123})})
+    .then(response => {
+        if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
+        return response.json(); // 성공하면 JSON 반환
+    })
+    .then((result) => {
+
+    }).catch(err => console.error(err));
+
+
+
+
+
+
+// 에이잭스
+$.ajax({
+    url: `/community/${page}`,
+    method: "GET", // 요청 메서드
+    dataType: "json", // 서버에서 JSON 응답 기대
+    success: function(result) {
+        // 성공 시 처리
+        console.log("데이터 로딩 성공:", result);
+    },
+    error: function(xhr, status, error) {
+        // 실패 시 처리
+        console.error("데이터 로딩 실패:", error, "상태 코드:", xhr.status);
+    }
+});
