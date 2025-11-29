@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.HashMap;
@@ -25,13 +26,14 @@ public class CommunityController {
         return "community/commu_main"; //   작업폴더/jsp파일이름
     }
 
+
     @GetMapping("/community/{page}")
     @ResponseBody
     public HashMap<String, Object> getPostList(@PathVariable("page") Integer page) {
         HashMap<String, Object> result = new HashMap<>();
 
         // 초기 페이지는 첫 페이지(0페이지)만 가져오기
-        Page<PostResDto> postResDto = cs.getPostPage(page);
+        HashMap<String, Object> postResDto = cs.getPostPage(page);
 
         result.put("post", postResDto);
         return result; //   작업폴더/jsp파일이름

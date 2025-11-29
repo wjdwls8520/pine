@@ -13,7 +13,7 @@
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
     <article class="article workspace commuCreatePage">
-        <form class="createForm" id="commuCreateForm" method="post" action="/community/cCreate">
+        <form class="createForm" id="commuCreateForm" method="post" action="/community/cCreate" enctype="multipart/form-data">
             <section class="formGrid">
                 <div class="formMain">
 
@@ -46,7 +46,7 @@
                             </div>
                             <label class="ghostButton ghostButton--secondary">
                                 파일 선택
-                                <input type="file" name="file" id="mediaUploadInput" multiple accept="image/*,video/*" hidden />
+                                <input type="file" name="files" id="mediaUploadInput" multiple accept="image/*,video/*" hidden />
                             </label>
                         </div>
                         <div id="mediaDropzone" class="mediaDropzone">
@@ -88,6 +88,7 @@
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 <script src="/js/toastUI.js"></script>
+<script src="/js/commujs/community_common.js"></script>
 </body>
 </html>
 
