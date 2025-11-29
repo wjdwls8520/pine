@@ -13,7 +13,7 @@
 
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
-    <article class="article workspace commu">
+    <article id="commuMainPage" class="article workspace commu">
 
         <%-- section page--%>
         <h2 class="pageTitle">community main</h2>
@@ -87,4 +87,4 @@
 </div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
 <script src="/js/timeAgo.js"></script>
-<script src="/js/commujs/postScroll.js"></script>
+<script src="/js/commujs/commuMain.js"></script>

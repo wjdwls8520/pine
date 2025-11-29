@@ -5,7 +5,7 @@ window.addEventListener("load", () => {
     //  데이터 추가할 섹션
     let postWrap = document.getElementById("postList");
 
-    const scrollBox = document.querySelector(".article.workspace.commu");
+    const scrollBox = document.getElementById("commuMainPage");
 
 
     // 1. 로딩후 바로 ajax 요청
@@ -41,10 +41,10 @@ window.addEventListener("load", () => {
                     console.log(data); // 서버에서 받은 값 콘솔
 
                     // 토탈페이지 변경
-                    totalPages = data.post.totalPages;
+                    totalPages = data.post.totalPage;
 
                     // js로 동적 태그 생성
-                    data.post.content.map(info => {
+                    data.post.postList.map(info => {
                         postWrap.insertAdjacentHTML("beforeend", `
                             <div class="postBox">
                                 <div class="postInner">
@@ -86,19 +86,6 @@ window.addEventListener("load", () => {
             .finally(() => {
                 loading = false; // 요청 종료
             });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
