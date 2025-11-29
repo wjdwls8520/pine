@@ -6,11 +6,15 @@ import com.site.pine.entity.post.Post;
 import com.site.pine.repository.CommunityRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -46,5 +50,23 @@ public class CommunityService {
         }
 
         return resDtoList;
+    }
+
+    public Page<PostResDto> getPostPage(Integer page) {
+        Pageable pageable = PageRequest.of(page, 6);
+        Page<Post> postPage = cr.findAllByOrderByWriteDateDesc(pageable);
+        
+        return postPage.map(postEntity -> {
+            PostResDto resDto = new PostResDto();
+            resDto.setId(postEntity.getId());
+            resDto.setCategory(postEntity.getCategory());
+            resDto.setContent(postEntity.getContent());
+            resDto.setLikeCount(postEntity.getLikeCount());
+            resDto.setReplyCount(postEntity.getReplyCount());
+            resDto.setStatus(postEntity.getStatus());
+            resDto.setWriteDate(postEntity.getWriteDate());
+            resDto.setUpdateDate(postEntity.getUpdateDate());
+            return resDto;
+        });
     }
 }
