@@ -4,7 +4,7 @@
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
     <link rel="stylesheet" href="/css/post.css">
-    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <link rel="stylesheet" href="/css/toastui_bundle.css" />
 </head>
 <body>
 
@@ -86,7 +86,8 @@
     </article>
 </div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
-<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<%--<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>--%>
+<script src="/js/toastui_bundle.js"></script>
 <script src="/js/toastUI.js"></script>
 <script src="/js/commujs/community_common.js"></script>
 </body>
