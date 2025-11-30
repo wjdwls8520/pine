@@ -24,8 +24,8 @@
         <%-- section page--%>
         <section class="section groupMain">
             <div class="tabWrap">
-                <div class="tabTitle active">메인</div>
-                <div class="tabTitle">내 그룹</div>
+                <div class="tabTitle active" onclick="getAllData(this);">메인</div>
+                <div class="tabTitle" onclick="getAllMyData(this);">내 그룹</div>
             </div>
 
 
@@ -39,7 +39,8 @@
 
 
 
-    </article
+    </article>
+
 </div>
 <jsp:include page="../include/group_footer.jsp"></jsp:include>
 <script src="/js/timeAgo.js"></script>
