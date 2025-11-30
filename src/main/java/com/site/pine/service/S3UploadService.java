@@ -20,7 +20,7 @@ public class S3UploadService {
 
     private final AmazonS3 amazonS3;
 
-    @Value("${cloud.aws.s3.burcket}")
+    @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
 

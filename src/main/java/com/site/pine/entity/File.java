@@ -1,6 +1,7 @@
 package com.site.pine.entity;
 
 import com.site.pine.entity.post.Post;
+import com.site.pine.entity.shorts.Shorts;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -41,6 +42,11 @@ public class File {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @Comment("쇼츠/썸내일 파일")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shorts_id")
+    private Shorts shorts;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "groupPost_id")

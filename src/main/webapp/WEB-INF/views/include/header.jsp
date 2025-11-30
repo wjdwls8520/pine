@@ -15,7 +15,7 @@
 <%--                <a href="#">Logout</a>--%>
 <%--                <a href="#">MyPage</a>--%>
             <sec:authorize access="isAuthenticated()">
-                <div>${}</div><a href="/">Logout</a>
+                <div></div><a href="/">Logout</a>
             </sec:authorize>
             <a href="/login">Login</a>
             <a href="#" class="join">Join</a>

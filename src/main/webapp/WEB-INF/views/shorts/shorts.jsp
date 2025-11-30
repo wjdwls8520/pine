@@ -11,9 +11,9 @@
 
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
-    <article class="article workspace shorts">
+    <article id="shortsMain" class="article workspace shorts">
         <section class="section section01">
-            <div class="shorts-feed">
+            <div id="shorts-feed" class="shorts-feed">
                 <div class="shorts-card" data-title="한복 입고 서울 야경 즐기기" data-user="pinedory">
                     <div class="card-inner">
                         <aside class="user-panel">
@@ -22,7 +22,6 @@
                             </div>
                             <div class="user-meta">
                                 <strong>파인데도리</strong>
-                                <span>@pinedory</span>
                                 <p>역사와 문화를 즐기는 짧은 브이로그</p>
                             </div>
                         </aside>
@@ -223,7 +222,7 @@
             // 스크롤 이벤트로 자동 스냅 조정
             shortsFeed.addEventListener("scroll", function () {
                 clearTimeout(scrollTimeout);
-                
+
                 scrollTimeout = setTimeout(function () {
                     if (!isScrolling) {
                         const scrollTop = shortsFeed.scrollTop;
@@ -287,7 +286,7 @@
                     if (targetIndex !== currentIndex) {
                         isScrolling = true;
                         const targetCard = shortsCards[targetIndex];
-                        
+
                         if (targetCard) {
                             targetCard.scrollIntoView({
                                 behavior: "smooth",
@@ -328,4 +327,4 @@
 </script>
 
 <jsp:include page="../include/shorts_footer.jsp"></jsp:include>
-
+<script src="/js/shortsjs/shorts.js"></script>
