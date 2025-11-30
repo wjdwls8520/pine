@@ -62,6 +62,20 @@ public class GroupController {
         return "redirect:/group";
     }
 
+    // 그룹 디테일
+    @GetMapping("/group/gdetail/{id}")
+    public String detail(@PathVariable("id") Long id, Model model) {
+
+        try {
+            gs.getGroup(id);
+
+            return "group/gDetail";
+
+        } catch (IllegalAccessException e) {
+            model.addAttribute("msg", e.getMessage());
+            return "errorPage"; // errorPage.jsp 로 이동
+        }
+    }
 
     // 그룹 업데이트
     @GetMapping("/group/gupdate")
