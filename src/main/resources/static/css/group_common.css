@@ -8,16 +8,12 @@
 .groupMain .groupList .imgBox > img {width: 100%; height: 100%; object-fit: cover;}
 .groupMain .groupList .groupInfo {display: flex; flex-direction: column; gap: 4px;}
 .groupMain .groupList .groupInfo .top {display: flex; align-items: center; gap: 8px;}
-.groupMain .groupList .groupInfo .top .groupImg {flex-shrink: 0; width: 72px; height: 56px; border-radius: 4px; overflow: hidden;}
-.groupMain .groupList .groupInfo .top .groupImg > img {width: 100%; height: 100%; object-fit: cover;}
-.groupMain .groupList .groupInfo .top .tit {display: -webkit-box; width: 100%; line-height: 20px; font-size: 14px; font-weight: 500; word-wrap: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-overflow: ellipsis; overflow: hidden; }
+.groupMain .groupList .groupInfo .top .groupName {display: -webkit-box; width: 100%; line-height: 20px; font-size: 18px; font-weight: 500; word-wrap: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-overflow: ellipsis; overflow: hidden; }
 .groupMain .groupList .groupInfo .mid {display: flex; justify-content: space-between; align-items: center;}
-.groupMain .groupList .groupInfo .mid .groupName {font-size: 13px; font-weight: 500; color: #272B27;}
+.groupMain .groupList .groupInfo .mid .description {font-size: 13px; font-weight: 500; color: #9ca3af;}
 .groupMain .groupList .groupInfo .bot {display: flex; justify-content: space-between; align-items: center;}
-.groupMain .groupList .groupInfo .bot .viewCount {font-size: 12px; font-weight: 500; color: #272B27;}
-.groupMain .groupList .groupInfo .bot .writeDate {font-size: 12px; font-weight: 400; color: #272B27;}
-.groupMain .groupList .groupInfo .bot .likeCount {font-size: 12px; font-weight: 500; color: #272B27;}
-.groupMain .groupList .groupInfo .bot .replyCount {font-size: 12px; font-weight: 400; color: #272B27;}
+.groupMain .groupList .groupInfo .bot > div {display: flex; align-items: center; gap: 12px;}
+.groupMain .groupList .groupInfo .bot > div > span {font-size: 12px; font-weight: 500; color: #9ca3af;}
 
 /* 그룹 만들기 폼 스타일 */
 .groupCreateForm {max-width: 800px; margin: 0 auto; padding: 0 20px;}
