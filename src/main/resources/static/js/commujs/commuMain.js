@@ -43,8 +43,10 @@ window.addEventListener("load", () => {
                     // 토탈페이지 변경
                     totalPages = data.post.totalPage;
 
-                    // js로 동적 태그 생성
-                    data.post.postList.map(info => {
+
+                    // @@@@  js로 동적 태그 생성  @@@@@
+                    data.post.postList.map((info) => {
+                        // 포스트 반복문으로 생성
                         postWrap.insertAdjacentHTML("beforeend", `
                             <div class="postBox">
                                 <div class="postInner">
@@ -65,7 +67,9 @@ window.addEventListener("load", () => {
                                             <div class="postContent" onclick="location.href='/community/cdetail/${info.id}'">${info.content}</div>
                                             <div class="postHash">${info.hashTag || ""}</div>
                                             <div class="postImgBox" onclick="location.href='/community/cdetail/${info.id}'">
-                                                <div class="postImg">${info.image || "이미지"}</div>
+                                                <div id="postImg_${info.id}" class="postImg">
+
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="postBottom">
@@ -77,7 +81,18 @@ window.addEventListener("load", () => {
                                 </div>
                             </div>
                         `);
+
+                        // 포스트안에있는 이미지를 반복분으로 생성
+                        let postImg = document.getElementById(`postImg_${info.id}`);
+                        info.file.map((a, idx)=> {
+                            postImg.insertAdjacentHTML("beforeend", `
+                                <img src="${a.path}" />
+                            `);
+                        })
+
                     });
+                    // @@@@@@@@@@@@@@@@@@@@@
+
             })
             .catch(err => {
                 // 실패 시 처리

@@ -44,10 +44,12 @@
                                 <p class="fieldLabel">미디어 업로드</p>
                                 <p class="mediaDescription">이미지 또는 영상 파일을 추가하면 피드에서 텍스트 아래 갤러리로 표시됩니다.</p>
                             </div>
+
                             <label class="ghostButton ghostButton--secondary">
                                 파일 선택
                                 <input type="file" name="files" id="mediaUploadInput" multiple accept="image/*,video/*" hidden />
                             </label>
+
                         </div>
                         <div id="mediaDropzone" class="mediaDropzone">
                             <p>여기로 파일을 드래그하거나 클릭하여 선택하세요.</p>
@@ -56,7 +58,9 @@
                         <ul id="mediaPreviewList" class="mediaPreviewList">
                             <li class="mediaEmpty">첨부된 파일이 없습니다.</li>
                         </ul>
+
                         <input type="hidden" id="mediaJsonInput" name="mediaJson" />
+
                     </section>
 
                     <div class="metaGrid">
@@ -86,7 +90,6 @@
     </article>
 </div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
-<%--<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>--%>
 <script src="/js/toastui_bundle.js"></script>
 <script src="/js/toastUI.js"></script>
 <script src="/js/commujs/community_common.js"></script>
