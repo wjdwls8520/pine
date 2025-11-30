@@ -14,7 +14,7 @@
 
         <h2>이용약관</h2>
 
-        <form class="contract" action="/goJoin">
+        <form class="contract" action="/goJoin" method="post">
             <h1>입주신청 약관</h1>
             <div class="text">가. 개인정보의 수집 및 이용 목적
 
@@ -22,8 +22,12 @@
 
             </div>
             <div>
-                <p><input type="checkbox" required> 약관에 동의하면 체크해구리</p>
-                <p><input type="submit" value="입주 신청" class="box"><p>
+                <p>${needPAgreed}</p>
+                <p><input type="checkbox" name="privacy_agreed" required> 개인정보 약관에 동의</p>
+                <p>${needTAgreed}</p>
+                <p><input type="checkbox" name="terms_agreed" required> 정책 약관에 동의</p>
+                <p><input type="checkbox" name="marketing_agreed" required> 마케팅 약관에 동의</p>
+                <p><button type="button" onclick="validJoin()">다음으로</button> <p>
             </div>
         </form>
 

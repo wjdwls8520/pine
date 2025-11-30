@@ -16,8 +16,6 @@ public class Member {
     @Column(unique = true, nullable = false)
     private String email;
     @Column(nullable = false)
-    private String pwd;
-    @Column(nullable = false)
     private String name;
     @Column(nullable = false)
     private String nickname;
@@ -54,7 +52,7 @@ public class Member {
     private Boolean marketing_agreed;
     @Column(nullable = false)
     private Timestamp marketing_agreed_date;
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(45) default '1.0'")
     private String agreed_version;
 
 }

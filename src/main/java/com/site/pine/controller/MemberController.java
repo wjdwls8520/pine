@@ -1,5 +1,7 @@
 package com.site.pine.controller;
 
+import com.site.pine.dto.member.MemberDto;
+import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.entity.Member;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.service.MemberService;
@@ -9,10 +11,15 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,7 +27,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.json.JSONObject;
@@ -112,35 +118,65 @@ public class MemberController {
         Member member = mr.findByEmail(email);
 
         if(member == null){
-            Map<String, Object> naveruserinfo = new HashMap<>();
-            naveruserinfo.put("email", profile.optString("email"));
-            naveruserinfo.put("name", profile.optString("name"));
-            naveruserinfo.put("profile_image", profile.optString("profile_image"));
-            naveruserinfo.put("phone", profile.optString("mobile"));
-            naveruserinfo.put("provider", "NAVER");
-            request.getSession().setAttribute("naveruserinfo", naveruserinfo);
+            MemberDto mdto = new MemberDto();
+            mdto.setEmail(profile.optString("email"));
+            mdto.setName(profile.optString("name"));
+            mdto.setProfileimg(profile.optString("profile_image"));
+            mdto.setPhone(profile.optString("mobile"));
+            mdto.setProvider("NAVER");
+            request.getSession().setAttribute("naveruserinfo", mdto);
             return "member/jointerms";
         }else{
-            request.getSession().setAttribute("member", member);
+
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(
+                            member,                 // principal
+                            null,                   // credentials
+                            List.of(new SimpleGrantedAuthority("ROLE_USER")) // 권한
+                    );
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            HttpSession session = request.getSession();
+            session.setAttribute("member", SecurityContextHolder.getContext());
             return "index";
         }
 
     }
 
 
-    @GetMapping("/goJoin")
-    public String goJoin(HttpServletRequest request) {
+    @PostMapping("/goJoin")
+    public String goJoin(
+            HttpServletRequest request,
+            @RequestParam("privacy_agreed") boolean privacyAgreed,
+            @RequestParam("terms_agreed") boolean termsAgreed,
+            @RequestParam("marketing_agreed") boolean marketingAgreed,
+            Model model
+    ) {
 
         Date today = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String formattedDate = sdf.format(today);
+        Timestamp ts = new Timestamp(today.getTime());
 
         HttpSession session = request.getSession(false);
 
+
+
         if(session != null){
-            Map<String , Object> loginInfo = (Map<String, Object>)session.getAttribute("naveruserinfo");
-            loginInfo.put("terms_agreed", 1);
-            loginInfo.put("terms_agreed_date", formattedDate);
+            MemberDto loginInfo = (MemberDto) session.getAttribute("naveruserinfo");
+            if(termsAgreed){
+                loginInfo.setTerms_agreed(termsAgreed);
+                loginInfo.setTerms_agreed_date(ts);
+            }else{
+                model.addAttribute("needTAgreed", "정책 약관에 동의해주세요.");
+            }
+
+            if(privacyAgreed){
+                loginInfo.setPrivacy_agreed(privacyAgreed);
+                loginInfo.setPrivacy_agreed_date(ts);
+            }else{
+                model.addAttribute("needPAgreed", "개인정보 약관에 동의해주세요");
+            }
+
+            loginInfo.setMarketing_agreed(marketingAgreed);
+            loginInfo.setMarketing_agreed_date(ts);
 
             request.getSession().setAttribute("naveruserinfo", loginInfo);
 
@@ -149,6 +185,48 @@ public class MemberController {
         }
 
         return "member/join";
+    }
+
+
+    @PostMapping("/insertMember")
+    public String insertMember(
+            @RequestParam("email") String email,
+            @RequestParam("name") String name,
+            @RequestParam("nickname") String nickname,
+            @RequestParam("phone") String phone,
+            @RequestParam(value ="job", required = false, defaultValue = "") String job,
+            @RequestParam("address_code") String addressCode,
+            @RequestParam("address_1") String address1,
+            @RequestParam(value = "profile_msg", required = false, defaultValue = "") String profile_msg,
+            @RequestParam(value = "address_2", required = false, defaultValue = "") String address2,
+            Model model,
+            HttpServletRequest request
+
+    ){
+        // memberJoinDto의 email, nickname 조회해서 비어있으면 바로 insert
+        // 아니면 모델로 메세지 출력 후 리턴
+        MemberJoinDto mjdto = ms.getMemberInfo(email, nickname);
+        HttpSession session = request.getSession(false);
+
+        if(mjdto.getEmail().equals(email)){
+            model.addAttribute("emailError","이미 존재하는 이메일 입니다");
+        }else if(mjdto.getNickname().equals(nickname)){
+            model.addAttribute("nicknameError", "이미 존재하는 닉네임 입니다.");
+        }else{
+
+            if(session != null){
+                MemberDto mdto = (MemberDto) session.getAttribute("naveruserinfo");
+                ms.insertMember(email, name, nickname, job, addressCode, address1, address2, profile_msg, phone, mdto);
+                session.removeAttribute("naveruserinfo");
+            }
+
+            MemberDto loginInfo = ms.getMember(email);
+            if(loginInfo != null){
+                request.getSession().setAttribute("member", loginInfo);
+            }
+
+        }
+        return "redirect:/";
     }
 
 

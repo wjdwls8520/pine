@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <header id="header">
     <div class="inner">
         <h1 class="logo">
@@ -13,6 +14,9 @@
         <div class="util">
 <%--                <a href="#">Logout</a>--%>
 <%--                <a href="#">MyPage</a>--%>
+            <sec:authorize access="isAuthenticated()">
+                <div>${}</div><a href="/">Logout</a>
+            </sec:authorize>
             <a href="/login">Login</a>
             <a href="#" class="join">Join</a>
         </div>
