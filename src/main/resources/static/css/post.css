@@ -368,6 +368,15 @@
     color: rgba(255, 255, 255, 0.9);
 }
 
+#mediaDropzone.dragover {
+    border: 2px dashed #007bff;
+    background-color: #f0f8ff;
+}
+
+
+
+/*--------------------------------------------------*/
+
 @media (max-width: 1024px) {
     .formGrid {
         grid-template-columns: 1fr;

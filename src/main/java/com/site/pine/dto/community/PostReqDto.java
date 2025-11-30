@@ -3,11 +3,13 @@ package com.site.pine.dto.community;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Data
 public class PostReqDto {
     private Integer category;
     private String postBody;
     private String mediaJson;
-    private MultipartFile file;     // 태그 input
+    private List<MultipartFile> files;  // 다중 파일 업로드
     private Integer status;
 }

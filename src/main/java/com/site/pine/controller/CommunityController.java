@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -48,7 +50,14 @@ public class CommunityController {
     }
 
     @PostMapping("/community/cCreate")
-    public String insertPost(@ModelAttribute PostReqDto reqDto) {
+    public String insertPost(@ModelAttribute PostReqDto reqDto) throws IOException {
+        List<MultipartFile> fileList = reqDto.getFiles();
+        for(MultipartFile file : fileList) {
+            if(file.getSize() > 1000000) {
+                throw new IllegalArgumentException("파일 용량이 1MB를 초과했습니다: " + file.getOriginalFilename());
+            }
+        }
+
         System.out.println(reqDto);
         cs.insertPost(reqDto);
         return "redirect:/community";

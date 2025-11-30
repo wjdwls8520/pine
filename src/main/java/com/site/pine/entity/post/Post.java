@@ -1,5 +1,6 @@
 package com.site.pine.entity.post;
 
+import com.site.pine.entity.File;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -7,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -44,7 +47,27 @@ public class Post {
     @UpdateTimestamp
     private Timestamp updateDate;
 
-
-
+    @OneToMany(
+            mappedBy = "post",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<File> files = new ArrayList<>();
 
 }
+//OneToMany
+//eager
+//
+//        postRepository.findAll();
+//        post ~~~~~~
+//            file ~~~~~~
+//
+//lazy
+//        postRepository.findAll();
+//            post ~~~~~~
+//
+//
+//
+//        postRepository.findAll().getTItle();
+//        postRepository.findAll().getFiles();
