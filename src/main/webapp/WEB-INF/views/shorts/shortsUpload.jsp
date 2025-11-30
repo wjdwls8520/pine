@@ -22,7 +22,7 @@
                         <div class="upload-icon">🎬</div>
                         <div class="upload-text">비디오 파일을 선택하거나 드래그하세요</div>
                         <div class="upload-hint">MP4, MOV, AVI 형식 · 최대 100MB</div>
-                        <input type="file" id="videoFile" name="videoFile" class="file-input" accept="video/*" required>
+                        <input type="file" id="videoFile" name="files" class="file-input" accept="video/*" required>
                     </div>
                     <div class="video-preview" id="videoPreview">
                         <video id="previewVideo" controls></video>
@@ -55,7 +55,7 @@
                             <div class="thumbnail-upload-area" id="thumbnailUploadArea">
                                 <div class="thumbnail-upload-icon">🖼️</div>
                                 <div class="thumbnail-upload-text">썸네일 이미지를 선택하세요</div>
-                                <input type="file" id="thumbnailFile" name="thumbnailFile" class="file-input" accept="image/*">
+                                <input type="file" id="thumbnailFile" name="files" class="file-input" accept="image/*">
                             </div>
                         </div>
                         <div class="thumbnail-preview-area">
@@ -66,15 +66,15 @@
                     </div>
                 </div>
 
-                <div class="field-group">
-                    <label for="tagInput" class="field-label">태그</label>
-                    <div class="tag-input-container">
-                        <input type="text" id="tagInput" class="field-control" placeholder="태그를 입력하고 Enter를 누르세요 (예: #한국 #여행 #브이로그)">
-                        <div class="tag-hint">최대 10개까지 추가 가능합니다</div>
-                        <div class="tag-list" id="tagList"></div>
-                        <input type="hidden" id="tags" name="tags" value="">
-                    </div>
-                </div>
+<%--                <div class="field-group">--%>
+<%--                    <label for="tagInput" class="field-label">태그</label>--%>
+<%--                    <div class="tag-input-container">--%>
+<%--                        <input type="text" id="tagInput" class="field-control" placeholder="태그를 입력하고 Enter를 누르세요 (예: #한국 #여행 #브이로그)">--%>
+<%--                        <div class="tag-hint">최대 10개까지 추가 가능합니다</div>--%>
+<%--                        <div class="tag-list" id="tagList"></div>--%>
+<%--                        <input type="hidden" id="tags" name="tags" value="">--%>
+<%--                    </div>--%>
+<%--                </div>--%>
 
                 <div class="button-group">
                     <button type="button" class="btn btn-cancel" onclick="history.back()">취소</button>
@@ -86,6 +86,7 @@
 </div>
 
 <jsp:include page="../include/shorts_footer.jsp"></jsp:include>
+<%--<script src="/js/shorts/shortsUpload.js"></script>--%>
 
 <script>
     const uploadArea = document.getElementById('uploadArea');
@@ -95,7 +96,7 @@
     const videoInfo = document.getElementById('videoInfo');
     const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('shortsUploadForm');
-    
+
     // 썸네일 관련
     const thumbnailAuto = document.getElementById('thumbnailAuto');
     const thumbnailManual = document.getElementById('thumbnailManual');
@@ -103,7 +104,7 @@
     const thumbnailFileInput = document.getElementById('thumbnailFile');
     const thumbnailPreview = document.getElementById('thumbnailPreview');
     const thumbnailPreviewImg = document.getElementById('thumbnailPreviewImg');
-    
+
     // 태그 관련
     const tagInput = document.getElementById('tagInput');
     const tagList = document.getElementById('tagList');
@@ -180,19 +181,35 @@
     function generateThumbnailFromVideo(videoUrl) {
         const video = document.createElement('video');
         video.src = videoUrl;
-        video.currentTime = 1; // 1초 지점의 프레임
-        
+        video.currentTime = 1;
+
         video.addEventListener('loadeddata', () => {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
+
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+
+            // ✅ 1. 미리보기용
             thumbnailPreviewImg.src = canvas.toDataURL('image/jpeg');
             thumbnailPreview.classList.add('active');
+
+            // ✅ 2. 서버 전송용 (진짜 이미지 파일로 변환)
+            canvas.toBlob((blob) => {
+                const thumbnailFile = new File([blob], "thumbnail.jpg", {
+                    type: "image/jpeg"
+                });
+
+                // ✅ 여기서 FormData에 강제로 썸네일 주입
+                const formData = new FormData(document.getElementById("shortsUploadForm"));
+                formData.set("files", thumbnailFile);
+
+                window.generatedThumbnailFile = thumbnailFile; // 전역 보관 (선택)
+            }, "image/jpeg");
         });
     }
+
 
     // 썸네일 타입 변경
     thumbnailAuto.addEventListener('change', () => {
@@ -251,28 +268,28 @@
 
     function addTag() {
         const tagValue = tagInput.value.trim();
-        
+
         if (!tagValue) return;
-        
+
         // # 제거하고 다시 추가
         let tag = tagValue.replace(/^#+/, '');
         if (!tag) return;
-        
+
         tag = '#' + tag;
-        
+
         // 중복 체크
         if (tags.includes(tag)) {
             alert('이미 추가된 태그입니다.');
             tagInput.value = '';
             return;
         }
-        
+
         // 최대 10개 제한
         if (tags.length >= 10) {
             alert('태그는 최대 10개까지 추가할 수 있습니다.');
             return;
         }
-        
+
         tags.push(tag);
         updateTagList();
         tagInput.value = '';
