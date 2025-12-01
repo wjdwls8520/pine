@@ -12,7 +12,7 @@ public class MemberDto {
     private String name;
     private String nickname;
     private String phone;
-    private String provider;
+    private int provider;
     private String snsid;
     private String profileimg;
     private String profilemsg;
@@ -25,4 +25,6 @@ public class MemberDto {
 
     private Boolean marketing_agreed;
     private Timestamp marketing_agreed_date;
+
+    private int position;
 }
