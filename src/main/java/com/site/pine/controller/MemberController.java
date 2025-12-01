@@ -4,6 +4,7 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.entity.Member;
 import com.site.pine.repository.MemberRepository;
+import com.site.pine.security.AuthUtil;
 import com.site.pine.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -115,7 +116,7 @@ public class MemberController {
         System.out.println(profile);
         String email = profile.getString("email");
 
-        Member member = mr.findByEmail(email);
+        MemberDto member = ms.findByEmail(email);
 
         if(member == null){
             MemberDto mdto = new MemberDto();
@@ -123,21 +124,20 @@ public class MemberController {
             mdto.setName(profile.optString("name"));
             mdto.setProfileimg(profile.optString("profile_image"));
             mdto.setPhone(profile.optString("mobile"));
-            mdto.setProvider("NAVER");
+            mdto.setProvider(1);
             request.getSession().setAttribute("naveruserinfo", mdto);
             return "member/jointerms";
         }else{
+            member = ms.getMember(email);
 
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(
-                            member,                 // principal
-                            null,                   // credentials
-                            List.of(new SimpleGrantedAuthority("ROLE_USER")) // 권한
-                    );
-            SecurityContextHolder.getContext().setAuthentication(auth);
-            HttpSession session = request.getSession();
-            session.setAttribute("member", SecurityContextHolder.getContext());
-            return "index";
+            if(member.getProvider() == 0) {
+                member.setProvider(0);
+            }
+
+            AuthUtil.login(member, request.getSession());
+
+
+            return "redirect:/";
         }
 
     }

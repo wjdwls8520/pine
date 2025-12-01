@@ -35,9 +35,9 @@ public class Member {
     private String profile_img;
     private String profile_msg;
     @Column(nullable = false)
-    private String provider;
+    private int provider;
     @Column(nullable = false)
-    private String position;
+    private int position;
     @Column(nullable = false)
     private Timestamp join_date;
     @Column(nullable = false)

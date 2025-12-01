@@ -65,7 +65,7 @@ public class MemberService {
         member.setProfile_msg(profile_msg);
         member.setAgreed_version("1.0");
         member.setLevel(0);
-        member.setPosition("member");
+        member.setPosition(mdto.getPosition());
         member.setResident_num("0");
         mr.save(member);
 
@@ -77,9 +77,16 @@ public class MemberService {
         mdto.setEmail(member.getEmail());
         mdto.setNickname(member.getNickname());
         mdto.setName(member.getName());
-        mdto.setProvider(String.valueOf(member.getProvider()));
+        mdto.setProvider(member.getProvider());
         return mdto;
     }
 
 
+    public MemberDto findByEmail(String email) {
+
+        MemberDto member = new MemberDto();
+        Member memberByEmail = mr.findByEmail(email);
+        member.setEmail(memberByEmail.getEmail());
+        return member;
+    }
 }
