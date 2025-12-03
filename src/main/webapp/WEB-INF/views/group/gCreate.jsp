@@ -194,9 +194,9 @@
                                 <c:forEach var="item" items="${list}" varStatus="idx">
                                     <label class="categoryCheckbox">
                                         <input type="checkbox"
-                                               id="chk_${item.id}"
+                                               id="chk_${item.categoryId}"
                                                name="categoryIds"
-                                               value="${item.id}"
+                                               value="${item.categoryId}"
                                                class="categoryInput" />
                                         <span class="categoryLabel">${item.nameKor}</span>
                                     </label>

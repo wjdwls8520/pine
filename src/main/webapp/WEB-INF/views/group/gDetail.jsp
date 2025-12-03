@@ -22,8 +22,8 @@
                     <div class="groupHeroInner">
                         <div class="groupHeroArt">
                             <c:choose>
-                                <c:when test="${not empty group.groupImg}">
-                                    <img src="${group.groupImg.path}" alt="${group.groupName}" />
+                                <c:when test="${not empty groupDetail.groupImg}">
+                                    <img src="${groupDetail.groupImg.path}" alt="${groupDetail.groupName}" />
                                 </c:when>
                                 <c:otherwise>
                                     <div class="groupHeroFallback">NO IMAGE</div>
@@ -34,8 +34,8 @@
                             <p class="groupHeroLabel">
                                 GROUP · since
                                 <c:choose>
-                                    <c:when test="${not empty group.indate}">
-                                        <fmt:formatDate value="${group.indate}" pattern="yyyy.MM.dd"/>
+                                    <c:when test="${not empty groupDetail.indate}">
+                                        <fmt:formatDate value="${groupDetail.indate}" pattern="yyyy.MM.dd"/>
                                     </c:when>
                                     <c:otherwise>unknown</c:otherwise>
                                 </c:choose>
@@ -58,29 +58,29 @@
                 <section class="groupStats">
                     <div class="groupStatCard">
                         <p class="groupStatLabel">전체 조회수</p>
-                        <strong>${group.allViewCount}</strong>
+                        <strong>${groupDetail.allViewCount}</strong>
                         <span class="groupStatHint">Today ${group.todayViewCount}</span>
                     </div>
                     <div class="groupStatCard">
                         <p class="groupStatLabel">좋아요</p>
-                        <strong>${group.likeCount}</strong>
+                        <strong>${groupDetail.likeCount}</strong>
                         <span class="groupStatHint">계속 증가 중</span>
                     </div>
                     <div class="groupStatCard">
                         <p class="groupStatLabel">게시물</p>
-                        <strong>${group.postCount}</strong>
+                        <strong>${groupDetail.postCount}</strong>
                         <span class="groupStatHint">활성 커뮤니티</span>
                     </div>
                     <div class="groupStatCard">
                         <p class="groupStatLabel">가입 방식</p>
                         <strong>
                             <c:choose>
-                                <c:when test="${group.autoJoin == 1}">자동 승인</c:when>
+                                <c:when test="${groupDetail.autoJoin == 1}">자동 승인</c:when>
                                 <c:otherwise>관리자 승인</c:otherwise>
                             </c:choose>
                         </strong>
                         <span class="groupStatHint">
-                            제한 ${group.userLimit}명 · 현재 ${group.groupMemberCount}명
+                            제한 ${groupDetail.userLimit}명 · 현재 ${groupDetail.groupMemberCount}명
                         </span>
                     </div>
                 </section>
@@ -88,15 +88,15 @@
                 <section class="groupLayout">
                     <div class="groupAbout">
                         <h2>그룹 소개</h2>
-                        <p>${group.groupDescription}</p>
+                        <p>${groupDetail.groupDescription}</p>
 
                         <div class="groupDetailGrid">
                             <div>
-                                <p class="groupDetailLabel">가입 방식</p>
+                                <p class="groupDetailLabel">가입 가능 여부</p>
                                 <p class="groupDetailValue">
                                     <c:choose>
-                                        <c:when test="${group.joinState == 1}">승인 필요</c:when>
-                                        <c:otherwise>누구나 가입</c:otherwise>
+                                        <c:when test="${groupDetail.joinState == 1}">가능</c:when>
+                                        <c:otherwise>불가능</c:otherwise>
                                     </c:choose>
                                 </p>
                             </div>
@@ -104,18 +104,18 @@
                                 <p class="groupDetailLabel">자동 승인</p>
                                 <p class="groupDetailValue">
                                     <c:choose>
-                                        <c:when test="${group.autoJoin == 1}">ON</c:when>
+                                        <c:when test="${groupDetail.autoJoin == 1}">ON</c:when>
                                         <c:otherwise>OFF</c:otherwise>
                                     </c:choose>
                                 </p>
                             </div>
                             <div>
                                 <p class="groupDetailLabel">최대 인원</p>
-                                <p class="groupDetailValue">${group.userLimit}명</p>
+                                <p class="groupDetailValue">${groupDetail.userLimit}명</p>
                             </div>
                             <div>
                                 <p class="groupDetailLabel">현재 멤버</p>
-                                <p class="groupDetailValue">${group.groupMemberCount}명</p>
+                                <p class="groupDetailValue">${groupDetail.groupMemberCount}명</p>
                             </div>
                         </div>
 
@@ -123,9 +123,9 @@
                             <p class="groupDetailLabel">카테고리</p>
                             <ul class="groupCategoryList">
                                 <c:choose>
-                                    <c:when test="${not empty group.categoryIds}">
-                                        <c:forEach var="categoryId" items="${group.categoryIds}">
-                                            <li>#카테고리${categoryId}</li>
+                                    <c:when test="${not empty groupDetail.categoryIds}">
+                                        <c:forEach var="category" items="${groupDetail.categoryIds}">
+                                            <li>#카테고리${category.nameKor}</li>
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
@@ -141,23 +141,23 @@
                         <ul class="groupActivityList">
                             <li>
                                 <p>하루 조회수</p>
-                                <strong>${group.todayViewCount}</strong>
+                                <strong>${groupDetail.todayViewCount}</strong>
                                 <span>어제 대비 +18%</span>
                             </li>
                             <li>
                                 <p>좋아요 누적</p>
-                                <strong>${group.likeCount}</strong>
+                                <strong>${groupDetail.likeCount}</strong>
                                 <span>팬들의 참여가 활발해요</span>
                             </li>
                             <li>
                                 <p>게시글</p>
-                                <strong>${group.postCount}</strong>
+                                <strong>${groupDetail.postCount}</strong>
                                 <span>새로운 콘텐츠가 꾸준해요</span>
                             </li>
                             <li>
                                 <p>멤버 수</p>
-                                <strong>${group.groupMemberCount}</strong>
-                                <span>한계치 ${group.userLimit}명</span>
+                                <strong>${groupDetail.groupMemberCount}</strong>
+                                <span>한계치 ${groupDetail.userLimit}명</span>
                             </li>
                         </ul>
                     </div>

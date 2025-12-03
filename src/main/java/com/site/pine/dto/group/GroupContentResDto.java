@@ -26,7 +26,7 @@ public class GroupContentResDto {
     private Timestamp indate;
 
     // 카테고리
-    private List<Integer> categoryIds;
+    private List<GroupCategoryDto> categoryIds;
 
     // 파일
     private File groupImg;

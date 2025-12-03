@@ -4,6 +4,7 @@ import com.site.pine.dto.group.GroupCategoryDto;
 import com.site.pine.dto.group.GroupContentResDto;
 import com.site.pine.entity.group.GroupCategoryList;
 import com.site.pine.entity.group.GroupContents;
+import com.site.pine.entity.group.GroupInCategory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,9 +12,18 @@ public class GroupMapper {
 
     public GroupCategoryDto toGroupCategoryListResDto(GroupCategoryList category) {
         GroupCategoryDto resDto = new GroupCategoryDto();
-        resDto.setId(category.getId());
+        resDto.setCategoryId(category.getId());
         resDto.setNameKor(category.getNameKor());
         resDto.setNameEng(category.getNameEng());
+
+        return resDto;
+    };
+
+    public GroupCategoryDto toGroupInCategoryResDto(GroupInCategory category) {
+        GroupCategoryDto resDto = new GroupCategoryDto();
+        resDto.setCategoryId(category.getCategoryId());
+        resDto.setNameKor(category.getCategoryNameKor());
+        resDto.setNameEng(category.getCategoryNameEng());
 
         return resDto;
     };
