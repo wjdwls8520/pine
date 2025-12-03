@@ -30,7 +30,6 @@ public class SecurityConfig {
             "/login/**",         // 네이버 로그인 redirect + callback
             "/",
             "/index",
-            "/index.html",
             "/css/**",
             "/js/**",
             "/img/**",
@@ -39,6 +38,9 @@ public class SecurityConfig {
             "/naver/callback",
             "/goJoin",
             "/insertMember",
+            "/jointerms",
+            "/join",
+            "/oauth2/**",
     };
 
 
@@ -57,11 +59,17 @@ public class SecurityConfig {
                         .requestMatchers("/master/**").hasRole("MASTER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(anonymousUserUrl).permitAll()
-                        .requestMatchers(authenticatedUserUrl).authenticated()
+                        .requestMatchers(authenticatedUserUrl).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().permitAll()
                 )
-                .exceptionHandling(ex -> {})
+//                .exceptionHandling(ex -> {})
+
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/googleLoginSuccess", true) // 로그인 성공 후 이동
+                        .failureUrl("/login?error") // 로그인 실패 시
+                )
 
                 .logout(logout -> logout
                         .logoutUrl("/logout")              // 기본값, POST 요청
