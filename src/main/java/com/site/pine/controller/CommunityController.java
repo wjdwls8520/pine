@@ -28,7 +28,6 @@ public class CommunityController {
         return "community/commu_main"; //   작업폴더/jsp파일이름
     }
 
-
     @GetMapping("/community/{page}")
     @ResponseBody
     public HashMap<String, Object> getPostList(@PathVariable("page") Integer page) {
@@ -40,8 +39,6 @@ public class CommunityController {
         result.put("post", postResDto);
         return result; //   작업폴더/jsp파일이름
     }
-
-
 
     @GetMapping("/community/ccreate") //  url
     public String create(){
@@ -64,11 +61,27 @@ public class CommunityController {
     }
 
     @GetMapping("/community/cdetail/{id}")
-    public String getDetail(@PathVariable("id") Long id ) {
-        // 서비스로가서 디테일가져와
-        return "community/cDetail";
+    public String getDetail(@PathVariable("id") Long id, Model model) {
+        PostResDto post = cs.getDetail(id);
+        model.addAttribute("post", post);
+        return "community/cDetail"; // JSP에서 ${post.필드} 로 접근
     }
 
+    @PostMapping("/community/likeCount/{postId}")
+    @ResponseBody  // JSON으로 반환
+    public HashMap<String, Object> likeCount(@PathVariable("postId") Long postId,
+                                             @RequestBody HashMap<String, Object> body) {
 
+        // body에서 like 상태 가져오기
+        boolean like = (Boolean) body.get("like");
+
+        // 서비스에서 like 수 업데이트
+        int updatedLikeCount = cs.updateLikeCount(postId, like);
+
+        // 결과 JSON으로 반환
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("likeCount", updatedLikeCount);
+        return result;
+    }
 
 }

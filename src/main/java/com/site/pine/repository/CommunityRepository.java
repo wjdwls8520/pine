@@ -6,9 +6,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface CommunityRepository extends JpaRepository<Post, Long> {
 
     @EntityGraph(attributePaths = {"files"})
     Page<Post> findAllByOrderByWriteDateDesc(Pageable pageable);
 
+    Optional<Post> findById(Long id);
 }

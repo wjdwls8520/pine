@@ -102,14 +102,67 @@ public class CommunityService {
             // "2번"의 빈 배열에 포스트dto 넣음
             list.add(resDto);
         }
-
-
         // "1번"의 빈 해시맵에 dto(포스트와 파일)가 모두 들어간 "2번"배열을 넣음
          result.put("postList",list);
-
 
         // "1번"의 빈 해시맵에 "4번"의 페이지객체에 담겨있는 토탈페이지를 넣음
          result.put("totalPage",postPages.getTotalPages());
          return result;
+    }
+
+    public int updateLikeCount(Long postId, boolean like) {
+        Post post = cr.findById(postId)
+                .orElseThrow(() -> new RuntimeException("게시글 없음"));
+
+        if(like) {
+            post.setLikeCount(post.getLikeCount() + 1);
+        } else {
+            post.setLikeCount(post.getLikeCount() - 1);
+        }
+
+        cr.save(post);
+        return post.getLikeCount();
+    }
+
+
+    public PostResDto getDetail(Long id) {
+        Post post = cr.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다. id=" + id));
+
+        // 엔티티 → DTO 변환
+        PostResDto dto = new PostResDto();
+        dto.setId(post.getId());
+        dto.setContent(post.getContent());
+        dto.setLikeCount(post.getLikeCount());
+        dto.setReplyCount(post.getReplyCount());
+        dto.setStatus(post.getStatus());
+        dto.setCategory(post.getCategory());
+        dto.setWriteDate(post.getWriteDate());
+        dto.setUpdateDate(post.getUpdateDate());
+
+        // 파일 DTO 리스트 만들 준비
+        List<FileDto> postFilesResult = new ArrayList<>();
+
+        // 게시글 엔티티 안에 있는 파일 리스트 꺼내오기
+        List<File> postFiles = post.getFiles();
+
+        // 파일 개수만큼 반복
+        for (File postFile : postFiles) {
+            // FileDto 객체 생성
+            FileDto fileDto = new FileDto();
+            // File 엔티티 → FileDto 로 값 복사
+            fileDto.setId(postFile.getId());
+            fileDto.setPageType(postFile.getPageType());
+            fileDto.setOriginalname(postFile.getOriginalname());
+            fileDto.setSize(postFile.getSize());
+            fileDto.setPath(postFile.getPath());
+            fileDto.setContentType(postFile.getContentType());
+            // 리스트에 추가
+            postFilesResult.add(fileDto);
+        }
+        // DTO에 파일 리스트 넣기
+        dto.setFile(postFilesResult);
+
+        return dto;
     }
 }

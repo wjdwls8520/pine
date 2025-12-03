@@ -2,7 +2,7 @@
 .pageTitle {margin:20px 0;}
 .commuSection {display: flex; justify-content: start;gap:20px;}
 .postSection .postBox {width: 700px;border: 1px solid #ccc;}
-.postSection .postBox .postInner {padding:20px;}
+.postSection .postBox .postInner {padding:30px;}
 
 .postSection .postBox .postWrap .postTop {display:flex;justify-content:space-between;align-items:center;}
 .postSection .postBox .postWrap .postTop .postInfo {display: flex;
@@ -11,16 +11,62 @@
 .postSection .postBox .postWrap .postTop .postProfileImgBox .profileImg {width: 100%;height: 40px;object-fit: cover}
 .postSection .postBox .postWrap .postTop .userNick{margin:0 20px 0 10px}
 
-.postSection .postBox .postWrap .postMiddle {    margin: 20px 0;}
-.postSection .postBox .postWrap .postMiddle .postImg{    border: 1px solid #ccc;
-    width: 500px;
-    height: 500px;
-    margin-top: 20px;}
+.postSection .postBox .postWrap .postMiddle {margin: 20px 0;}
+
+.postSection .postBox .postWrap .postMiddle .postContent {display: inline-block;cursor:pointer;}
+
+
+/*포스트 이미지 슬라이드*/
+.swiper.commuSlide {
+    width: 100%;
+    height: 380px;
+    margin: 30px 0;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+.swiper.commuSlide .swiper-wrapper .swiper-slide > img {
+    width: 100%; height: 100%; object-fit: cover;}
+
+
 
 .postSection .postBox .postWrap .postBottom{
     display: flex;
     justify-content: flex-start;
     align-items: center;}
+.postSection .postBox .postWrap .postBottom .icoBox{
+    display: flex;
+    align-items: center;
+    gap: 8px;}
+.postSection .postBox .postWrap .postBottom .icoBox + .icoBox {margin-left: 30px;}
+.postSection .postBox .postWrap .postBottom .ico{
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    background-size: cover;
+    cursor: pointer;
+}
+.postSection .postBox .postWrap .postBottom .ico_like {
+    background: url("../images/ico_like.png") center center no-repeat;
+    background-size: cover;
+}
+
+.postSection .postBox .postWrap .postBottom .ico_like.active {
+    background: url("../images/ico_like_pull.png") center center no-repeat;
+    background-size: cover;
+}
+
+.postSection .postBox .postWrap .postBottom .ico_reply {
+    background: url("../images/ico_reply.png") center center no-repeat;
+    background-size: cover;
+
+}
+
+.postSection .postBox .postWrap .postBottom .ico_link {
+    background: url("../images/ico_link.png") center center no-repeat;
+    background-size: cover;
+}
+
 
 /*---그룹랭크---*/
 .groupSection {width: 250px;
