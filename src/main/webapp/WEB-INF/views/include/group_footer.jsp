@@ -69,14 +69,18 @@
                     window.handleGroupButtonsReady();
                 }
             }
-        } else if (path === "/group/detail") {
+        } else if (path.startsWith("/group/gdetail")) {
             if (formActions) {
                 formActions.innerHTML = `
                     <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
                     <div class="stepButtons">
-                        <button type="button" class="btnWH btnNext" id="" onclick="moveGcreate();">수정하기</button>
+                        <button type="button" class="btnWH btnNext" id="" onclick="">그룹 설정</button>
                     </div>
                 `;
+
+                if (typeof window.handleGroupButtonsReady === "function") {
+                    window.handleGroupButtonsReady();
+                }
             }
         }
     });

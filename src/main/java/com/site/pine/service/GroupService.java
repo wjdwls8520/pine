@@ -70,7 +70,7 @@ public class GroupService {
         // 조회한 그룹이 없다면 리턴
         if(groupContentsE_List.isEmpty()) {
             result.put("msg", "조회된 그룹이 없습니다.");
-            return result;
+            result.put("totalPage", 0);
         }
 
         // 조회한 그룹이 있다면 리턴
@@ -135,8 +135,19 @@ public class GroupService {
     }
 
     // 하나의 그룹 디테일
-    public void getGroup(Long id) throws IllegalAccessException {
+    public GroupContentResDto getGroup(Long id) throws IllegalAccessException {
         GroupContents groupDetailE = gconr.findById(id).orElseThrow(()-> new IllegalAccessException("존재하지 않는 그룹입니다."));
+        GroupContentResDto groupContentResDto = gm.toGroupContentResDto(groupDetailE);
 
+        List<GroupCategoryDto> categoryResult = new ArrayList<>();
+        for (GroupInCategory category : groupDetailE.getCategoryIds()) {
+            GroupCategoryDto categoryResDto = gm.toGroupInCategoryResDto(category);
+
+            categoryResult.add(categoryResDto);
+        }
+
+        groupContentResDto.setCategoryIds(categoryResult);
+
+        return groupContentResDto ;
     }
 }

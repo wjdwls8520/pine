@@ -67,8 +67,8 @@ public class GroupController {
     public String detail(@PathVariable("id") Long id, Model model) {
 
         try {
-            gs.getGroup(id);
-
+            model.addAttribute("groupDetail", gs.getGroup(id));
+            System.out.println(gs.getGroup(id));
             return "group/gDetail";
 
         } catch (IllegalAccessException e) {

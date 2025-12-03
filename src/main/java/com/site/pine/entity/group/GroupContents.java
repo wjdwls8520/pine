@@ -26,11 +26,11 @@ public class GroupContents {
     @Column(nullable = false)
     private String groupDescription;
 
-    @Comment("그룹의 가입 승인 여부, 기본값은 1")
+    @Comment("그룹의 가입 승인 여부, 기본값은 1, 가입가능 = 1, 가입불가능 = 0")
     @Column(nullable = false)
     private Integer joinState = 1;
 
-    @Comment("그룹가입 자동 승인 여부, 기본값은 1")
+    @Comment("그룹가입 자동 승인 여부, 기본값은 1, 자동승인 1, 관리자승인 0 ")
     @Column(nullable = false)
     private Integer autoJoin = 1;
 
@@ -67,4 +67,21 @@ public class GroupContents {
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
+    @Comment("그룹에 해당하는 카테고리")
+    @OneToMany(
+            mappedBy = "groupContents",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<GroupInCategory> categoryIds = new ArrayList<>();
+
+    @Comment("그룹에 가입된 멤버")
+    @OneToMany(
+            mappedBy = "groupContents",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<GroupMember> groupMembers = new ArrayList<>();
 }
