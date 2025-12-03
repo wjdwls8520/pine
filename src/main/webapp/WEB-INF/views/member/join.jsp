@@ -18,13 +18,13 @@
         <form method="post" action="/insertMember" class="joinMember">
             <h1>로그인</h1><p>* 표시는 필수 항목입니다.</p>
             <div>*아이디</div>
-            <input type="text" name="email" value="${sessionScope.naveruserinfo.email}" readonly />
+            <input type="text" name="email" value="${sessionScope.userinfo.email}" readonly />
             <div>*이름</div>
-            <input type="text" name="name" value="${sessionScope.naveruserinfo.name}" readonly />
+            <input type="text" name="name" value="${sessionScope.userinfo.name}" readonly />
             <div>*별명</div>
             <input type="text" name="nickname"  />
             <div>*전화번호</div>
-            <input type="text" name="phone" value="${sessionScope.naveruserinfo.phone}"   />
+            <input type="text" name="phone" value="${sessionScope.userinfo.phone}"   />
             <div>직업</div>
             <input type="text" name="job"  />
             <div>*주소</div>
