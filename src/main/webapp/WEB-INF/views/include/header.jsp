@@ -15,9 +15,13 @@
 <%--                <a href="#">Logout</a>--%>
 <%--                <a href="#">MyPage</a>--%>
             <sec:authorize access="isAuthenticated()">
-                <div></div><a href="/">Logout</a>
+                <form method="post" action="/logout">
+                    <button type="submit">Logout</button>
+                </form>
             </sec:authorize>
-            <a href="/login">Login</a>
+            <sec:authorize access="!isAuthenticated()">
+                <a href="/login">Login</a>
+            </sec:authorize>
             <a href="#" class="join">Join</a>
         </div>
     </div>
