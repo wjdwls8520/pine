@@ -3,6 +3,10 @@ function naverLogin() {
 
 }
 
+function googleLogin(){
+    window.location.href = "/oauth2/authorization/google";
+}
+
 function findPostCode(){
 
     document.getElementById('overlay').style.display = 'block';
