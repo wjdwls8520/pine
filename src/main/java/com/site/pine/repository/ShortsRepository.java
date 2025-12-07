@@ -8,6 +8,10 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ShortsRepository extends JpaRepository<Shorts, Long> {
+//    @EntityGraph(attributePaths = {"files"})
+//    Page<Shorts> findAllByOrderByIndateDesc(Pageable pageable);
+
     @EntityGraph(attributePaths = {"files"})
-    Page<Shorts> findAllByOrderByIndateDesc(Pageable pageable);
+    Page<Shorts> findAllByOrderByIndateDescIdDesc(Pageable pageable);
+
 }

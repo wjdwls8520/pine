@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 @Controller
@@ -24,7 +25,7 @@ public class ShortsController {
 
     @GetMapping("/shorts/{page}")
     @ResponseBody
-    public List<ShortsResDto> shorts(@PathVariable("page") int page){
+    public HashMap<String, Object> shorts(@PathVariable("page") int page){
         return ss.getAllShorts(page);
     }
 
