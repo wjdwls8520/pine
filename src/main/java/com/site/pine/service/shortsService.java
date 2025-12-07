@@ -54,18 +54,19 @@ public class shortsService {
 
     }
 
-    public List<ShortsResDto> getAllShorts(int page) {
+    public HashMap<String, Object> getAllShorts(int page) {
         //1. 빈 해시맵 만들기
         HashMap<String, Object> result = new HashMap<>();
         // 2. 빈 리스트 만들기
         List<ShortsResDto> list = new ArrayList<>();
 
         // 3. 페이지 정의 = page번째 페이지에서 6 개씩 가져와라 라는 정보 담음
-        Pageable pageable = PageRequest.of(page, 6);
-        // 4. 페이지객체에 포스트엔티티 넣기 (페이지네이션 된 데이터만 가져옴)
-        // Page<Post> 에는 페이지정보가 포함되어있음.
-        Page<Shorts> shortsEntityList = sr.findAllByOrderByIndateDesc(pageable);
-        for(Shorts shortsEntity : shortsEntityList) {
+        Pageable pageable = PageRequest.of(page, 2);
+        // 4. 페이지객체에 쇼츠엔티티 넣기 (페이지네이션 된 데이터만 가져옴)
+        // Page<Shorts> 에는 페이지정보가 포함되어있음.
+//        Page<Shorts> shortsPages = sr.findAllByOrderByIndateDesc(pageable);
+        Page<Shorts> shortsPages = sr.findAllByOrderByIndateDescIdDesc(pageable);
+        for(Shorts shortsEntity : shortsPages) {
             ShortsResDto resDto = new ShortsResDto();
             resDto.setId(shortsEntity.getId());
             resDto.setTitle(shortsEntity.getTitle());
@@ -84,11 +85,14 @@ public class shortsService {
                 fileDto.setSize(file.getSize());
                 fileDtoList.add(fileDto);
             }
-            resDto.setFiles(fileDtoList);
 
+            resDto.setFiles(fileDtoList);
             list.add(resDto);
         }
+        result.put("shortsList", list);
+        result.put("totalPage", shortsPages.getTotalPages());
 
-        return list;
+        return result;
     }
+
 }
