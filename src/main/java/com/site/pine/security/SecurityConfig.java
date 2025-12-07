@@ -21,18 +21,26 @@ public class SecurityConfig {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
-
     private static final String[] authenticatedUserUrl = {
-            "/**"
+            // 로그인 유저 접근 url 설정
     };
 
-    private static final String[] permitAllUrl = {
-            "/**",
-//            "/",
-//            "/login/**",         // 네이버 로그인 redirect + callback
-//            "/css/**", "/js/**", "/img/**"
+    private static final String[] anonymousUserUrl = {
+            // 비로그인 유저 접근 url 설정
+            "/login/**",         // 네이버 로그인 redirect + callback
+            "/",
+            "/index",
+            "/css/**",
+            "/js/**",
+            "/img/**",
+            "/favicon.ico",
+            "/auth/naver/login",
+            "/naver/callback",
+            "/goJoin",
+            "/insertMember",
+            "/jointerms",
+            "/join",
+            "/oauth2/**",
     };
 
 
@@ -50,12 +58,28 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/master/**").hasRole("MASTER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        .requestMatchers(anonymousUserUrl).permitAll()
                         .requestMatchers(authenticatedUserUrl).permitAll()
-                        .requestMatchers(permitAllUrl).permitAll()
+
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().permitAll()
                 )
-                .exceptionHandling(ex -> {});
+//                .exceptionHandling(ex -> {})
+
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/googleLoginSuccess", true) // 로그인 성공 후 이동
+                        .failureUrl("/login?error") // 로그인 실패 시
+                )
+
+                .logout(logout -> logout
+                        .logoutUrl("/logout")              // 기본값, POST 요청
+                        .logoutSuccessUrl("/")             // 로그아웃 후 이동할 페이지
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                );
 
         return http.build();
     }

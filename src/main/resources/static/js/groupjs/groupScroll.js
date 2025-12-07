@@ -19,6 +19,13 @@ async function getData(page) {
                 // 성공 시 처리
                 console.log(data); // 서버에서 받은 값 콘솔
 
+                // 그룹이 비어있을시
+                if(data.resDto.msg) {
+                    return groupWrap.insertAdjacentHTML("beforeend", `
+                        <span>그룹이 비어있습니다.</span>
+                    `);
+                }
+
                 // 토탈페이지 변경
                 totalPages = data.resDto.totalPage.totalPages;
 

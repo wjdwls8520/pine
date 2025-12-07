@@ -24,16 +24,16 @@ public class MemberService {
         MemberJoinDto mdto = new MemberJoinDto();
         Member memberByEmail = mr.findByEmail(email);
         Member memberByNickname = mr.findByNickname(nickname);
-        if (memberByNickname != null) {
-            mdto.setEmail(memberByEmail.getEmail());
-        }else{
+        if (memberByEmail == null) {
             mdto.setEmail("");
+        }else{
+            mdto.setEmail(memberByEmail.getEmail());
         }
 
-        if (memberByNickname != null) {
-            mdto.setNickname(memberByNickname.getNickname());
-        }else {
+        if (memberByNickname == null) {
             mdto.setNickname("");
+        }else {
+            mdto.setNickname(memberByNickname.getNickname());
         }
 
         return mdto;
@@ -53,7 +53,11 @@ public class MemberService {
         member.setAddress_1(address1);
         member.setAddress_2(address2);
         member.setJoin_date(timestamp);
-        member.setPhone(mdto.getPhone());
+        if(mdto.getPhone()!=null){
+            member.setPhone(mdto.getPhone());
+        }else {
+            member.setPhone(phone);
+        }
         member.setPrivacy_agreed(mdto.getPrivacy_agreed());
         member.setPrivacy_agreed_date(mdto.getPrivacy_agreed_date());
         member.setProvider(mdto.getProvider());
@@ -86,7 +90,11 @@ public class MemberService {
 
         MemberDto member = new MemberDto();
         Member memberByEmail = mr.findByEmail(email);
-        member.setEmail(memberByEmail.getEmail());
+        if(memberByEmail == null){
+            member = null;
+        }else{
+            member.setEmail(memberByEmail.getEmail());
+        }
         return member;
     }
 }

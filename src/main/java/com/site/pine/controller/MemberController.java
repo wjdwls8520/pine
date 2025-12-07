@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
@@ -60,7 +62,8 @@ public class MemberController {
                 + "?response_type=code"
                 + "&client_id=" + clientId
                 + "&redirect_uri=" + redirectUri
-                + "&state=" + state;
+                + "&state=" + state
+                + "&scope=email";
 
         System.out.println("redirect_uri: " + redirectUri);
         System.out.println("naverUrl: " + naverUrl);
@@ -126,6 +129,9 @@ public class MemberController {
             mdto.setPhone(profile.optString("mobile"));
             mdto.setProvider(1);
             request.getSession().setAttribute("naveruserinfo", mdto);
+
+            System.out.println("네이버 콜백 완료됨");
+
             return "member/jointerms";
         }else{
             member = ms.getMember(email);
@@ -143,6 +149,30 @@ public class MemberController {
     }
 
 
+    @GetMapping("/googleLoginSuccess")
+    public String loginSuccess(@AuthenticationPrincipal OAuth2User principal, HttpSession session) {
+        String email = principal.getAttribute("email");
+        String name = principal.getAttribute("name");
+
+        System.out.println("principal: " + principal);
+
+        MemberDto member = ms.findByEmail(email);
+        if(member == null){
+            // 신규 회원 처리, 세션 저장
+            MemberDto mdto = new MemberDto();
+            mdto.setEmail(email);
+            mdto.setName(name);
+            mdto.setProvider(2);
+            session.setAttribute("userinfo", mdto);
+            return "member/jointerms";
+        } else {
+            // 기존 회원 로그인
+            AuthUtil.login(member, session);
+            return "redirect:/";
+        }
+    }
+
+
     @PostMapping("/goJoin")
     public String goJoin(
             HttpServletRequest request,
@@ -152,38 +182,49 @@ public class MemberController {
             Model model
     ) {
 
+        HttpSession session = request.getSession(false);
+        if(session == null || session.getAttribute("userinfo") == null){
+            // 세션 없으면 로그인 페이지로 이동
+            return "redirect:/";
+        }
+
+        MemberDto loginInfo = (MemberDto) session.getAttribute("userinfo");
         Date today = new Date();
         Timestamp ts = new Timestamp(today.getTime());
 
-        HttpSession session = request.getSession(false);
+        boolean hasError = false;
 
-
-
-        if(session != null){
-            MemberDto loginInfo = (MemberDto) session.getAttribute("naveruserinfo");
-            if(termsAgreed){
-                loginInfo.setTerms_agreed(termsAgreed);
-                loginInfo.setTerms_agreed_date(ts);
-            }else{
-                model.addAttribute("needTAgreed", "정책 약관에 동의해주세요.");
-            }
-
-            if(privacyAgreed){
-                loginInfo.setPrivacy_agreed(privacyAgreed);
-                loginInfo.setPrivacy_agreed_date(ts);
-            }else{
-                model.addAttribute("needPAgreed", "개인정보 약관에 동의해주세요");
-            }
-
-            loginInfo.setMarketing_agreed(marketingAgreed);
-            loginInfo.setMarketing_agreed_date(ts);
-
-            request.getSession().setAttribute("naveruserinfo", loginInfo);
-
-        }else {
-            System.out.println("세션이 없음");
+        if(!termsAgreed){
+            model.addAttribute("needTAgreed", "정책 약관에 동의해주세요.");
+            hasError = true;
+        } else {
+            loginInfo.setTerms_agreed(true);
+            loginInfo.setTerms_agreed_date(ts);
         }
 
+        if(!privacyAgreed){
+            model.addAttribute("needPAgreed", "개인정보 약관에 동의해주세요.");
+            hasError = true;
+        } else {
+            loginInfo.setPrivacy_agreed(true);
+            loginInfo.setPrivacy_agreed_date(ts);
+        }
+
+        // 마케팅 약관 optional
+        loginInfo.setMarketing_agreed(marketingAgreed);
+        loginInfo.setMarketing_agreed_date(ts);
+
+        // 약관 미동의 시 다시 jointerms page
+        if(hasError){
+            return "member/jointerms";
+        }
+
+        // 세션 갱신
+        session.setAttribute("userinfo", loginInfo);
+
+        System.out.println("약관동의 완료됨");
+
+        // 여기서 insertMember form으로 redirect 혹은 다음 단계로 이동
         return "member/join";
     }
 
@@ -205,8 +246,14 @@ public class MemberController {
     ){
         // memberJoinDto의 email, nickname 조회해서 비어있으면 바로 insert
         // 아니면 모델로 메세지 출력 후 리턴
-        MemberJoinDto mjdto = ms.getMemberInfo(email, nickname);
         HttpSession session = request.getSession(false);
+
+        if(session == null || session.getAttribute("userinfo") == null){
+            // 세션 없으면 강제 redirect
+            return "member/jointerms";
+        }
+
+        MemberJoinDto mjdto = ms.getMemberInfo(email, nickname);
 
         if(mjdto.getEmail().equals(email)){
             model.addAttribute("emailError","이미 존재하는 이메일 입니다");
@@ -215,9 +262,9 @@ public class MemberController {
         }else{
 
             if(session != null){
-                MemberDto mdto = (MemberDto) session.getAttribute("naveruserinfo");
+                MemberDto mdto = (MemberDto) session.getAttribute("userinfo");
                 ms.insertMember(email, name, nickname, job, addressCode, address1, address2, profile_msg, phone, mdto);
-                session.removeAttribute("naveruserinfo");
+                session.removeAttribute("userinfo");
             }
 
             MemberDto loginInfo = ms.getMember(email);
@@ -226,6 +273,9 @@ public class MemberController {
             }
 
         }
+
+        System.out.println("멤버 ");
+
         return "redirect:/";
     }
 
