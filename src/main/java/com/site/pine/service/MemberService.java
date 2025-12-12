@@ -78,10 +78,15 @@ public class MemberService {
     public MemberDto getMember(String email) {
         MemberDto mdto = new MemberDto();
         Member member = mr.findByEmail(email);
+
+        System.out.println("member : "+member);
+
         mdto.setEmail(member.getEmail());
         mdto.setNickname(member.getNickname());
         mdto.setName(member.getName());
         mdto.setProvider(member.getProvider());
+        mdto.setPhone(member.getPhone());
+        mdto.setProfileimg(member.getProfile_img());
         return mdto;
     }
 

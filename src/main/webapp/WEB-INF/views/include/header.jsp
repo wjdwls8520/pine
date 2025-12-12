@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="loginUser" />
 <header id="header">
     <div class="inner">
         <h1 class="logo">
@@ -15,14 +16,17 @@
 <%--                <a href="#">Logout</a>--%>
 <%--                <a href="#">MyPage</a>--%>
             <sec:authorize access="isAuthenticated()">
+                <p>${loginUser.nickname} 님 반가워요!</p>
                 <form method="post" action="/logout">
                     <button type="submit">Logout</button>
                 </form>
             </sec:authorize>
-            <sec:authorize access="!isAuthenticated()">
-                <a href="/login">Login</a>
+            <sec:authorize access="isAuthenticated()">
+                <a href="/GoMypage">MyPage</a>
             </sec:authorize>
-            <a href="#" class="join">Join</a>
+            <sec:authorize access="!isAuthenticated()">
+                <a href="/login">Login / join</a>
+            </sec:authorize>
         </div>
     </div>
 </header>

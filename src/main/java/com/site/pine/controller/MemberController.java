@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -128,7 +129,7 @@ public class MemberController {
             mdto.setProfileimg(profile.optString("profile_image"));
             mdto.setPhone(profile.optString("mobile"));
             mdto.setProvider(1);
-            request.getSession().setAttribute("naveruserinfo", mdto);
+            request.getSession().setAttribute("userinfo", mdto);
 
             System.out.println("네이버 콜백 완료됨");
 
@@ -136,8 +137,8 @@ public class MemberController {
         }else{
             member = ms.getMember(email);
 
-            if(member.getProvider() == 0) {
-                member.setProvider(0);
+            if(member.getProvider() != 1) {
+                member.setProvider(1);
             }
 
             AuthUtil.login(member, request.getSession());
@@ -167,6 +168,11 @@ public class MemberController {
             return "member/jointerms";
         } else {
             // 기존 회원 로그인
+            member = ms.getMember(email);
+
+            if(member.getProvider() != 2) {
+                member.setProvider(2);
+            }
             AuthUtil.login(member, session);
             return "redirect:/";
         }
@@ -257,8 +263,10 @@ public class MemberController {
 
         if(mjdto.getEmail().equals(email)){
             model.addAttribute("emailError","이미 존재하는 이메일 입니다");
+            return "member/join";
         }else if(mjdto.getNickname().equals(nickname)){
             model.addAttribute("nicknameError", "이미 존재하는 닉네임 입니다.");
+            return "member/join";
         }else{
 
             if(session != null){
@@ -274,9 +282,15 @@ public class MemberController {
 
         }
 
-        System.out.println("멤버 ");
-
         return "redirect:/";
+    }
+
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/GoMypage")
+    public String goMypage(@AuthenticationPrincipal MemberDto mdto, Model model){
+        model.addAttribute("member", mdto);
+        return "member/mypage";
     }
 
 

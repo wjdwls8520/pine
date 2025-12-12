@@ -1,0 +1,14 @@
+.mypage{ display: flex; }
+.mypage_info{ display: flex; flex-direction: column; padding: 20px; flex: 1; align-items: center; }
+.mypage_profile{ display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.mypage_profile > button{ width: 40%; height: 50px; background: #138044; color: white; margin: 20px; }
+.mypage_image{ width: 500px; height: 500px; }
+.mypage_image > img{ width: 100%; height: 100%; border-radius: 50%; border: 1px solid #ccc }
+.mypage_infolist{ display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 40px; }
+.mypage_infolist > ul{ text-align: center; list-style: none; width: 100%; font-size: 15pt; }
+.mypage_infolist > ul > li{ cursor: pointer; padding: 15px 0; border-bottom: 1px solid #ccc; }
+.mypage_infolist > ul > li:last-child{ border-bottom: none; }
+.mypage_list{ display: flex; flex-direction: column; justify-content: flex-start; padding: 20px; }
+.mypage_list_mylist{ display: flex; flex-direction: column; }
+.mypage_list_mylist_post{ display: flex; justify-content: space-evenly; width: 100%; overflow: scroll; }
+.mypage_list_mylist_post_01{ width: 300px; height: 300px; border: 1px solid #aaa }
