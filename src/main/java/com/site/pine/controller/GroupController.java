@@ -1,12 +1,13 @@
 package com.site.pine.controller;
 
-import com.site.pine.dto.community.PostResDto;
 import com.site.pine.dto.group.GroupCategoryDto;
 import com.site.pine.dto.group.GroupContentReqDto;
-import com.site.pine.dto.group.GroupContentResDto;
+import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,9 @@ public class GroupController {
 
     // 그룹페이지화면
     @GetMapping("/group")
-    public String groups(){
+    public String groups(@AuthenticationPrincipal MemberDto mdto) {
+
+        System.out.println("@@@@@@@@" + mdto);
         return "group/group";
     }
     @GetMapping("/group/{page}")
