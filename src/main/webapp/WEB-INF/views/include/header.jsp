@@ -15,18 +15,22 @@
         <div class="util">
 <%--                <a href="#">Logout</a>--%>
 <%--                <a href="#">MyPage</a>--%>
-            <sec:authorize access="isAuthenticated()">
+            <sec:authorize access="hasRole('ROLE_USER')">
                 <p>${loginUser.nickname} 님 반가워요!</p>
                 <form method="post" action="/logout">
                     <button type="submit">Logout</button>
                 </form>
             </sec:authorize>
-            <sec:authorize access="isAuthenticated()">
+            <sec:authorize access="hasRole('ROLE_OAUTH')">
+                <a href="#">회원가입을 진행해주세요.</a>
+            </sec:authorize>
+            <sec:authorize access="hasRole('ROLE_USER')">
                 <a href="/GoMypage">MyPage</a>
             </sec:authorize>
             <sec:authorize access="!isAuthenticated()">
                 <a href="/login">Login / join</a>
             </sec:authorize>
+
         </div>
     </div>
 </header>

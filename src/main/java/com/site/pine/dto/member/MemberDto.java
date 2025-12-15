@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 
 @Data
 public class MemberDto {
-    private int id;
+    private int m_idx;
     private String email;
     private String pwd;
     private String name;

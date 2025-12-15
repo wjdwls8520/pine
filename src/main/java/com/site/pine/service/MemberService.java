@@ -81,6 +81,7 @@ public class MemberService {
 
         System.out.println("member : "+member);
 
+        mdto.setM_idx(member.getM_idx());
         mdto.setEmail(member.getEmail());
         mdto.setNickname(member.getNickname());
         mdto.setName(member.getName());
@@ -101,5 +102,9 @@ public class MemberService {
             member.setEmail(memberByEmail.getEmail());
         }
         return member;
+    }
+
+    public boolean existsByEmail(String email) {
+        return mr.findByEmail(email) != null;
     }
 }

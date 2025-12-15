@@ -18,7 +18,7 @@
         <div class="mypage_info">
             <div class="mypage_profile">
                 <div class="mypage_image"><img src="" /></div>
-                <p>${member.name}</p>
+                <div style="margin: 20px 0">${member.name}</div>
                 <button>프로필 수정</button>
             </div>
             <div class="mypage_infolist">
