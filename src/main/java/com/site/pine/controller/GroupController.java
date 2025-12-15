@@ -4,10 +4,8 @@ import com.site.pine.dto.group.GroupCategoryDto;
 import com.site.pine.dto.group.GroupContentReqDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -53,15 +51,24 @@ public class GroupController {
         return "group/gCreate";
     }
     @PostMapping("/group/gcreate")
-    public String create(@ModelAttribute GroupContentReqDto groupContentReqDto, RedirectAttributes redirectAttrs) throws IOException {
-        System.out.println(groupContentReqDto);
+    public String create(@AuthenticationPrincipal MemberDto memberdto, @ModelAttribute GroupContentReqDto groupContentReqDto, RedirectAttributes redirectAttrs) {
+
+        if (memberdto == null) {
+            return "redirect:/errorLogin";
+        }
 
         if(groupContentReqDto.getGroupImg() == null || groupContentReqDto.getGroupImg().isEmpty()){
             redirectAttrs.addFlashAttribute("msg", "[error] 파일이 비어있어 그룹생성을 하지 못했습니다.");
             return "redirect:/group";
         }
-        gs.insertGroupContent(groupContentReqDto);
-        redirectAttrs.addFlashAttribute("msg", "그룹이 정상적으로 생성되었습니다.");
+
+        try {
+            gs.insertGroupContent(memberdto, groupContentReqDto);
+            redirectAttrs.addFlashAttribute("msg", "그룹이 정상적으로 생성되었습니다.");
+        } catch (IllegalStateException e) {
+            redirectAttrs.addFlashAttribute("msg", e.getMessage());
+        }
+
         return "redirect:/group";
     }
 
