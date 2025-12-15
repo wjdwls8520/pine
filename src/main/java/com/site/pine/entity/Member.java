@@ -2,7 +2,7 @@ package com.site.pine.entity;
 
 import com.site.pine.entity.group.GroupMember;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.sql.Timestamp;
@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Member {
 
     @Id

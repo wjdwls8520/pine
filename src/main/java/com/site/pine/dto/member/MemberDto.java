@@ -1,10 +1,11 @@
 package com.site.pine.dto.member;
 
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Timestamp;
 
-@Data
+@Getter
+@Setter
 public class MemberDto {
     private int id;
     private String email;

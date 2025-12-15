@@ -27,6 +27,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -153,7 +154,7 @@ public class MemberController {
 
 
     @GetMapping("/googleLoginSuccess")
-    public String loginSuccess(@AuthenticationPrincipal OAuth2User principal, HttpSession session) {
+    public String loginSuccess(@AuthenticationPrincipal OAuth2User principal, HttpSession session, HttpServletRequest request) {
         String email = principal.getAttribute("email");
         String name = principal.getAttribute("name");
 
@@ -170,6 +171,8 @@ public class MemberController {
             return "member/jointerms";
         } else {
             // 기존 회원 로그인
+            member = ms.getMember(email);
+            AuthUtil.login(member, request.getSession());
             return "redirect:/";
         }
     }
@@ -273,26 +276,7 @@ public class MemberController {
 
             MemberDto loginInfo = ms.getMember(email);
             if (loginInfo != null) {
-                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-                // OAuth 로그인 상태인지 확인
-                if (auth != null && auth.getPrincipal() instanceof OAuth2User) {
-
-                    OAuth2User oauthUser = (OAuth2User) auth.getPrincipal();
-
-                    List<GrantedAuthority> newAuthorities = List.of(
-                            new SimpleGrantedAuthority("ROLE_USER")
-                    );
-
-                    Authentication newAuth =
-                            new UsernamePasswordAuthenticationToken(
-                                    oauthUser,      // 기존 OAuth principal 유지
-                                    null,
-                                    newAuthorities  // ROLE_USER로 교체
-                            );
-
-                    SecurityContextHolder.getContext().setAuthentication(newAuth);
-                }
+                AuthUtil.login(loginInfo, request.getSession());
             }
         }
         return "redirect:/";
@@ -306,5 +290,16 @@ public class MemberController {
         return "member/mypage";
     }
 
+    @GetMapping("/test")
+    @ResponseBody
+    public String test(@AuthenticationPrincipal Object principal) {
+        System.out.println(principal.getClass());
+        System.out.println(principal);
+
+        System.out.println(Arrays.toString(principal.getClass().getMethods()));
+
+
+        return "ok";
+    }
 
 }
