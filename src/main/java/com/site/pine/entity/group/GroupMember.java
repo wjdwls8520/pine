@@ -2,14 +2,17 @@ package com.site.pine.entity.group;
 
 import com.site.pine.entity.Member;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GroupMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

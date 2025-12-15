@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class S3UploadService {
 
@@ -48,10 +47,20 @@ public class S3UploadService {
     public void deleteFile(String path) {
         if (path == null || path.isEmpty()) return;
 
-        // URL에서 파일명 추출
-        String fileName = path.substring(path.lastIndexOf("/") + 1);
+        String key = path;
 
-        // S3에서 해당 파일 삭제
-        amazonS3.deleteObject(bucket, fileName);
+        // URL → S3 key 변환
+        if (path.startsWith("http")) {
+            key = path.substring(path.indexOf(".amazonaws.com/") + ".amazonaws.com/".length());
+            if (key.startsWith("/")) {
+                key = key.substring(1);
+            }
+        }
+
+        System.out.println("S3 DELETE key = " + key);
+
+        amazonS3.deleteObject(bucket, key);
+
+        System.out.println("S3 DELETE DONE");
     }
 }

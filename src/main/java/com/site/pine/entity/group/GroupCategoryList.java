@@ -1,14 +1,13 @@
 package com.site.pine.entity.group;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class GroupCategoryList {
     @Id
     private Integer id;
