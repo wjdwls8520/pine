@@ -1,5 +1,6 @@
 package com.site.pine.security;
 
+import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,17 +37,21 @@ public class CustomOAuth2UserService
         boolean exists = memberService.existsByEmail(email);
 
         Collection<GrantedAuthority> authorities = new ArrayList<>();
+        MemberDto member = null;
 
         if (exists) {
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            member = memberService.getMember(email);
         } else {
             authorities.add(new SimpleGrantedAuthority("ROLE_OAUTH"));
         }
 
-        return new DefaultOAuth2User(
+        OAuth2User baseUser = new DefaultOAuth2User(
                 authorities,
                 oauthUser.getAttributes(),
                 "email"
         );
+
+        return new CustomOAuth2User(baseUser, member);
     }
 }
