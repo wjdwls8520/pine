@@ -1,5 +1,7 @@
 package com.site.pine.controller;
 
+import com.site.pine.dto.community.PostListDto;
+import com.site.pine.dto.community.PostResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.entity.Member;
@@ -287,19 +289,12 @@ public class MemberController {
     @GetMapping("/GoMypage")
     public String goMypage(@AuthenticationPrincipal MemberDto mdto, Model model){
         model.addAttribute("member", mdto);
+        System.out.println("mdto : "+mdto);
+        List<PostListDto> myPost = ms.getPostList(mdto.getId());
+        model.addAttribute("post", myPost);
         return "member/mypage";
     }
 
-    @GetMapping("/test")
-    @ResponseBody
-    public String test(@AuthenticationPrincipal Object principal) {
-        System.out.println(principal.getClass());
-        System.out.println(principal);
 
-        System.out.println(Arrays.toString(principal.getClass().getMethods()));
-
-
-        return "ok";
-    }
 
 }

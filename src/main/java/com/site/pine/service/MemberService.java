@@ -1,15 +1,21 @@
 package com.site.pine.service;
 
 import com.site.pine.dao.IMemberDao;
+import com.site.pine.dto.community.PostListDto;
+import com.site.pine.dto.community.PostResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.entity.Member;
+import com.site.pine.repository.CommunityRepository;
 import com.site.pine.repository.MemberRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class MemberService {
@@ -19,6 +25,9 @@ public class MemberService {
 
     @Autowired
     MemberRepository mr;
+
+    @Autowired
+    CommunityRepository cr;
 
     public MemberJoinDto getMemberInfo(String email, String nickname) {
         MemberJoinDto mdto = new MemberJoinDto();
@@ -106,5 +115,10 @@ public class MemberService {
 
     public boolean existsByEmail(String email) {
         return mr.findByEmail(email) != null;
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostListDto> getPostList(int id) {
+        return cr.findPostList();
     }
 }
