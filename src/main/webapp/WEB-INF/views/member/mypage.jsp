@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -32,20 +33,19 @@
         </div>
         <div class="mypage_list">
             <div class="mypage_list_mylist">
-                <h2>MY LIST</h2>
-                <div class="mypage_list_mylist_post">
-                    <div class="mypage_list_mylist_post_01">
-                        포스트1
-                    </div>
-                    <div class="mypage_list_mylist_post_01">
-                        포스트2
-                    </div>
-                    <div class="mypage_list_mylist_post_01">
-                        포스트3
-                    </div>
-                    <div class="mypage_list_mylist_post_01">
-                        포스트4
-                    </div>
+                <h2>MY POST</h2>
+                <div class="mypage_list_mylist_post" id="mypageListMylistPost">
+                <%-- 여기에 포스트 나옴 --%>
+                    <c:if test="${empty post}">
+                        <div>작성된 포스트가 없습니다.</div>
+                    </c:if>
+                    <c:forEach var="post" items="${post}">
+                        <div>
+                            <a href="/post/detail/${post.id}">
+                                <span>${post.content}</span>
+                            </a>
+                        </div>
+                    </c:forEach>
                 </div>
             </div>
             <div class="mypage_list_mylist">
