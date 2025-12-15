@@ -106,10 +106,10 @@
     const thumbnailPreviewImg = document.getElementById('thumbnailPreviewImg');
 
     // 태그 관련
-    const tagInput = document.getElementById('tagInput');
-    const tagList = document.getElementById('tagList');
-    const tagsHidden = document.getElementById('tags');
-    let tags = [];
+    // const tagInput = document.getElementById('tagInput');
+    // const tagList = document.getElementById('tagList');
+    // const tagsHidden = document.getElementById('tags');
+    // let tags = [];
 
     // 업로드 영역 클릭
     uploadArea.addEventListener('click', () => {
@@ -172,9 +172,6 @@
         if (thumbnailAuto.checked) {
             generateThumbnailFromVideo(url);
         }
-
-        // 업로드 버튼 활성화
-        submitBtn.disabled = false;
     }
 
     // 비디오에서 썸네일 자동 생성
@@ -191,22 +188,22 @@
 
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // ✅ 1. 미리보기용
+            //  1. 미리보기용
             thumbnailPreviewImg.src = canvas.toDataURL('image/jpeg');
             thumbnailPreview.classList.add('active');
 
-            // ✅ 2. 서버 전송용 (진짜 이미지 파일로 변환)
-            canvas.toBlob((blob) => {
-                const thumbnailFile = new File([blob], "thumbnail.jpg", {
-                    type: "image/jpeg"
-                });
-
-                // ✅ 여기서 FormData에 강제로 썸네일 주입
-                const formData = new FormData(document.getElementById("shortsUploadForm"));
-                formData.set("files", thumbnailFile);
-
-                window.generatedThumbnailFile = thumbnailFile; // 전역 보관 (선택)
-            }, "image/jpeg");
+            //  2. 서버 전송용 (진짜 이미지 파일로 변환)
+            // canvas.toBlob((blob) => {
+            //     const thumbnailFile = new File([blob], "thumbnail.jpg", {
+            //         type: "image/jpeg"
+            //     });
+            //
+            //     //  여기서 FormData에 강제로 썸네일 주입
+            //     const formData = new FormData(document.getElementById("shortsUploadForm"));
+            //     formData.set("files", thumbnailFile);
+            //
+            //     window.generatedThumbnailFile = thumbnailFile; // 전역 보관 (선택)
+            // }, "image/jpeg");
         });
     }
 
@@ -259,63 +256,63 @@
     });
 
     // 태그 추가
-    tagInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addTag();
-        }
-    });
+    <%--tagInput.addEventListener('keypress', (e) => {--%>
+    <%--    if (e.key === 'Enter') {--%>
+    <%--        e.preventDefault();--%>
+    <%--        addTag();--%>
+    <%--    }--%>
+    <%--});--%>
 
-    function addTag() {
-        const tagValue = tagInput.value.trim();
+    <%--function addTag() {--%>
+    <%--    const tagValue = tagInput.value.trim();--%>
 
-        if (!tagValue) return;
+    <%--    if (!tagValue) return;--%>
 
-        // # 제거하고 다시 추가
-        let tag = tagValue.replace(/^#+/, '');
-        if (!tag) return;
+    <%--    // # 제거하고 다시 추가--%>
+    <%--    let tag = tagValue.replace(/^#+/, '');--%>
+    <%--    if (!tag) return;--%>
 
-        tag = '#' + tag;
+    <%--    tag = '#' + tag;--%>
 
-        // 중복 체크
-        if (tags.includes(tag)) {
-            alert('이미 추가된 태그입니다.');
-            tagInput.value = '';
-            return;
-        }
+    <%--    // 중복 체크--%>
+    <%--    if (tags.includes(tag)) {--%>
+    <%--        alert('이미 추가된 태그입니다.');--%>
+    <%--        tagInput.value = '';--%>
+    <%--        return;--%>
+    <%--    }--%>
 
-        // 최대 10개 제한
-        if (tags.length >= 10) {
-            alert('태그는 최대 10개까지 추가할 수 있습니다.');
-            return;
-        }
+    <%--    // 최대 10개 제한--%>
+    <%--    if (tags.length >= 10) {--%>
+    <%--        alert('태그는 최대 10개까지 추가할 수 있습니다.');--%>
+    <%--        return;--%>
+    <%--    }--%>
 
-        tags.push(tag);
-        updateTagList();
-        tagInput.value = '';
-    }
+    <%--    tags.push(tag);--%>
+    <%--    updateTagList();--%>
+    <%--    tagInput.value = '';--%>
+    <%--}--%>
 
-    function removeTag(index) {
-        tags.splice(index, 1);
-        updateTagList();
-    }
+    <%--function removeTag(index) {--%>
+    <%--    tags.splice(index, 1);--%>
+    <%--    updateTagList();--%>
+    <%--}--%>
 
-    // 전역 함수로 노출 (onclick에서 사용)
-    window.removeTag = removeTag;
+    <%--// 전역 함수로 노출 (onclick에서 사용)--%>
+    <%--window.removeTag = removeTag;--%>
 
-    function updateTagList() {
-        tagList.innerHTML = '';
-        tags.forEach((tag, index) => {
-            const tagItem = document.createElement('div');
-            tagItem.className = 'tag-item';
-            tagItem.innerHTML = `
-                <span>${tag}</span>
-                <span class="tag-remove" onclick="removeTag(${index})">×</span>
-            `;
-            tagList.appendChild(tagItem);
-        });
-        tagsHidden.value = tags.join(',');
-    }
+    <%--function updateTagList() {--%>
+    <%--    tagList.innerHTML = '';--%>
+    <%--    tags.forEach((tag, index) => {--%>
+    <%--        const tagItem = document.createElement('div');--%>
+    <%--        tagItem.className = 'tag-item';--%>
+    <%--        tagItem.innerHTML = `--%>
+    <%--            <span>${tag}</span>--%>
+    <%--            <span class="tag-remove" onclick="removeTag(${index})">×</span>--%>
+    <%--        `;--%>
+    <%--        tagList.appendChild(tagItem);--%>
+    <%--    });--%>
+    <%--    tagsHidden.value = tags.join(',');--%>
+    <%--}--%>
 
     // 폼 제출 전 검증
     form.addEventListener('submit', (e) => {
