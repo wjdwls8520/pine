@@ -18,6 +18,12 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+        this.customOAuth2UserService = customOAuth2UserService;
+    }
+
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -43,7 +49,6 @@ public class SecurityConfig {
             "/insertMember",
             "/jointerms",
             "/join",
-            "/oauth2/**",
     };
 
 
@@ -54,13 +59,17 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // 6.x 이상 방식; // 개발 단계에서만
                 .cors(cors -> {})
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .sessionFixation(sessionFixation ->
+                                sessionFixation.migrateSession())
+                )
 
                 // requestMatchers 설정값에 따라 접근 권한 제어
                 // 해당 config에서는 anonymousUserUrl(비로그인 유저) 와 authenticatedUserUrl(로그인 유저) 로 나누어 적용함
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/master/**").hasRole("MASTER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/oauth2/signup/**").hasRole("OAUTH")
 
                         .requestMatchers(anonymousUserUrl).permitAll()
                         .requestMatchers(authenticatedUserUrl).authenticated()
@@ -72,6 +81,9 @@ public class SecurityConfig {
 
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.userService(customOAuth2UserService)
+                        )
                         .defaultSuccessUrl("/googleLoginSuccess", true) // 로그인 성공 후 이동
                         .failureUrl("/login?error") // 로그인 실패 시
                 )

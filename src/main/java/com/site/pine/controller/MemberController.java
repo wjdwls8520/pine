@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -168,12 +170,6 @@ public class MemberController {
             return "member/jointerms";
         } else {
             // 기존 회원 로그인
-            member = ms.getMember(email);
-
-            if(member.getProvider() != 2) {
-                member.setProvider(2);
-            }
-            AuthUtil.login(member, session);
             return "redirect:/";
         }
     }
@@ -267,21 +263,38 @@ public class MemberController {
         }else if(mjdto.getNickname().equals(nickname)){
             model.addAttribute("nicknameError", "이미 존재하는 닉네임 입니다.");
             return "member/join";
-        }else{
+        }else {
 
-            if(session != null){
+            if (session != null) {
                 MemberDto mdto = (MemberDto) session.getAttribute("userinfo");
                 ms.insertMember(email, name, nickname, job, addressCode, address1, address2, profile_msg, phone, mdto);
                 session.removeAttribute("userinfo");
             }
 
             MemberDto loginInfo = ms.getMember(email);
-            if(loginInfo != null){
-                request.getSession().setAttribute("member", loginInfo);
+            if (loginInfo != null) {
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+                // OAuth 로그인 상태인지 확인
+                if (auth != null && auth.getPrincipal() instanceof OAuth2User) {
+
+                    OAuth2User oauthUser = (OAuth2User) auth.getPrincipal();
+
+                    List<GrantedAuthority> newAuthorities = List.of(
+                            new SimpleGrantedAuthority("ROLE_USER")
+                    );
+
+                    Authentication newAuth =
+                            new UsernamePasswordAuthenticationToken(
+                                    oauthUser,      // 기존 OAuth principal 유지
+                                    null,
+                                    newAuthorities  // ROLE_USER로 교체
+                            );
+
+                    SecurityContextHolder.getContext().setAuthentication(newAuth);
+                }
             }
-
         }
-
         return "redirect:/";
     }
 
