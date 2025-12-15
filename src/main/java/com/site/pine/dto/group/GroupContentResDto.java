@@ -2,12 +2,15 @@ package com.site.pine.dto.group;
 
 import com.site.pine.entity.File;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 public class GroupContentResDto {
     private Long id;
     private String groupName;

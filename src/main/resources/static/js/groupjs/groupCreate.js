@@ -125,13 +125,25 @@ function validateStep(step) {
         }
 
         if (name.length < 2) {
-            alert('그룹명은 최소 2자 이상이어야 합니다.');
+            alert('그룹명은 최소 2자 이상 이어야 합니다.');
+            groupNameInput.focus();
+            return false;
+        }
+
+        if (name.length > 50) {
+            alert('그룹명은 최대 50자 이하 여야 합니다.');
             groupNameInput.focus();
             return false;
         }
 
         if (!description) {
             alert('그룹 소개를 입력해주세요.');
+            groupDescriptionInput.focus();
+            return false;
+        }
+
+        if (description.length > 500) {
+            alert('그룹 소개는 최대 500자 이하 여야 합니다.');
             groupDescriptionInput.focus();
             return false;
         }

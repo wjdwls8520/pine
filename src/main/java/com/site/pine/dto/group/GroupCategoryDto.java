@@ -1,8 +1,10 @@
 package com.site.pine.dto.group;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class GroupCategoryDto {
     private Long id;
 

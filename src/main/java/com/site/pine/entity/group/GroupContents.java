@@ -2,7 +2,7 @@ package com.site.pine.entity.group;
 
 import com.site.pine.entity.File;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -12,18 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GroupContents {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Comment("그룹명")
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String groupName;
 
     @Comment("그룹의 소개글")
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String groupDescription;
 
     @Comment("그룹의 가입 승인 여부, 기본값은 1, 가입가능 = 1, 가입불가능 = 0")
