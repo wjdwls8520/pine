@@ -8,7 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -53,5 +58,33 @@ public class S3UploadService {
 
         // S3에서 해당 파일 삭제
         amazonS3.deleteObject(bucket, fileName);
+    }
+
+    // S3 URL → 로컬 파일 다운로드
+    public void downloadFile(String fileUrl, Path targetPath) throws IOException {
+        try (InputStream in = new URL(fileUrl).openStream()) {
+            Files.copy(in, targetPath);
+        }
+    }
+
+    // 로컬 파일(Path) → S3 업로드
+    public String saveLocalFile(Path filePath) throws IOException {
+
+        String fileName = UUID.randomUUID() + "_" + filePath.getFileName().toString();
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(Files.size(filePath));
+        metadata.setContentType("image/jpeg");
+
+        String folderName = LocalDate.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        String key = folderName + "/" + fileName;
+
+        try (InputStream in = Files.newInputStream(filePath)) {
+            amazonS3.putObject(bucket, key, in, metadata);
+        }
+
+        return amazonS3.getUrl(bucket, key).toString();
     }
 }

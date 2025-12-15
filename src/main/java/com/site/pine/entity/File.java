@@ -16,7 +16,7 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Comment("파일의 페이지 타입 ex) community, groupBanner. groupPost, shorts")
+    @Comment("파일의 페이지 타입 ex) community, groupBanner. groupPost, shorts, shortsThumbnail")
     @Column(nullable = false)
     private String pageType;
 
