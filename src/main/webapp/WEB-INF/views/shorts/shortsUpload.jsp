@@ -22,7 +22,7 @@
                         <div class="upload-icon">🎬</div>
                         <div class="upload-text">비디오 파일을 선택하거나 드래그하세요</div>
                         <div class="upload-hint">MP4, MOV, AVI 형식 · 최대 100MB</div>
-                        <input type="file" id="videoFile" name="files" class="file-input" accept="video/*" required>
+                        <input type="file" id="videoFile" name="videoFile" class="file-input" accept="video/*" required>
                     </div>
                     <div class="video-preview" id="videoPreview">
                         <video id="previewVideo" controls></video>
@@ -55,7 +55,7 @@
                             <div class="thumbnail-upload-area" id="thumbnailUploadArea">
                                 <div class="thumbnail-upload-icon">🖼️</div>
                                 <div class="thumbnail-upload-text">썸네일 이미지를 선택하세요</div>
-                                <input type="file" id="thumbnailFile" name="files" class="file-input" accept="image/*">
+                                <input type="file" id="thumbnailFile" name="thumbnailFile" class="file-input" accept="image/*">
                             </div>
                         </div>
                         <div class="thumbnail-preview-area">

@@ -1,9 +1,8 @@
 package com.site.pine.entity.shorts;
 
 import com.site.pine.entity.File;
-import com.site.pine.entity.post.Post;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Shorts {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
