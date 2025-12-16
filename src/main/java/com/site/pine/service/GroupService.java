@@ -2,9 +2,7 @@ package com.site.pine.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.site.pine.dto.S3DeleteEventDto;
-import com.site.pine.dto.group.GroupCategoryDto;
-import com.site.pine.dto.group.GroupContentReqDto;
-import com.site.pine.dto.group.GroupContentResDto;
+import com.site.pine.dto.group.*;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
@@ -19,6 +17,7 @@ import com.site.pine.repository.group.GroupContentsRepository;
 import com.site.pine.repository.group.GroupCategoryRepository;
 import com.site.pine.repository.group.GroupInCategoryRepository;
 
+import com.site.pine.repository.group.GroupMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -47,6 +46,7 @@ public class GroupService {
     private final GroupInCategoryRepository gicr;
 
     private final MemberRepository mr;
+    private final GroupMemberRepository gmr;
 
     private final S3UploadService sus;
     private final FileRepository frs;
@@ -76,26 +76,19 @@ public class GroupService {
     @Transactional(readOnly = true)
     public HashMap<String, Object> getAllGroups(Integer page) {
         HashMap<String, Object> result = new HashMap<>();
-        // 빈 배열 생성
-        List<GroupContentResDto> list = new ArrayList<>();
 
         // 모든 그룹을 리스트로 조회
         Pageable pageable = PageRequest.of(page, 6);
-        Page<GroupContents> groupContentsE_List = gconr.findAllByOrderByIndateDesc(pageable);
+        Page<GroupContentsJpqlResDto> groupContentsE_List = gconr.findGroupResDto(pageable);
+        // Page<GroupContentsJpqlResDto> groupContentsE_List = gconr.findGroupResDto(11, pageable);
+
         // 조회한 그룹이 없다면 리턴
         if(groupContentsE_List.isEmpty()) {
             result.put("msg", "조회된 그룹이 없습니다.");
-            result.put("totalPage", 0);
+            return result;
         }
 
-        // 조회한 그룹이 있다면 리턴
-        for(GroupContents groupContentsE : groupContentsE_List) {
-            // resDto로 매퍼 제작
-            GroupContentResDto resDto = gm.toGroupContentResDto(groupContentsE);
-
-            list.add(resDto);
-        }
-        result.put("groupList", list);
+        result.put("groupList", groupContentsE_List.getContent());
         result.put("totalPage", groupContentsE_List.getTotalPages());
         return result;
     }
@@ -179,8 +172,10 @@ public class GroupService {
 
     // 하나의 그룹 디테일
     @Transactional(readOnly = true)
-    public GroupContentResDto getGroup(Long id) throws IllegalAccessException {
-        GroupContents groupDetailE = gconr.findById(id).orElseThrow(()-> new IllegalAccessException("존재하지 않는 그룹입니다."));
+    public GroupContentResDto getGroup(Long id) {
+
+        GroupContents groupDetailE = gconr.findById(id).orElseThrow(()-> new IllegalStateException("존재하지 않는 그룹입니다."));
+
         GroupContentResDto groupContentResDto = gm.toGroupContentResDto(groupDetailE);
 
         List<GroupCategoryDto> categoryResult = new ArrayList<>();
@@ -193,5 +188,17 @@ public class GroupService {
         groupContentResDto.setCategoryIds(categoryResult);
 
         return groupContentResDto ;
+    }
+
+    public GroupMemberResDto getGroupMemberInfo(MemberDto memberdto, Long id) {
+        GroupMemberResDto groupMemberResDto = null;
+
+        if(memberdto != null) {
+            GroupMember groupMember = gmr.findByMemberIdAndGroupId(memberdto.getId(), id).orElse(null);
+            if(groupMember != null) { // 그룹 가입자인지 확인
+                groupMemberResDto = gm.toGroupMemberResDto(memberdto, groupMember);
+            }
+        }
+        return groupMemberResDto;
     }
 }

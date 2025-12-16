@@ -66,7 +66,7 @@ public class GroupContents {
     private Timestamp indate;
 
     @Comment("그룹 대표 이미지 1장")
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
