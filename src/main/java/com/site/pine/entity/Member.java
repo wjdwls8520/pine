@@ -1,6 +1,7 @@
 package com.site.pine.entity;
 
 import com.site.pine.entity.group.GroupMember;
+import com.site.pine.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -61,6 +62,16 @@ public class Member {
     private Timestamp marketing_agreed_date;
     @Column(nullable = false, columnDefinition = "varchar(45) default '1.0'")
     private String agreed_version;
+
+
+    @Comment("커뮤니티 포스트를 작성한 멤버")
+    @OneToMany(
+            mappedBy = "member",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Post> communityPost = new ArrayList<>();
 
 
     @Comment("그룹에 가입된 멤버")
