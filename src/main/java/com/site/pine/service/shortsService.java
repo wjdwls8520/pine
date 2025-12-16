@@ -11,6 +11,7 @@ import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.ShortsRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,8 @@ public class shortsService {
     private final S3UploadService sus;
     // 자동 썸네일 size 임시 보관용
     private long lastThumbnailSize;
+    @Value("${ffmpeg.path}")
+    private String ffmpegPath;
 
     public void insertShorts(ShortsUploadReqDto dto) throws IOException {
 
@@ -132,7 +135,7 @@ public class shortsService {
 
             // ffmpeg 실행
             ProcessBuilder pb = new ProcessBuilder(
-                    "ffmpeg",
+                    ffmpegPath,
                     "-ss", "00:00:00.1",
                     "-i", tempVideoPath.toString(),
                     "-vframes", "1",
