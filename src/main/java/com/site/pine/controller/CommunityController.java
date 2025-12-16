@@ -2,20 +2,21 @@ package com.site.pine.controller;
 
 import com.site.pine.dto.community.PostReqDto;
 import com.site.pine.dto.community.PostResDto;
+import com.site.pine.dto.member.MemberDto;
+import com.site.pine.entity.Member;
 import com.site.pine.service.CommunityService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -30,14 +31,8 @@ public class CommunityController {
 
     @GetMapping("/community/{page}")
     @ResponseBody
-    public HashMap<String, Object> getPostList(@PathVariable("page") Integer page) {
-        HashMap<String, Object> result = new HashMap<>();
-
-        // 초기 페이지는 첫 페이지(0페이지)만 가져오기
-        HashMap<String, Object> postResDto = cs.getPostPage(page);
-
-        result.put("post", postResDto);
-        return result; //   작업폴더/jsp파일이름
+    public HashMap<String, Object> getPostList(@AuthenticationPrincipal MemberDto mdto,@PathVariable("page") Integer page) {
+        return cs.getPostPage(mdto,page);
     }
 
     @GetMapping("/community/ccreate") //  url
@@ -47,7 +42,12 @@ public class CommunityController {
     }
 
     @PostMapping("/community/cCreate")
-    public String insertPost(@ModelAttribute PostReqDto reqDto) throws IOException {
+    public String insertPost(@AuthenticationPrincipal MemberDto mdto, @ModelAttribute PostReqDto reqDto) {
+        if (mdto == null) {
+            // 로그인 안되어있으면 글쓰기 막고 로그인 페이지로 이동
+            return "redirect:/login";
+        }
+
         List<MultipartFile> fileList = reqDto.getFiles();
         for(MultipartFile file : fileList) {
             if(file.getSize() > 1000000) {
@@ -56,13 +56,14 @@ public class CommunityController {
         }
 
         System.out.println(reqDto);
-        cs.insertPost(reqDto);
+        cs.insertPost(mdto, reqDto);
         return "redirect:/community";
     }
 
     @GetMapping("/community/cdetail/{id}")
-    public String getDetail(@PathVariable("id") Long id, Model model) {
-        PostResDto post = cs.getDetail(id);
+    public String getDetail(@AuthenticationPrincipal MemberDto mdto, @PathVariable("id") Long id, Model model) {
+        Long memberId = (mdto != null) ? mdto.getId() : null; // 로그인 안하면 null
+        PostResDto post = cs.getDetail(memberId, id); // 서비스에서 memberId가 null인 경우 좋아요 체크를 생략하도록
         model.addAttribute("post", post);
         return "community/cDetail"; // JSP에서 ${post.필드} 로 접근
     }
@@ -70,17 +71,21 @@ public class CommunityController {
     @PostMapping("/community/likeCount/{postId}")
     @ResponseBody  // JSON으로 반환
     public HashMap<String, Object> likeCount(@PathVariable("postId") Long postId,
-                                             @RequestBody HashMap<String, Object> body) {
+                                             @AuthenticationPrincipal MemberDto mdto) {
 
-        // body에서 like 상태 가져오기
-        boolean like = (Boolean) body.get("like");
-
-        // 서비스에서 like 수 업데이트
-        int updatedLikeCount = cs.updateLikeCount(postId, like);
-
-        // 결과 JSON으로 반환
         HashMap<String, Object> result = new HashMap<>();
-        result.put("likeCount", updatedLikeCount);
+
+        if (mdto == null) { //로그인체크
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        Long memberId = mdto.getId();
+        int likeCount = cs.toggleLike(postId, memberId);
+
+        result.put("success", true);
+        result.put("likeCount", likeCount);
         return result;
     }
 
