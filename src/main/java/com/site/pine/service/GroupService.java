@@ -114,18 +114,19 @@ public class GroupService {
         groupContentsE.setAutoJoin(groupContentReqDto.getAutoJoin());
         groupContentsE.setUserLimit(groupContentReqDto.getUserLimit());
 
+
+
         // 멀티파트파일의 기본 속성들 사용 + sus(s3)서비스에서 임의값을 추가한 파일 저장
         String filePageType = "groupBanner";
         String originalFileName = groupContentReqDto.getGroupImg().getOriginalFilename();
         Long fileSize = groupContentReqDto.getGroupImg().getSize();
-
         try {
             filePath = sus.saveFile(groupContentReqDto.getGroupImg());
         } catch (IOException e) {
             log.error("S3 업로드 실패", e);
             throw new IllegalStateException("파일 업로드에 실패했습니다."); // s3에서 에러가났을시 강제 에러실행.
         }
-        // db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
+        // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
         applicationEventPublisher.publishEvent(new S3DeleteEventDto(filePath));
 
         String fileContentType = groupContentReqDto.getGroupImg().getContentType();
@@ -136,16 +137,22 @@ public class GroupService {
         fileEntity.setSize(fileSize);
         fileEntity.setPath(filePath);
         fileEntity.setContentType(fileContentType);
-
         // 그룹에 해당 파일 엔티티를 연결 ( 파일과 원투원관계로 케스케이드 all 설정 )
         groupContentsE.setFile(fileEntity);
+
+
 
         // 그룹멤버엔티티에 멤버엔티티와 그룹엔티티를 추가해서 그룹 -> 그룹멤버 <- 멤버 그룹멤버라는 중간연결엔티티를 제작
         GroupMember groupMemberEntity = new GroupMember();
         groupMemberEntity.setGroupContents(groupContentsE);
         groupMemberEntity.setMember(memberEntity);
-        groupMemberEntity.setRole(1);
+        groupMemberEntity.setRole(1); // 그룹장
         groupContentsE.getGroupMembers().add(groupMemberEntity); // 그룹컨텐츠에 그룹멤버를 조인
+
+        // 그룹멤버수 1추가 (그룹장)
+        groupContentsE.setGroupMemberCount(groupContentsE.getGroupMemberCount() + 1);
+
+
 
         // 태초에 db에 저장된 카테고리 정보들을 조회
         List<GroupCategoryList> allInitCategory = gcr.findAll();

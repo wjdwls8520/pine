@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 public class MemberDto {
-    private int id;
+    private Long id;
     private String email;
     private String pwd;
     private String name;
