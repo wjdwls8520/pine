@@ -109,7 +109,14 @@ public class MemberController {
         System.out.println("tokenRes: " + tokenRes.getBody());
 
         // 2) access_token으로 사용자 정보 가져오기
-        String accessToken = new JSONObject(tokenRes.getBody()).getString("access_token");
+        String accessToken = null;
+        try{
+            accessToken = new JSONObject(tokenRes.getBody()).getString("access_token");
+        }catch(Exception e){
+            System.out.println("access_token 에 문제발생");
+            return "redirect:/";
+        }
+
         HttpHeaders headers1 = new HttpHeaders();
         headers1.add("Authorization", "Bearer " + accessToken);
         ResponseEntity<String> userRes = rt.exchange(
