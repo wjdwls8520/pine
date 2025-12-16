@@ -118,7 +118,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostListDto> getPostList(int id) {
+    public List<PostListDto> getPostList(Long id) {
         return cr.findPostList();
     }
 }

@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 public class GroupMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Comment("가입된 그룹")
     @ManyToOne(fetch = FetchType.LAZY)

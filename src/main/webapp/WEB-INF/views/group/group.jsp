@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -12,7 +14,7 @@
 
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
-    <article class="article workspace group">
+    <article class="article workspace group" data-userId="${loginUser}">
 
         <script>
             var msg = '${msg}';
