@@ -22,8 +22,8 @@ public class GroupController {
 
     // 그룹페이지화면
     @GetMapping("/group")
-    public String groups(@AuthenticationPrincipal MemberDto mdto) {
-
+    public String groups(@AuthenticationPrincipal MemberDto mdto, Model model) {
+        model.addAttribute("loginUser", mdto);
         System.out.println("@@@@@@@@" + mdto);
         return "group/group";
     }

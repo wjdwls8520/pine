@@ -16,6 +16,8 @@
     }
 
     function moveGcreate() {
+        const body = document.body;
+        if(!body.dataset.userId) { alert("로그인 이후 이용하실 수 있습니다."); return location.href='/login'; }
         return location.href='/group/gcreate';
     }
 

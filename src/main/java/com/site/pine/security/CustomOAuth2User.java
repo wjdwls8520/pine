@@ -27,7 +27,7 @@ public class CustomOAuth2User implements OAuth2User {
         return member != null ? member.getNickname() : null;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return member != null ? member.getId() : null;
     }
 
