@@ -1,5 +1,6 @@
 package com.site.pine.repository;
 
+import com.site.pine.dto.community.PostMainFileDto;
 import com.site.pine.entity.File;
 import org.springframework.data.jpa.repository.JpaRepository;
 

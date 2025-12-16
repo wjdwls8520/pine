@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -14,7 +16,7 @@
 
         <h2 class="pageTitle">community detail</h2>
         <section class="section section01 commuSection">
-            <%--  왼쪽 포스트 섹션--%>
+            <!-- 왼쪽 포스트 섹션-->
             <div class="postSection" id="postList">
                 <div class="postBox">
                     <div class="postInner">
@@ -22,34 +24,41 @@
                             <div class="postTop">
                                 <div class="postInfo">
                                     <div class="postProfileImgBox">
-                                        <img class="profileImg" src="/images/banner02.png" />
+                                        <img class="profileImg"
+                                             src="${not empty post.profile_img ? post.profile_img : '/images/banner02.png'}" />
                                     </div>
-        <%--                            <div class="userNick">${post.userNick} ${post.id}</div>--%>
+                                    <div class="userNick">${post.nickname}</div>
                                     <div class="postTime relative-time">
-                                        ${post.updateDate}
+                                        <fmt:formatDate value="${post.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
                                     </div>
                                 </div>
                                 <div class="moreIcon">...</div>
                             </div>
+
                             <div class="postMiddle">
                                 <div class="postContent">${post.content}</div>
-        <%--                        <div class="postHash">${post.hashTag || ""}</div>--%>
 
-                                <div class="swiper commuSlide">
-                                    <div class="swiper-wrapper" id="postImg_${post.id}">
-                                        <c:forEach var="file" items="${post.file}">
-                                            <div class="swiper-slide">
-                                                <img src="${file.path}" alt="image"/>
-                                            </div>
-                                        </c:forEach>
+                                <!-- 🔥 수정: Swiper 이미지 리스트 제대로 출력 -->
+                                <c:if test="${not empty post.files}">
+                                    <div class="swiper commuSlide">
+                                        <div class="swiper-wrapper">
+                                            <c:forEach var="file" items="${post.files}">
+                                                <div class="swiper-slide">
+                                                    <!-- 🔥 수정: 실제 파일 경로로 출력 -->
+                                                    <img src="${file.path}" alt="image"/>
+                                                </div>
+                                            </c:forEach>
+                                        </div>
+                                        <div class="swiper-pagination"></div>
                                     </div>
-                                    <div class="swiper-pagination"></div>
-                                </div>
+                                </c:if>
 
                             </div>
+
                             <div class="postBottom">
                                 <div class="icoBox postLike">
-                                    <span class="ico ico_like" onclick="toggleLike(${post.id}, this)"></span>
+                                    <span class="ico ico_like ${post.liked ? "active" : ""}"
+                                          onclick="toggleLike(${post.id}, this)"></span>
                                     <span id="likeCount_${post.id}">${post.likeCount}</span>
                                 </div>
                                 <div class="icoBox postReply">
@@ -71,7 +80,6 @@
                     <div class="bestGroupTitle">BEST GROUP</div>
                     <div class="bestGroupListWrap">
                         <ul class="bestGroupList">
-                            <%-- 5개 노출 후 더보기--%>
                             <li>
                                 <a>
                                     <div class="bGroupImg">
@@ -91,9 +99,29 @@
         </section>
     </article>
 </div>
+
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
+
 <script src="/js/swiper-bundle.min.js"></script>
 <script src="/js/commujs/commuMain.js"></script>
+
+<!-- 🔥 추가: 상세페이지 Swiper 초기화 -->
+<script>
+    window.addEventListener("load", () => {
+        const swiperEl = document.querySelector(".commuSlide");
+        if(swiperEl) {
+            new Swiper(swiperEl, {
+                speed: 400,
+                loop: false,
+                slidesPerView: 2.3,
+                spaceBetween: 20,
+                pagination: {
+                    el: swiperEl.querySelector(".swiper-pagination"),
+                },
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
-

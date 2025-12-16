@@ -1,14 +1,24 @@
 package com.site.pine.service;
 
 import com.site.pine.dto.FileDto;
+import com.site.pine.dto.S3DeleteEventDto;
+import com.site.pine.dto.community.PostMainFileDto;
+import com.site.pine.dto.community.PostMainListDto;
 import com.site.pine.dto.community.PostReqDto;
 import com.site.pine.dto.community.PostResDto;
+import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
+import com.site.pine.entity.Likes;
+import com.site.pine.entity.Member;
 import com.site.pine.entity.post.Post;
 import com.site.pine.repository.CommunityRepository;
 import com.site.pine.repository.FileRepository;
+import com.site.pine.repository.MemberRepository;
+import com.site.pine.repository.LikesRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,34 +26,49 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class CommunityService {
 
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final CommunityRepository cr;
     private final S3UploadService sus;
     private final FileRepository fr;
+    private final LikesRepository lr;
+    private final MemberRepository mr;
 
-    public void insertPost(PostReqDto reqDto) throws IOException {
+    public void insertPost(MemberDto mdto, PostReqDto reqDto) {
+
+        Member memberEntity = mr.findById(mdto.getId()).orElseThrow(() -> new IllegalStateException("[error] 존재하지 않는 멤버 입니다.")); // 멤버조회 대상이 없을시 강제 에러실행.;
+
         //post저장
         Post postEntity = new Post();
         postEntity.setCategory(reqDto.getCategory());
         postEntity.setContent(reqDto.getPostBody());
         postEntity.setStatus(reqDto.getStatus());
+        postEntity.setMember(memberEntity);
         cr.save(postEntity);
 
         // 파일테이블 저장 및 s3업로드
         List<MultipartFile> fileList = reqDto.getFiles();
         for(MultipartFile file : fileList) {
-            String fileUrl = sus.saveFile(file); // S3 업로드
+            String fileUrl;
+            try {
+                fileUrl = sus.saveFile(file); // S3 업로드
+            } catch (IOException e) {
+                log.error("S3 업로드 실패", e);
+                throw new IllegalStateException("파일 업로드에 실패했습니다."); // s3에서 에러가났을시 강제 에러실행.
+            }
+
+            // db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto(fileUrl));
+
             File fileEntity = new File();
-            // 포스트 조인
-            fileEntity.setPost(postEntity);
 
             // s3저장
             fileEntity.setPath(fileUrl);
@@ -54,80 +79,63 @@ public class CommunityService {
             fileEntity.setSize(file.getSize());
             fileEntity.setPageType("community");
 
+            // 포스트 조인
+            fileEntity.setPost(postEntity);
+
             fr.save(fileEntity);
         }
-
-
     }
 
-    public HashMap<String, Object> getPostPage(Integer page) {
-        //1. 빈 해시맵 만들기
+    public HashMap<String, Object> getPostPage(MemberDto mdto, Integer page) {
         HashMap<String, Object> result = new HashMap<>();
-        // 2. 빈 리스트 만들기
-        List<PostResDto> list = new ArrayList<>();
 
-        // 3. 페이지 정의 = page번째 페이지에서 6 개씩 가져와라 라는 정보 담음
         Pageable pageable = PageRequest.of(page, 6);
-        // 4. 페이지객체에 포스트엔티티 넣기 (페이지네이션 된 데이터만 가져옴)
-        // Page<Post> 에는 페이지정보가 포함되어있음.
-        Page<Post> postPages = cr.findAllByOrderByWriteDateDesc(pageable);
 
-        // 5. 포스트앤티티들을 반복문을 적용해 각각의 dto에 값을 넣음
-        for(Post postEntity : postPages) {
-            PostResDto resDto = new PostResDto();
-            resDto.setId(postEntity.getId());
-            resDto.setCategory(postEntity.getCategory());
-            resDto.setContent(postEntity.getContent());
-            resDto.setLikeCount(postEntity.getLikeCount());
-            resDto.setReplyCount(postEntity.getReplyCount());
-            resDto.setStatus(postEntity.getStatus());
-            resDto.setWriteDate(postEntity.getWriteDate());
-            resDto.setUpdateDate(postEntity.getUpdateDate());
+        Page<PostMainListDto> postPages = cr.findMainPostList(pageable);
+        List<PostMainListDto> posts = postPages.getContent();
 
-            // 파일디티오
-            List<FileDto> postFilesResult = new ArrayList<>(); // 파일을 담을 빈배열
-            List<File> postFIies = postEntity.getFiles();  // 포스안에 들어있는 파일엔티티들
-            for(File postFile : postFIies) {   // 포스엔티티안에 있는 파일엔티티개수만큼 반복
-                FileDto filedto = new FileDto();  // 파일디티오 소환
-                filedto.setId(postFile.getId());   // 파일디티오에 값넣기
-                filedto.setPageType(postFile.getPageType());
-                filedto.setOriginalname(postFile.getOriginalname());
-                filedto.setSize(postFile.getSize());
-                filedto.setPath(postFile.getPath());
-                filedto.setContentType(postFile.getContentType());
-                postFilesResult.add(filedto); // 파일을넣을 빈 배열에 파일 디티오 넣음
-            };
-            resDto.setFile(postFilesResult); // 포스트디티오에 files에 fildeDto를 담은 배열 넣음
+        // 1️⃣ 게시글 ID 리스트 추출
+        List<Long> postIds = posts.stream().map(PostMainListDto::getPostId).collect(Collectors.toList());
 
-            // "2번"의 빈 배열에 포스트dto 넣음
-            list.add(resDto);
-        }
-        // "1번"의 빈 해시맵에 dto(포스트와 파일)가 모두 들어간 "2번"배열을 넣음
-         result.put("postList",list);
+        // 2️⃣ 파일 조회
+        List<PostMainFileDto> files = cr.findFilesByPostIds(postIds);
 
-        // "1번"의 빈 해시맵에 "4번"의 페이지객체에 담겨있는 토탈페이지를 넣음
-         result.put("totalPage",postPages.getTotalPages());
-         return result;
-    }
+        // 3️⃣ DTO에 파일 주입
+        Map<Long, List<PostMainFileDto>> fileMap = files.stream()
+                .collect(Collectors.groupingBy(PostMainFileDto::getPostId));
 
-    public int updateLikeCount(Long postId, boolean like) {
-        Post post = cr.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글 없음"));
-
-        if(like) {
-            post.setLikeCount(post.getLikeCount() + 1);
-        } else {
-            post.setLikeCount(post.getLikeCount() - 1);
+        for (PostMainListDto post : posts) {
+            if (fileMap.containsKey(post.getPostId())) {
+                fileMap.get(post.getPostId()).forEach(post::addFile);
+            }
         }
 
-        cr.save(post);
-        return post.getLikeCount();
+        // 4️⃣ 로그인 유저가 좋아요 눌렀는지 체크
+        if (mdto != null) { // 로그인 상태일 때만
+            for (PostMainListDto post : posts) {
+                boolean liked = lr.existsByMember_IdAndTargetTypeAndTargetId(
+                        mdto.getId(), 1, post.getPostId()
+                );
+                post.setLiked(liked);
+            }
+        }
+
+        result.put("postList", posts);
+        result.put("totalPage", postPages.getTotalPages());
+
+        return result;
     }
 
 
-    public PostResDto getDetail(Long id) {
+    public PostResDto getDetail(Long memberId, Long id) {
         Post post = cr.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다. id=" + id));
+
+        //좋아요여부확인
+        boolean isLiked = false;
+        if(memberId != null) {
+            isLiked  = lr.existsByMember_IdAndTargetTypeAndTargetId(memberId, 1, post.getId());
+        }
 
         // 엔티티 → DTO 변환
         PostResDto dto = new PostResDto();
@@ -139,6 +147,10 @@ public class CommunityService {
         dto.setCategory(post.getCategory());
         dto.setWriteDate(post.getWriteDate());
         dto.setUpdateDate(post.getUpdateDate());
+        dto.setLiked(isLiked);
+
+        dto.setNickname(post.getMember().getNickname());
+        dto.setProfile_img(post.getMember().getProfile_img());
 
         // 파일 DTO 리스트 만들 준비
         List<FileDto> postFilesResult = new ArrayList<>();
@@ -161,8 +173,34 @@ public class CommunityService {
             postFilesResult.add(fileDto);
         }
         // DTO에 파일 리스트 넣기
-        dto.setFile(postFilesResult);
+        dto.setFiles(postFilesResult);
 
         return dto;
+    }
+
+
+    public int toggleLike(Long postId, Long memberId) {
+        Optional<Likes> existingLike = lr.findByMember_IdAndTargetTypeAndTargetId(memberId, 1, postId);
+
+        Post post = cr.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("포스트가 존재하지 않습니다."));
+
+        if (existingLike.isPresent()) {
+            // 좋아요 취소
+            lr.delete(existingLike.get());
+            post.setLikeCount(post.getLikeCount() - 1);
+        } else {
+            // 좋아요 추가
+            Likes like = new Likes();
+            like.setTargetType(1); // POST_TYPE
+            like.setTargetId(postId);
+            like.setMember(new Member());
+            like.getMember().setId(memberId);
+            lr.save(like);
+            post.setLikeCount(post.getLikeCount() + 1);
+        }
+
+        cr.save(post); // 변경된 likeCount 저장
+        return post.getLikeCount();
     }
 }
