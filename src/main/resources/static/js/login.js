@@ -9,7 +9,7 @@ function googleLogin(){
 
 function findPostCode(){
 
-    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('adSerchOverlay').style.display = 'block';
 
     new daum.Postcode({
         oncomplete: function(data) {
@@ -27,7 +27,7 @@ function findPostCode(){
 
         },
         onclose: function() {
-            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('adSerchOverlay').style.display = 'none';
         }
     }).open();
 }

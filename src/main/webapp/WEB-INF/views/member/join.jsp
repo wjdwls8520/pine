@@ -4,7 +4,9 @@
     <jsp:include page="../include/head.jsp"></jsp:include>
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/swiper-bundle.min.css">
 
+    <script src="/js/home.js"></script>
     <script src="/js/login.js"></script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
@@ -13,38 +15,84 @@
     <div class="wrap">
         <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
-        <div id="overlay"></div>
+        <div id="adSerchOverlay"></div>
 
+        <article class="article join">
         <form method="post" action="/insertMember" class="joinMember">
-            <h1>로그인</h1>
+            <div class="form_title">로그인</div>
             <p>* 표시는 필수 항목입니다.</p>
-            <div>*아이디</div>
+            <div class="form_list">*아이디</div>
             <input type="text" name="email" value="${sessionScope.userinfo.email}" readonly /> <p>${emailError}</p>
-            <div>*이름</div>
+            <div class="form_list">*이름</div>
             <input type="text" name="name" value="${sessionScope.userinfo.name}" readonly />
-            <div>*별명</div>
-            <input type="text" name="nickname"  /> <p>${nicknameError}</p>
-            <div>*전화번호</div>
+            <div class="form_list">*별명</div>
+            <input type="text" name="nickname"  /> <p style="color: red;">${nicknameError}</p>
+            <div class="form_list">*전화번호</div>
             <input type="text" name="phone" value="${sessionScope.userinfo.phone}"   />
-            <div>직업</div>
+            <div class="form_list">직업</div>
             <input type="text" name="job"  />
-            <div>*주소</div>
-            <button type="button" onclick="findPostCode()">주소찾기</button>
-            <div>*우편번호</div>
+            <div class="join_findAd">
+                <div class="form_list">*주소</div>
+                <button class="join_btn" type="button" onclick="findPostCode()">주소찾기</button>
+            </div>
+            <div class="form_list">*국적</div>
+            <input type="text" name="country" />
+            <div class="form_list">*우편번호</div>
             <input type="text" name="address_code" id="address_code"  readonly/>
-            <div>*주소1</div>
+            <div class="form_list">*주소1</div>
             <input type="text" name="address_1" id="address_1" readonly />
-            <div>상세주소</div>
+            <div class="form_list">상세주소</div>
             <input type="text" name="address_2" id="address_2"  />
 
-            <div>한줄소개</div>
+            <div class="form_list">한줄소개</div>
             <input type="text" name="profile_msg" id="profile_msg"  />
 
-            <button type="button" onclick="beforInsertMember()">회원가입</button>
+            <div class="join_submit">
+                <button class="join_submit_btn" type="button" onclick="beforInsertMember()">회원가입</button>
+            </div>
 
         </form>
-
+        </article>
     </div>
+
+    <jsp:include page="../include/footer.jsp"></jsp:include>
+
+    <script src="/js/swiper-bundle.min.js"></script>
+    <script>
+        const swiper = new Swiper('.homeSlide', {
+            speed: 400,
+            direction: 'horizontal',
+            loop: true,
+            // autoplay: {
+            //     delay: 2200,
+            // },
+            slidesPerView: 4.5,
+            spaceBetween: 30,
+            //breakpoints: {
+            // when window width is >= 320px
+            // 320: {
+            //     slidesPerView: 2,
+            //     spaceBetween: 20
+            // },
+            // // when window width is >= 480px
+            // 480: {
+            //     slidesPerView: 3,
+            //     spaceBetween: 30
+            // },
+            // // when window width is >= 640px
+            // 640: {
+            //     slidesPerView: 4,
+            //     spaceBetween: 40
+            // }
+            //}
+
+            // If we need pagination
+            pagination: {
+                el: '.swiper-pagination',
+            },
+        });
+
+    </script>
 
 </body>
 </html>

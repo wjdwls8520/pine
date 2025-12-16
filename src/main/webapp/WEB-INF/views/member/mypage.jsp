@@ -18,7 +18,10 @@
     <div class="mypage">
         <div class="mypage_info">
             <div class="mypage_profile">
-                <div class="mypage_image"><img src="" /></div>
+                <c:if test="${member.profileimg}">
+                    <div class="mypage_image"><img src="${member.profileimg}" /></div>
+                </c:if>
+                <div class="mypage_image"><img src="../image/user.png" /></div>
                 <div style="margin: 20px 0">${member.name}</div>
                 <button>프로필 수정</button>
             </div>
