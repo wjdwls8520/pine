@@ -27,7 +27,7 @@ async function getData(page) {
                 }
 
                 // 토탈페이지 변경
-                totalPages = data.resDto.totalPage.totalPages;
+                totalPages = data.resDto.totalPage;
 
                 // js로 동적 태그 생성
                 data.resDto.groupList.map((info, idx) => {

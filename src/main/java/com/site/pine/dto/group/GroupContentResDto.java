@@ -1,6 +1,8 @@
 package com.site.pine.dto.group;
 
+import com.site.pine.dto.FileDto;
 import com.site.pine.entity.File;
+import com.site.pine.entity.group.GroupMember;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,5 +34,8 @@ public class GroupContentResDto {
     private List<GroupCategoryDto> categoryIds;
 
     // 파일
-    private File groupImg;
+    private FileDto groupImg;
+
+    // 그룹멤버
+    private List<GroupMemberResDto> groupMembers;
 }

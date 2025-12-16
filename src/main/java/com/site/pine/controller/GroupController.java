@@ -2,6 +2,8 @@ package com.site.pine.controller;
 
 import com.site.pine.dto.group.GroupCategoryDto;
 import com.site.pine.dto.group.GroupContentReqDto;
+import com.site.pine.dto.group.GroupContentResDto;
+import com.site.pine.dto.group.GroupMemberResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,6 @@ public class GroupController {
     @GetMapping("/group")
     public String groups(@AuthenticationPrincipal MemberDto mdto, Model model) {
         model.addAttribute("loginUser", mdto);
-        System.out.println("@@@@@@@@" + mdto);
         return "group/group";
     }
     @GetMapping("/group/{page}")
@@ -43,7 +44,9 @@ public class GroupController {
 
     //그룹 생성
     @GetMapping("/group/gcreate")
-    public String create(Model model){
+    public String create(@AuthenticationPrincipal MemberDto memberdto, Model model){
+        if(memberdto == null) return "redirect:/errorLogin";
+
         List<GroupCategoryDto> list = gs.getCategory();
         model.addAttribute("list", list);
 
@@ -78,16 +81,19 @@ public class GroupController {
 
     // 그룹 디테일
     @GetMapping("/group/gdetail/{id}")
-    public String detail(@PathVariable("id") Long id, Model model) {
+    public String detail(@AuthenticationPrincipal MemberDto memberdto, @PathVariable("id") Long id, Model model, RedirectAttributes redirectAttrs) {
 
         try {
-            model.addAttribute("groupDetail", gs.getGroup(id));
-            System.out.println(gs.getGroup(id));
+            GroupContentResDto getGroupDetail = gs.getGroup(id);
+            GroupMemberResDto isGroupMember = gs.getGroupMemberInfo(memberdto, id);
+
+            model.addAttribute("groupDetail", getGroupDetail);
+            model.addAttribute("isGroupMember", isGroupMember);
             return "group/gDetail";
 
-        } catch (IllegalAccessException e) {
-            model.addAttribute("msg", e.getMessage());
-            return "errorPage"; // errorPage.jsp 로 이동
+        } catch (IllegalStateException e) {
+            redirectAttrs.addFlashAttribute("msg", e.getMessage());
+            return "redirect:/group";
         }
     }
 

@@ -1,10 +1,14 @@
 package com.site.pine.mapper;
 
+import com.site.pine.dto.FileDto;
 import com.site.pine.dto.group.GroupCategoryDto;
 import com.site.pine.dto.group.GroupContentResDto;
+import com.site.pine.dto.group.GroupMemberResDto;
+import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.group.GroupCategoryList;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupInCategory;
+import com.site.pine.entity.group.GroupMember;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,7 +49,19 @@ public class GroupMapper {
 
         resDto.setIndate(groupContentsE.getIndate());
 
-        resDto.setGroupImg(groupContentsE.getFile());
+        FileDto fileDto = new FileDto();
+        fileDto.setPath(groupContentsE.getFile().getPath());
+
+        resDto.setGroupImg(fileDto);
         return resDto;
+    }
+
+    public GroupMemberResDto toGroupMemberResDto(MemberDto memberdto, GroupMember groupMember) {
+        GroupMemberResDto groupMemberResDto = new GroupMemberResDto();
+        groupMemberResDto.setId(groupMember.getId());
+        groupMemberResDto.setMember(memberdto);
+        groupMemberResDto.setJoinTime(groupMember.getJoinTime());
+        groupMemberResDto.setRole(groupMember.getRole());
+        return groupMemberResDto;
     }
 }

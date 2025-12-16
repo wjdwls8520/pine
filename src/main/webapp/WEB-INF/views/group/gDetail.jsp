@@ -13,6 +13,10 @@
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
     <article class="article workspace group">
 
+        <script>
+            window.groupRole = ${isGroupMember != null ? isGroupMember.role : null};
+        </script>
+
         <%-- group detail section --%>
         <section class="section groupMain">
             <div class="contentsWrap groupDetail">
@@ -48,7 +52,21 @@
                                 <span>좋아요 ${group.likeCount}</span>
                             </div>
                             <div class="groupHeroActions">
-                                <button type="button" class="groupPrimaryBtn">그룹 가입</button>
+                                <c:choose>
+                                    <%-- 그룹장 --%>
+                                    <c:when test="${not empty isGroupMember and isGroupMember.role == 1}">
+                                        <button type="button" class="groupPrimaryBtn">그룹 수정</button>
+                                    </c:when>
+                                    <%-- 그룹원 --%>
+                                    <c:when test="${not empty isGroupMember}">
+                                        <button type="button" class="groupPrimaryBtn">그룹 탈퇴</button>
+                                    </c:when>
+                                    <%-- 비로그인유저 및 비그룹원 --%>
+                                    <c:otherwise>
+                                        <button type="button" class="groupPrimaryBtn">그룹 가입</button>
+                                    </c:otherwise>
+                                </c:choose>
+
                                 <button type="button" class="groupGhostBtn">공유하기</button>
                             </div>
                         </div>

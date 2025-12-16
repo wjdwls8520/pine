@@ -16,8 +16,7 @@
     }
 
     function moveGcreate() {
-        const body = document.body;
-        if(!body.dataset.userId) { alert("로그인 이후 이용하실 수 있습니다."); return location.href='/login'; }
+        if(!window.isLogin) { alert("로그인 이후 이용하실 수 있습니다."); return location.href='/login'; }
         return location.href='/group/gcreate';
     }
 
@@ -73,12 +72,20 @@
             }
         } else if (path.startsWith("/group/gdetail")) {
             if (formActions) {
-                formActions.innerHTML = `
-                    <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
-                    <div class="stepButtons">
-                        <button type="button" class="btnWH btnNext" id="" onclick="">그룹 설정</button>
-                    </div>
-                `;
+                if(window.groupRole && window.groupRole > 0) {
+                    formActions.innerHTML = `
+                        <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
+                        <div class="stepButtons">
+                            <button type="button" class="btnWH btnNext" id="" onclick="">그룹 포스트 작성</button>
+                        </div>
+                    `;
+                } else {
+                    formActions.innerHTML = `
+                        <div></div>
+                        <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
+                    `;
+                }
+
 
                 if (typeof window.handleGroupButtonsReady === "function") {
                     window.handleGroupButtonsReady();

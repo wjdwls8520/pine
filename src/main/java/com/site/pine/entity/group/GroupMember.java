@@ -33,4 +33,5 @@ public class GroupMember {
     @Comment("그룹장 = 1, 그룹매니저 = 2, 그룹일반 = 3")
     @Column(nullable = false)
     private Integer role = 3;
+
 }
