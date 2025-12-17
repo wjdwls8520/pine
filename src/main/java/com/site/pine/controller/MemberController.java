@@ -302,6 +302,17 @@ public class MemberController {
         return "member/mypage";
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/GoEditProfile")
+    public String goEditProfile(){
+        return "member/editprofile";
+    }
+
+
+//    @GetMapping("/countrySearch")
+//    public List<CountryDTO> goCountrySearch(@RequestParam String keyword){
+//        return ms.searchCountry(keyword);
+//    }
 
 
 }

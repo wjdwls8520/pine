@@ -23,7 +23,7 @@
                 </c:if>
                 <div class="mypage_image"><img src="../image/user.png" /></div>
                 <div style="margin: 20px 0">${member.name}</div>
-                <button>프로필 수정</button>
+                <button onclick="window.location.href='/GoEditProfile'">프로필 수정</button>
             </div>
             <div class="mypage_infolist">
                 <ul>
