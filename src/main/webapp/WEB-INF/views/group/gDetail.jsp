@@ -44,18 +44,18 @@
                                     <c:otherwise>unknown</c:otherwise>
                                 </c:choose>
                             </p>
-                            <h1 class="groupHeroTitle">${group.groupName}</h1>
-                            <p class="groupHeroDesc">${group.groupDescription}</p>
+                            <h1 class="groupHeroTitle">${groupDetail.groupName}</h1>
+                            <p class="groupHeroDesc">${groupDetail.groupDescription}</p>
                             <div class="groupHeroBadges">
-                                <span>멤버 ${group.groupMemberCount}</span>
-                                <span>게시글 ${group.postCount}</span>
-                                <span>좋아요 ${group.likeCount}</span>
+                                <span>멤버 ${groupDetail.groupMemberCount}</span>
+                                <span>게시글 ${groupDetail.postCount}</span>
+                                <span>좋아요 ${groupDetail.likeCount}</span>
                             </div>
                             <div class="groupHeroActions">
                                 <c:choose>
                                     <%-- 그룹장 --%>
                                     <c:when test="${not empty isGroupMember and isGroupMember.role == 1}">
-                                        <button type="button" class="groupPrimaryBtn">그룹 수정</button>
+                                        <button type="button" class="groupPrimaryBtn" onclick="location.href='/group/gupdate/${groupDetail.id}';">그룹 수정</button>
                                     </c:when>
                                     <%-- 그룹원 --%>
                                     <c:when test="${not empty isGroupMember}">

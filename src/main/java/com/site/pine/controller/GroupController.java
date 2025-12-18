@@ -80,12 +80,12 @@ public class GroupController {
     }
 
     // 그룹 디테일
-    @GetMapping("/group/gdetail/{id}")
-    public String detail(@AuthenticationPrincipal MemberDto memberdto, @PathVariable("id") Long id, Model model, RedirectAttributes redirectAttrs) {
+    @GetMapping("/group/gdetail/{groupId}")
+    public String detail(@AuthenticationPrincipal MemberDto memberdto, @PathVariable("groupId") Long groupId, Model model, RedirectAttributes redirectAttrs) {
 
         try {
-            GroupContentResDto getGroupDetail = gs.getGroup(id);
-            GroupMemberResDto isGroupMember = gs.getGroupMemberInfo(memberdto, id);
+            GroupContentResDto getGroupDetail = gs.getGroup(groupId);
+            GroupMemberResDto isGroupMember = gs.getGroupMemberInfo(memberdto, groupId);
 
             model.addAttribute("groupDetail", getGroupDetail);
             model.addAttribute("isGroupMember", isGroupMember);
@@ -98,9 +98,20 @@ public class GroupController {
     }
 
     // 그룹 업데이트
-    @GetMapping("/group/gupdate")
-    public String update(){
+    @GetMapping("/group/gupdate/{groupId}")
+    public String update(@PathVariable("groupId") Long groupId, @AuthenticationPrincipal MemberDto memberdto, Model model, RedirectAttributes redirectAttrs) {
 
-        return "group/gUpdate";
+        if(memberdto == null) return "redirect:/errorLogin";
+
+        try {
+            GroupContentResDto getGroupDetail = gs.getGroup(groupId);
+
+            model.addAttribute("groupDetail", getGroupDetail);
+            return "group/gUpdate";
+
+        } catch (IllegalStateException e) {
+            redirectAttrs.addFlashAttribute("msg", e.getMessage());
+            return "redirect:/group";
+        }
     }
 }

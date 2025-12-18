@@ -21,126 +21,76 @@
 
 /* 그룹 만들기 폼 스타일 */
 .groupCreateForm {max-width: 800px; margin: 0 auto; padding: 0 20px;}
-
 .groupCreateForm .formSection {margin-bottom: 32px; padding: 24px; background: #fff; border: 1px solid #e3e6e9; border-radius: 8px; box-sizing: border-box;}
-
 .groupCreateForm .formHeader {margin-bottom: 16px;}
-
 .groupCreateForm .formTitle {margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #141414;}
-
 .groupCreateForm .formDescription {margin: 0; font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5;}
 
 /* 입력 필드 스타일 */
 .groupCreateForm .formInputWrapper {position: relative; display: flex; align-items: center;}
-
 .groupCreateForm .inputPrefix {padding: 12px 16px; background: #f8f8f8; border: 1px solid #e3e6e9; border-right: none; border-radius: 6px 0 0 6px; font-size: 16px; font-weight: 500; color: #272B27;}
-
 .groupCreateForm .formInput {flex: 1; padding: 12px 16px; border: 1px solid #e3e6e9; border-radius: 0 6px 6px 0; font-size: 16px; font-weight: 400; color: #141414; background: #fff; box-sizing: border-box; transition: border-color 0.2s;}
-
 .groupCreateForm .formInput:focus {outline: none; border-color: #194f37;}
-
 .groupCreateForm .groupNameInput {border-left: none;}
-
-.groupCreateForm .formTextarea {width: 100%; padding: 12px 16px; border: 1px solid #e3e6e9; border-radius: 6px; font-size: 16px; font-weight: 400; color: #141414; background: #fff; resize: vertical; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s;}
-
+.groupCreateForm .formTextarea {width: 100%; padding: 12px 16px; border: 1px solid #e3e6e9; border-radius: 6px; font-size: 16px; font-weight: 400; color: #141414; background: #fff; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s;}
 .groupCreateForm .formTextarea:focus {outline: none; border-color: #194f37;}
-
 .groupCreateForm .inputHelper {display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 12px; color: #6b7280;}
-
 .groupCreateForm .charCount {font-weight: 500;}
-
 .groupCreateForm .inputHint {font-size: 12px; color: #9ca3af;}
 
 /* 라디오 버튼 스타일 */
 .groupCreateForm .radioGroup {display: flex; flex-direction: column; gap: 12px;}
-
 .groupCreateForm .radioOption {display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid #e3e6e9; border-radius: 6px; cursor: pointer; transition: all 0.2s;}
-
 .groupCreateForm .radioOption:hover {border-color: #cdd8cd; background: #f8f8f8;}
-
 .groupCreateForm .radioOption input[type="radio"] {margin-top: 4px; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;}
-
 .groupCreateForm .radioOption input[type="radio"]:checked + .radioContent .radioTitle {color: #194f37; font-weight: 600;}
-
 .groupCreateForm .radioOption:has(input[type="radio"]:checked) {border-color: #194f37; background: #f0f9f4;}
-
 .groupCreateForm .radioContent {flex: 1;}
-
 .groupCreateForm .radioTitle {margin-bottom: 4px; font-size: 16px; font-weight: 500; color: #141414;}
-
 .groupCreateForm .radioDescription {font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5;}
 
 /* 체크박스 스타일 */
 .groupCreateForm .checkboxOption {display: flex; align-items: flex-start; gap: 12px; padding: 16px; border: 1px solid #e3e6e9; border-radius: 6px; cursor: pointer; transition: all 0.2s;}
-
 .groupCreateForm .checkboxOption:hover {border-color: #cdd8cd; background: #f8f8f8;}
-
 .groupCreateForm .checkboxOption input[type="checkbox"] {margin-top: 4px; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;}
-
 .groupCreateForm .checkboxOption input[type="checkbox"]:checked + .checkboxContent .checkboxTitle {color: #194f37; font-weight: 600;}
-
 .groupCreateForm .checkboxOption:has(input[type="checkbox"]:checked) {border-color: #194f37; background: #f0f9f4;}
-
 .groupCreateForm .checkboxContent {flex: 1;}
-
 .groupCreateForm .checkboxTitle {margin-bottom: 4px; font-size: 16px; font-weight: 500; color: #141414;}
-
 .groupCreateForm .checkboxDescription {font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5;}
 
 /* 카테고리 그리드 */
 .groupCreateForm .categoryGrid {display: flex; flex-flow: wrap; gap: 12px;}
-
 .groupCreateForm .categoryCheckbox {position: relative; display: inline-block;}
-
 .groupCreateForm .categoryInput {position: absolute; opacity: 0; width: 0; height: 0;}
-
 .groupCreateForm .categoryLabel {display: inline-block; padding: 10px 20px; border: 1px solid #e3e6e9; border-radius: 20px; font-size: 14px; font-weight: 400; color: #272B27; background: #fff; cursor: pointer; transition: all 0.2s;}
-
 .groupCreateForm .categoryInput:checked + .categoryLabel {border-color: #194f37; background: #194f37; color: #fff; font-weight: 500;}
-
 .groupCreateForm .categoryInput:disabled + .categoryLabel {opacity: 0.5; cursor: not-allowed;}
-
 .groupCreateForm .categoryCount {font-weight: 500;}
 
 /* 이미지 업로드 영역 */
 .groupCreateForm .imageUploadArea {display: flex; flex-direction: column; gap: 12px;}
-
 .groupCreateForm .imagePreview {position: relative; width: 100px; height: 100px; border: 2px dashed #e3e6e9; border-radius: 8px; overflow: hidden; background: #f8f8f8;}
-
 .groupCreateForm .bannerPreview {width: 100%; height: 200px;}
-
 .groupCreateForm .imagePreview img {width: 100%; height: 100%; object-fit: cover;}
-
 .groupCreateForm .imagePlaceholder {display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 12px; color: #9ca3af; text-align: center;}
-
 .groupCreateForm .fileInput {display: none;}
-
 .groupCreateForm .uploadButton {display: inline-block; padding: 10px 20px; border: 1px solid #194f37; border-radius: 6px; font-size: 14px; font-weight: 500; color: #194f37; background: #fff; cursor: pointer; transition: all 0.2s; text-align: center;}
-
 .groupCreateForm .uploadButton:hover {background: #194f37; color: #fff;}
 
 /* 스텝 인디케이터 */
 .groupCreateForm .stepIndicator {display: flex; align-items: center; gap: 16px; margin-bottom: 32px;}
-
 .groupCreateForm .stepItem {flex: 1; display: flex; align-items: center; gap: 12px; padding: 14px 18px; border: 1px solid #e3e6e9; border-radius: 10px; background: #fff; transition: border-color 0.2s, background 0.2s;}
-
 .groupCreateForm .stepNumber {display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 2px solid #cdd8cd; font-weight: 600; color: #6b7280;}
-
 .groupCreateForm .stepLabel {font-size: 15px; font-weight: 500; color: #6b7280;}
-
 .groupCreateForm .stepItem.active {border-color: #194f37; background: #f0f9f4;}
-
 .groupCreateForm .stepItem.active .stepNumber {border-color: #194f37; color: #194f37;}
-
 .groupCreateForm .stepItem.active .stepLabel {color: #194f37;}
-
 .groupCreateForm .stepItem.completed .stepNumber {border-color: #194f37; background: #194f37; color: #fff;}
-
 .groupCreateForm .stepItem.completed .stepLabel {color: #272B27;}
 
 /* 단계별 섹션 */
 .groupCreateForm .formStep {display: none;}
-
 .groupCreateForm .formStep.active {display: block;}
 
 
@@ -148,7 +98,7 @@
 .groupDetail {display: flex; flex-direction: column; gap: 32px; padding: 32px; border-radius: 32px; background: linear-gradient(180deg, rgba(255,255,255,0.9), #fff);}
 .groupDetail .groupHero {position: relative; display: flex; padding: 40px; border-radius: 28px; overflow: hidden; background: radial-gradient(circle at top right, rgba(239,68,68,0.15), transparent 55%);}
 .groupDetail .groupHeroBlend {position: absolute; inset: 0; background: linear-gradient(120deg, rgba(15,23,42,0.9), rgba(49,46,129,0.6)); mix-blend-mode: multiply;}
-.groupDetail .groupHeroInner {position: relative; display: flex; gap: 32px; width: 100%; z-index: 1; color: #fff;}
+.groupDetail .groupHeroInner {position: relative; display: flex; align-items: center; gap: 32px; width: 100%; z-index: 1; color: #fff;}
 .groupDetail .groupHeroArt {flex-shrink: 0; width: 220px; height: 220px; border-radius: 28px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.3); background: rgba(255,255,255,0.1);}
 .groupDetail .groupHeroArt img {width: 100%; height: 100%; object-fit: cover;}
 .groupDetail .groupHeroFallback {display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; letter-spacing: 2px; font-weight: 600; color: rgba(255,255,255,0.7);}

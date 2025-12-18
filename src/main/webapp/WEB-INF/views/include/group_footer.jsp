@@ -21,8 +21,16 @@
     }
 
     function createGroup() {
-        alert("해당 내용으로 그룹을 만드시겠습니까?");
-        document.getElementById("groupCreateForm").submit();
+        if(confirm("해당 내용으로 그룹을 만드시겠습니까?")) {
+            document.getElementById("groupCreateForm").submit();
+        }
+    }
+
+    function updateGroup() {
+        if(confirm("해당 내용으로 그룹을 정보를 변경 하시겠습니까?")) {
+            document.getElementById("groupCreateForm").submit();
+        }
+
     }
 
     window.addEventListener("load", () => {
@@ -55,14 +63,14 @@
                     window.handleGroupButtonsReady();
                 }
             }
-        } else if (path === "/group/gupdate") {
+        } else if (path.startsWith("/group/gupdate")) {
             if (formActions) {
                 formActions.innerHTML = `
                     <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
                     <div class="stepButtons">
                         <button type="button" class="btnWH btnPrev" id="prevStepBtn" disabled>이전</button>
                         <button type="button" class="btnWH btnNext" id="nextStepBtn">다음</button>
-                        <button type="submit" class="btnWH btnSubmit hidden" id="submitBtn" onclick="createGroup();">그룹 수정하기</button>
+                        <button type="submit" class="btnWH btnSubmit hidden" id="submitBtn" onclick="updateGroup();">그룹 수정하기</button>
                     </div>
                 `;
 
