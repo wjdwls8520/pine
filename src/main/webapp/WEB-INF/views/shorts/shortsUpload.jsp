@@ -12,6 +12,14 @@
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
     <article class="article workspace shorts">
+
+        <script>
+            var msg = '${msg}';
+            if(msg && msg.trim() !== '') {
+                alert(msg);
+            }
+        </script>
+
         <div class="shorts-upload-page">
             <form class="upload-form" id="shortsUploadForm" method="post" action="/shorts/shortsUpload" enctype="multipart/form-data">
                 <h1 class="form-title">쇼츠 업로드</h1>
@@ -21,8 +29,8 @@
                     <div class="video-upload-area" id="uploadArea">
                         <div class="upload-icon">🎬</div>
                         <div class="upload-text">비디오 파일을 선택하거나 드래그하세요</div>
-                        <div class="upload-hint">MP4, MOV, AVI 형식 · 최대 100MB</div>
-                        <input type="file" id="videoFile" name="videoFile" class="file-input" accept="video/*" required>
+                        <div class="upload-hint">MP4, MOV, AVI 형식 · 최대 10MB</div>
+                        <input type="file" id="videoFile" name="videoFile" class="file-input" accept="video/*">
                     </div>
                     <div class="video-preview" id="videoPreview">
                         <video id="previewVideo" controls></video>
@@ -146,11 +154,24 @@
     // 파일 처리 함수
     function handleFileSelect(file) {
         if (!file) return;
+        console.log('handleFileSelect called', file);
 
-        // 파일 크기 체크 (100MB)
-        const maxSize = 100 * 1024 * 1024;
+
+        // 파일 타입 체크
+        const isVideo =
+            (file.type && file.type.startsWith('video/')) ||
+            /\.(mp4|mov|avi|webm)$/i.test(file.name);
+
+        if (!isVideo) {
+            alert('비디오 파일만 업로드 가능합니다.');
+            videoFileInput.value = '';
+            return;
+        }
+
+        // 파일 크기 체크 (10MB)
+        const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
-            alert('파일 크기는 100MB를 초과할 수 없습니다.');
+            alert('파일 크기는 10MB를 초과할 수 없습니다.');
             videoFileInput.value = '';
             return;
         }
@@ -161,14 +182,14 @@
         videoPreview.classList.add('active');
 
         // 파일 정보 표시
-        const fileSize = (file.size / (1024 * 1024)).toFixed(2);
-        videoInfo.innerHTML = `
-            <strong>파일명:</strong> ${file.name}<br>
-            <strong>크기:</strong> ${fileSize} MB<br>
-            <strong>형식:</strong> ${file.type}
-        `;
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        videoInfo.innerHTML =
+            '<strong>파일명:</strong> ' + file.name + '<br>' +
+            '<strong>크기:</strong> ' + fileSizeMB + ' MB<br>' +
+            '<strong>형식:</strong> ' + file.type;
 
         // 자동 썸네일 생성 (비디오의 첫 프레임)
+        // 서버 업로드용 아님 (미리보기 전용)
         if (thumbnailAuto.checked) {
             generateThumbnailFromVideo(url);
         }
@@ -188,22 +209,9 @@
 
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            //  1. 미리보기용
+            //  미리보기용
             thumbnailPreviewImg.src = canvas.toDataURL('image/jpeg');
             thumbnailPreview.classList.add('active');
-
-            //  2. 서버 전송용 (진짜 이미지 파일로 변환)
-            // canvas.toBlob((blob) => {
-            //     const thumbnailFile = new File([blob], "thumbnail.jpg", {
-            //         type: "image/jpeg"
-            //     });
-            //
-            //     //  여기서 FormData에 강제로 썸네일 주입
-            //     const formData = new FormData(document.getElementById("shortsUploadForm"));
-            //     formData.set("files", thumbnailFile);
-            //
-            //     window.generatedThumbnailFile = thumbnailFile; // 전역 보관 (선택)
-            // }, "image/jpeg");
         });
     }
 
@@ -224,6 +232,16 @@
         if (thumbnailManual.checked) {
             thumbnailUploadArea.classList.add('active');
             thumbnailPreview.classList.remove('active');
+            thumbnailPreviewImg.src = '';
+        }
+    });
+
+    // 비디오 변경 시 수동 썸네일 초기화
+    videoFileInput.addEventListener('change', () => {
+        if (thumbnailManual.checked) {
+            thumbnailFileInput.value = '';
+            thumbnailPreview.classList.remove('active');
+            thumbnailPreviewImg.src = '';
         }
     });
 
@@ -237,22 +255,35 @@
     // 썸네일 파일 선택
     thumbnailFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (file) {
-            // 파일 크기 체크 (5MB)
-            const maxSize = 5 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert('썸네일 이미지 크기는 5MB를 초과할 수 없습니다.');
-                thumbnailFileInput.value = '';
-                return;
-            }
+        if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                thumbnailPreviewImg.src = event.target.result;
-                thumbnailPreview.classList.add('active');
-            };
-            reader.readAsDataURL(file);
+        // 타입 검사
+        if (!file.type.startsWith('image/')) {
+            alert('썸네일은 이미지 파일만 업로드 가능합니다.');
+
+            // 상태 초기화
+            thumbnailFileInput.value = '';
+            thumbnailPreviewImg.src = '';
+            thumbnailPreview.classList.remove('active');
+            return;
         }
+
+        // 파일 크기 체크 (5MB)
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('썸네일 이미지 크기는 5MB를 초과할 수 없습니다.');
+            thumbnailFileInput.value = '';
+            return;
+        }
+
+        // 정상이미지일 때만 미리보기
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            thumbnailPreviewImg.src = event.target.result;
+            thumbnailPreview.classList.add('active');
+        };
+        reader.readAsDataURL(file);
+
     });
 
     // 태그 추가
@@ -335,9 +366,6 @@
             alert('썸네일 이미지를 선택해주세요.');
             return;
         }
-
-        submitBtn.disabled = true;
-        submitBtn.textContent = '업로드 중...';
     });
 </script>
 </body>
