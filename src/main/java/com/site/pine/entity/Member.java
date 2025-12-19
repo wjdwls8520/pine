@@ -28,7 +28,7 @@ public class Member {
     @Column(nullable = false)
     private String nickname;
     @Column(nullable = false)
-    private String resident_num;
+    private String resident;
     @Column(nullable = false)
     private String phone;
     @Column(nullable = false)
