@@ -13,11 +13,12 @@ public class GroupInCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer categoryId;
-    private String categoryNameKor;
-    private String categoryNameEng;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="category_id")
+    private GroupCategoryList categoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="groupContents")
+    @JoinColumn(name="group_contents_id")
     private GroupContents groupContents;
+
 }

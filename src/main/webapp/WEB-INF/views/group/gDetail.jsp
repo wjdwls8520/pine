@@ -2,6 +2,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page isELIgnored="false" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="loginUser" />
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -14,7 +16,7 @@
     <article class="article workspace group">
 
         <script>
-            window.groupRole = ${isGroupMember != null ? isGroupMember.role : null};
+            window.groupRole = ${isGroupMember != null ? isGroupMember.role : 0};
         </script>
 
         <%-- group detail section --%>
@@ -63,7 +65,14 @@
                                     </c:when>
                                     <%-- 비로그인유저 및 비그룹원 --%>
                                     <c:otherwise>
-                                        <button type="button" class="groupPrimaryBtn">그룹 가입</button>
+                                        <sec:authorize access="isAuthenticated()">
+                                            <button type="button" class="groupPrimaryBtn" onclick="alert('가입 신청 하시겠습니까?')">그룹 가입</button>
+                                        </sec:authorize>
+
+                                        <sec:authorize access="isAnonymous()">
+                                            <button type="button" class="groupPrimaryBtn" onclick="alert('로그인 이후 이용하실 수 있습니다.'); return location.href='/login';">그룹 가입</button>
+                                        </sec:authorize>
+
                                     </c:otherwise>
                                 </c:choose>
 
@@ -143,7 +152,7 @@
                                 <c:choose>
                                     <c:when test="${not empty groupDetail.categoryIds}">
                                         <c:forEach var="category" items="${groupDetail.categoryIds}">
-                                            <li>#카테고리${category.nameKor}</li>
+                                            <li>#${category.nameKor}</li>
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>

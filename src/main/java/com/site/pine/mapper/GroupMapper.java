@@ -25,9 +25,9 @@ public class GroupMapper {
 
     public GroupCategoryDto toGroupInCategoryResDto(GroupInCategory category) {
         GroupCategoryDto resDto = new GroupCategoryDto();
-        resDto.setCategoryId(category.getCategoryId());
-        resDto.setNameKor(category.getCategoryNameKor());
-        resDto.setNameEng(category.getCategoryNameEng());
+        resDto.setCategoryId(category.getCategoryId().getId());
+        resDto.setNameKor(category.getCategoryId().getNameKor());
+        resDto.setNameEng(category.getCategoryId().getNameEng());
 
         return resDto;
     };
