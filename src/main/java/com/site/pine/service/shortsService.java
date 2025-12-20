@@ -6,7 +6,6 @@ import com.site.pine.dto.community.PostResDto;
 import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
-import com.site.pine.entity.post.Post;
 import com.site.pine.entity.shorts.Shorts;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.ShortsRepository;

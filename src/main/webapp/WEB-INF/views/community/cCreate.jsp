@@ -37,6 +37,14 @@
                         <textarea id="postBody" name="postBody" hidden></textarea>
                     </div>
 
+                    <div class="fieldGroup tagInputWrapper">
+                        <label class="fieldLabel" for="tagInput">태그</label>
+                        <input type="text" id="tagInput" placeholder="태그를 입력하고 Enter" />
+                        <div id="tagList" class="tagList"></div>
+                        <input type="hidden" name="tags" id="hiddenTags" />
+<%--                        실제로서버로넘기는태그값--%>
+                    </div>
+
 <%--                        업로드--%>
                     <section class="mediaManager">
                         <div class="mediaHeader">
@@ -59,10 +67,7 @@
                     </section>
 
                     <div class="metaGrid">
-                        <div class="fieldGroup">
-                            <label class="fieldLabel" for="tagInput">태그</label>
-                            <input id="tagInput" type="text" class="fieldControl" name="file" placeholder="#밈 #정보" />
-                        </div>
+
                         <div class="fieldGroup">
                             <label class="fieldLabel" for="visibilitySelect">노출 범위</label>
                             <select id="visibilitySelect" class="fieldControl" name="status">
@@ -89,6 +94,7 @@
 <script src="/js/toastUI.js"></script>
 <script src="/js/sortable.min.js"></script>
 <script src="/js/commujs/commuCreate.js"></script>
+<script src="/js/commujs/tag.js"></script>
 </body>
 </html>
 

@@ -65,7 +65,15 @@ window.addEventListener("load", () => {
                                              onclick="location.href='/community/cdetail/${info.postId}'">
                                             ${info.content}
                                         </div>
-
+                                        <div class="tagZone">
+                                            ${
+                                                info.tags && info.tags.length > 0
+                                                    ? info.tags.map(tag =>
+                                                        `<span class="tag">#${tag.name}</span>`
+                                                    ).join("")
+                                                    : ""
+                                            }
+                                        </div>
                                         ${
                                             info.files && info.files.length > 0 
                                             ? `<div class="swiper commuSlide">

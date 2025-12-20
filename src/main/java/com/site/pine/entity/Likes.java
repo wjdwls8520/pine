@@ -18,7 +18,7 @@ public class Likes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Comment("컨텐츠 타입(Post, Reply 등)")
+    @Comment("컨텐츠 타입(Post=1, Reply 등)")
     @Column(nullable = false)
     private int targetType;
 

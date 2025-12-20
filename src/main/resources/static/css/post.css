@@ -473,6 +473,31 @@
     border: 1px solid #8c8c8c;
 }
 
+/*태그존*/
+.tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.tagItem {
+    background-color: #e1e1e1;
+    padding: 5px 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.tagItem button {
+    margin-left: 5px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 
 /*--------------------------------------------------*/
 
