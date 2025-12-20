@@ -16,7 +16,7 @@
     <article class="article workspace group">
 
         <script>
-            window.groupRole = ${isGroupMember != null ? isGroupMember.role : 0};
+            window.groupRole = ${empty isGroupMember ? 0 : isGroupMember.role};
         </script>
 
         <%-- group detail section --%>

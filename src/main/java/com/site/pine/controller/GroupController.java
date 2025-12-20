@@ -7,6 +7,9 @@ import com.site.pine.dto.group.GroupMemberResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -142,5 +145,32 @@ public class GroupController {
         }
 
         return "redirect:/group/gdetail/" + groupId;
+    }
+
+    @PostMapping("/group/gdelete/{groupId}")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> groupDelete(
+            @PathVariable Long groupId,
+            @AuthenticationPrincipal MemberDto memberdto) {
+
+        HashMap<String, Object> result = new HashMap<>();
+
+        if (memberdto == null) {
+            result.put("msg", "redirect:/errorLogin");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
+
+        try {
+            gs.deleteGroup(groupId, memberdto);
+        } catch (AccessDeniedException e) {
+            result.put("msg", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
+        } catch (IllegalStateException e) {
+            result.put("msg", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+        }
+
+        result.put("msg", "success");
+        return ResponseEntity.ok(result);
     }
 }

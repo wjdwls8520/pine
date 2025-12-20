@@ -1,11 +1,13 @@
 package com.site.pine.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
+import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
 import com.site.pine.dto.group.*;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
+import com.site.pine.entity.S3FileDeleteFailList;
 import com.site.pine.entity.group.GroupCategoryList;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupInCategory;
@@ -13,17 +15,15 @@ import com.site.pine.entity.group.GroupMember;
 import com.site.pine.mapper.GroupMapper;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.group.GroupContentsRepository;
-import com.site.pine.repository.group.GroupCategoryRepository;
-import com.site.pine.repository.group.GroupInCategoryRepository;
+import com.site.pine.repository.group.*;
 
-import com.site.pine.repository.group.GroupMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +52,8 @@ public class GroupService {
     private final FileRepository fr;
 
     private final GroupMapper gm;
+
+    private final S3FileDeleteFailListRepository sfdfr;
 
     // 태초에 db에 저장되는 카테고리들을 가져옴
     @Transactional(readOnly = true)
@@ -240,6 +242,35 @@ public class GroupService {
 
             // 위코드 어디에서든 에러가 난다면 실행되지 않을 것
             sus.deleteFile(oldS3Path);
+        }
+    }
+
+    @Transactional
+    public void deleteGroup(Long groupId, MemberDto memberdto) {
+        GroupContents groupContentE = gconr.findById(groupId).orElseThrow(() -> new IllegalStateException("존재하지 않는 그룹입니다."));
+        File oldFile = groupContentE.getFile();
+        Member memberE = mr.findById(memberdto.getId()).orElseThrow(() -> new IllegalStateException("존재하지 않는 멤버입니다."));
+        GroupMember getGroupMemberInfo = gmr.findByMemberAndGroupContents(memberE, groupContentE).orElseThrow(() -> new IllegalStateException("그룹멤버가 아닙니다."));
+
+        System.out.println(getGroupMemberInfo);
+        if(getGroupMemberInfo.getRole() != 1) {
+            throw new AccessDeniedException("그룹장이 아닌 그룹원은 삭제 권한이 없습니다.");
+        }
+
+        gconr.delete(groupContentE);
+
+        try {
+            sus.deleteFile(oldFile.getPath());
+        } catch (Exception e) {
+            S3FileDeleteFailList s3FileDeleteFailList = new S3FileDeleteFailList();
+            s3FileDeleteFailList.setPageType(oldFile.getPageType());
+            s3FileDeleteFailList.setOriginalname(oldFile.getOriginalname());
+            s3FileDeleteFailList.setSize(oldFile.getSize());
+            s3FileDeleteFailList.setPath(oldFile.getPath());
+            s3FileDeleteFailList.setErrorMessage(e.getMessage());
+            sfdfr.save(s3FileDeleteFailList);
+
+            throw new IllegalStateException("S3 삭제 실패" + e);
         }
     }
 }

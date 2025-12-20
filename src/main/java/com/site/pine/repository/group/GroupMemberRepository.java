@@ -1,6 +1,8 @@
 package com.site.pine.repository.group;
 
 import com.site.pine.dto.member.MemberDto;
+import com.site.pine.entity.Member;
+import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,4 +17,7 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
         and gm.groupContents.id = :groupId
     """)
     Optional<GroupMember> findByMemberIdAndGroupId(Long memberId, Long groupId);
+
+
+    Optional<GroupMember> findByMemberAndGroupContents(Member memberE, GroupContents groupContentE);
 }
