@@ -88,7 +88,7 @@ public class CommunityService {
             }
 
             // db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto(fileUrl));
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto("community", file.getOriginalFilename(), file.getSize(), fileUrl));
 
             File fileEntity = new File();
 
