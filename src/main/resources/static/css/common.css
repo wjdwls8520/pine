@@ -13,6 +13,8 @@ section.section .subTitle {margin-top:-32px; padding-bottom: 14px; font-size: 16
     display: inline-block;
     cursor: pointer;
 }
+.ico.replyLike {width: 16px;
+    height: 16px;}
 .ico_like {
     background: url("../images/ico_like.png") center center no-repeat;
     background-size: cover;
@@ -34,3 +36,30 @@ section.section .subTitle {margin-top:-32px; padding-bottom: 14px; font-size: 16
     background: url("../images/ico_more.png") center center no-repeat;
     background-size: cover;
 }
+
+/*//////////////댓글섹션/////////////////*/
+.replyWrap {margin-top: 20px;}
+.replyWrap .writeBox {margin-bottom: 20px;}
+.replyWrap .writeBox .replyTextBox {width: 100%;border: 1px solid #ccc; padding: 10px;box-sizing: border-box;}
+.replyWrap .replyBox {border: 1px solid #ccc;font-size: 15px;}
+.replyWrap .replyBox .replyWriterInfo {display: flex;justify-content: space-between;align-items: start;}
+.replyWrap .replyBox .replyWriterInfo .infoLeft {    display: flex;    gap: 24px;
+}
+.replyWrap .replyBox .replyWriterInfo .profileImgBox {width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid #ccc;}
+.replyWrap .replyBox .replyWriterInfo .profileImgBox img{width: 100%;
+    height: 100%;object-fit: cover}
+.replyWrap .replyBox .infoContent {display: flex;
+    flex-direction: column;
+    gap: 8px;}
+.replyWrap .replyBox .infoContent .nickNtime{display: flex}
+.replyWrap .replyBox .infoContent .userNick{margin-right: 20px;}
+.replyWrap .replyBox .infoContent .replyTime{    color: #606060;}
+
+.replyWrap .replyBox .replyBottom{    display: flex;
+    align-items: center;
+    font-size: 14px;}
+.replyWrap .replyBox .replyBottom .likeCount {margin: 0 20px 0 5px;}
