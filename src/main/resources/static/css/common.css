@@ -3,3 +3,34 @@
 section.section .bigTitle {display: flex; justify-content: space-between; padding-top: 64px; padding-bottom: 42px; font-size: 32px; font-weight: 600; color: #272B27;}
 section.section .bigTitle > a {display: flex; align-items: flex-end; font-size: 16px; font-weight: 700; color: #141414;}
 section.section .subTitle {margin-top:-32px; padding-bottom: 14px; font-size: 16px; font-weight: 500; color: #cdd8cd;}
+
+
+
+/* ////////////아이콘/////////////////*/
+.ico{
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    cursor: pointer;
+}
+.ico_like {
+    background: url("../images/ico_like.png") center center no-repeat;
+    background-size: cover;
+}
+.ico_like.active {
+    background: url("../images/ico_like_pull.png") center center no-repeat;
+    background-size: cover;
+}
+.ico_reply {
+    background: url("../images/ico_reply.png") center center no-repeat;
+    background-size: cover;
+
+}
+.ico_link {
+    background: url("../images/ico_link.png") center center no-repeat;
+    background-size: cover;
+}
+.ico_more{
+    background: url("../images/ico_more.png") center center no-repeat;
+    background-size: cover;
+}
