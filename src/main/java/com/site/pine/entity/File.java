@@ -29,7 +29,6 @@ public class File {
     private Long size;
 
     @Comment("파일 경로")
-    @Column(nullable = false)
     private String path;
 
     @Comment("파일 확장자")
@@ -38,6 +37,10 @@ public class File {
 
     @CreationTimestamp
     private Timestamp indate;
+
+    @Comment("파일 처리 상태 0:대기 1:처리중 2:완료 3:실패")
+    @Column(nullable = false)
+    private int status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")

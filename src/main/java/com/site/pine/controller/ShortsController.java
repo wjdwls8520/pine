@@ -1,23 +1,20 @@
 package com.site.pine.controller;
 
-import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
-import com.site.pine.service.shortsService;
+import com.site.pine.service.ShortsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 public class ShortsController {
 
-    private final shortsService ss;
+    private final ShortsService ss;
 
     @GetMapping("/shorts")
     public String shorts(){
