@@ -50,10 +50,10 @@ window.addEventListener("load", () => {
                                         <div class="postInfo">
                                             <div class="postProfileImgBox">
                                                 <img class="profileImg"
-                                                     src="${info.profileImg || "/images/banner02.png"}" />
+                                                     src="${info.profileImg || "/images/user.png"}" />
                                             </div>
                                             <div class="userNick">${info.nickname}</div>
-                                            <div class="postTime relative-time">
+                                            <div class="postTime">
                                                 ${timeAgoAjax(info.writeDate)}
                                             </div>
                                         </div>
