@@ -21,12 +21,34 @@
     }
 
     function createGroup() {
+        if(!window.isLogin) { alert("로그인 이후 이용하실 수 있습니다."); return location.href='/login'; }
+
+        const checked = document.querySelectorAll('.categoryInput:checked').length;
+        if (checked < 1 || checked > 5) {
+            alert("카테고리는 최소 1개 이상 최대 5개 이하로 선택 해주셔야 합니다.");
+            return;
+        }
+
+        const prevImg = document.getElementById("iconPreviewImg").getAttribute("src");
+        if(!prevImg) {
+            alert("그룹 대표이미지를 설정해주세요.");
+            return;
+        }
+
         if(confirm("해당 내용으로 그룹을 만드시겠습니까?")) {
             document.getElementById("groupCreateForm").submit();
         }
     }
 
     function updateGroup() {
+        if(!window.isLogin) { alert("로그인 이후 이용하실 수 있습니다."); return location.href='/login'; }
+
+        const checked = document.querySelectorAll('.categoryInput:checked').length;
+        if (checked < 1 || checked > 5) {
+            alert("카테고리는 최소 1개 이상 최대 5개 이하로 선택 해주셔야 합니다.");
+            return;
+        }
+
         if(confirm("해당 내용으로 그룹을 정보를 변경 하시겠습니까?")) {
             document.getElementById("groupCreateForm").submit();
         }

@@ -104,14 +104,43 @@ public class GroupController {
         if(memberdto == null) return "redirect:/errorLogin";
 
         try {
-            GroupContentResDto getGroupDetail = gs.getGroup(groupId);
+            List<GroupCategoryDto> list = gs.getCategory();
+            model.addAttribute("list", list);
 
+            GroupContentResDto getGroupDetail = gs.getGroup(groupId);
             model.addAttribute("groupDetail", getGroupDetail);
+
             return "group/gUpdate";
 
         } catch (IllegalStateException e) {
             redirectAttrs.addFlashAttribute("msg", e.getMessage());
             return "redirect:/group";
         }
+    }
+    @PostMapping("/group/gupdate/{groupId}")
+    public String update(@AuthenticationPrincipal MemberDto memberdto, @PathVariable("groupId") Long groupId, @ModelAttribute GroupContentReqDto groupContentReqDto, RedirectAttributes redirectAttrs) {
+
+        if (memberdto == null) {
+            return "redirect:/errorLogin";
+        }
+
+        if(groupContentReqDto.getGroupImg().getSize() > (5 * 1024 * 1024)) {
+            redirectAttrs.addFlashAttribute("msg", "[error] 이미지 파일 크기는 5MB 이하여야 합니다.");
+            return "redirect:/group/gdetail/" + groupId;
+        }
+
+        if(groupContentReqDto.getCategoryIds() == null || groupContentReqDto.getCategoryIds().isEmpty()){
+            redirectAttrs.addFlashAttribute("msg", "[error] 카테고리는 최소 1개 이상 선택하셔야 합니다.");
+            return "redirect:/group/gdetail/" + groupId;
+        }
+
+        try {
+            gs.updateGroupContent(memberdto, groupId, groupContentReqDto);
+            redirectAttrs.addFlashAttribute("msg", "수정이 완료되었습니다.");
+        } catch (IllegalStateException e) {
+            redirectAttrs.addFlashAttribute("msg", e.getMessage());
+        }
+
+        return "redirect:/group/gdetail/" + groupId;
     }
 }

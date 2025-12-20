@@ -49,7 +49,7 @@ public class GroupService {
     private final GroupMemberRepository gmr;
 
     private final S3UploadService sus;
-    private final FileRepository frs;
+    private final FileRepository fr;
 
     private final GroupMapper gm;
 
@@ -147,20 +147,14 @@ public class GroupService {
 
 
 
-        // 태초에 db에 저장된 카테고리 정보들을 조회
-        List<GroupCategoryList> allInitCategory = gcr.findAll();
         // 내가 클라이언트한테 받은 선택된 카테고리 개수만큼 for 반복
         for (Integer categoryId : groupContentReqDto.getCategoryIds()) {
-            // 서버에서 태초부터 생긴 카테고리의 값을 필터로 현재 내가 선택한 카테고리랑 같은 catrgoryId이면 그에 맞는 name을 저장
-            GroupCategoryList matchedCategory = allInitCategory.stream()
-                    .filter(cat -> cat.getId().equals(categoryId))
-                    .findFirst()
-                    .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
+            // 1) 카테고리 엔티티 조회
+            GroupCategoryList categoryEntity = gcr.findById(categoryId)
+                    .orElseThrow(() -> new IllegalStateException("존재하지 않는 카테고리입니다."));
 
             GroupInCategory groupInCategory = new GroupInCategory();
-            groupInCategory.setCategoryId(categoryId);
-            groupInCategory.setCategoryNameKor(matchedCategory.getNameKor());
-            groupInCategory.setCategoryNameEng(matchedCategory.getNameEng());
+            groupInCategory.setCategoryId(categoryEntity);
             groupInCategory.setGroupContents(groupContentsE);
             groupContentsE.getCategoryIds().add(groupInCategory); // 그룹컨텐츠에 카테고리들을 조인
         }
@@ -187,9 +181,10 @@ public class GroupService {
 
         groupContentResDto.setCategoryIds(categoryResult);
 
-        return groupContentResDto ;
+        return groupContentResDto;
     }
 
+    @Transactional(readOnly = true)
     public GroupMemberResDto getGroupMemberInfo(MemberDto memberdto, Long id) {
         GroupMemberResDto groupMemberResDto = null;
 
@@ -200,5 +195,51 @@ public class GroupService {
             }
         }
         return groupMemberResDto;
+    }
+
+    @Transactional
+    public void updateGroupContent(MemberDto memberdto, Long groupId, GroupContentReqDto groupContentReqDto) {
+        GroupContents groupContentsE = gconr.findById(groupId).orElseThrow(() -> new IllegalStateException("[error] 존재하지 않는 그룹입니다."));
+
+        groupContentsE.setGroupName(groupContentReqDto.getGroupName());
+        groupContentsE.setGroupDescription(groupContentReqDto.getGroupDescription());
+        groupContentsE.setJoinState(groupContentReqDto.getJoinState());
+        groupContentsE.setAutoJoin(groupContentReqDto.getAutoJoin());
+        groupContentsE.setUserLimit(groupContentReqDto.getUserLimit());
+
+
+        gicr.deleteByGroupContents(groupContentsE); // 이 그룹컨텐츠의 카테고리 전부 삭제 그이후 아래에서 재생성
+        for (Integer categoryId : groupContentReqDto.getCategoryIds()) {
+            // 1) 카테고리 엔티티 조회
+            GroupCategoryList categoryEntity = gcr.findById(categoryId)
+                    .orElseThrow(() -> new IllegalStateException("존재하지 않는 카테고리입니다."));
+
+            GroupInCategory groupInCategory = new GroupInCategory();
+            groupInCategory.setCategoryId(categoryEntity);
+            groupInCategory.setGroupContents(groupContentsE);
+            groupContentsE.getCategoryIds().add(groupInCategory); // 그룹컨텐츠에 카테고리들을 조인
+        }
+
+        if(groupContentReqDto.getGroupImg() != null && !groupContentReqDto.getGroupImg().isEmpty()) {
+            String oldS3Path = groupContentsE.getFile().getPath();
+            String filePath = null;
+            try {
+                filePath = sus.saveFile(groupContentReqDto.getGroupImg());
+            } catch (IOException e) {
+                log.error("S3 업로드 실패", e);
+                throw new IllegalStateException("파일 업로드에 실패했습니다."); // s3에서 에러가났을시 강제 에러실행.
+            }
+            // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto(filePath));
+
+            groupContentsE.getFile().setPath(filePath);
+            groupContentsE.getFile().setOriginalname(groupContentReqDto.getGroupImg().getOriginalFilename());
+            groupContentsE.getFile().setSize(groupContentReqDto.getGroupImg().getSize());
+            groupContentsE.getFile().setContentType(groupContentReqDto.getGroupImg().getContentType());
+
+
+            // 위코드 어디에서든 에러가 난다면 실행되지 않을 것
+            sus.deleteFile(oldS3Path);
+        }
     }
 }

@@ -1,7 +1,3 @@
-window.onload = function() {
-    document.getElementById('groupCreateForm').reset();
-};
-
 const groupNameInput = document.getElementById('groupName');
 const groupDescriptionInput = document.getElementById('groupDescription');
 const userLimitInput = document.getElementById('userLimit');
@@ -18,14 +14,22 @@ const totalSteps = steps.length;
 let buttonsInitialized = false;
 
 // 그룹명 입력 문자 카운트
-groupNameInput.addEventListener('input', function(e) {
-    document.getElementById('nameCharCount').textContent = e.target.value.length;
+nameLogic();
+groupNameInput.addEventListener('input', function() {
+    nameLogic();
 });
+function nameLogic() {
+    document.getElementById('nameCharCount').textContent = groupNameInput.value.length;
+}
 
 // 그룹 설명 입력 문자 카운트
-groupDescriptionInput.addEventListener('input', function(e) {
-    document.getElementById('descCharCount').textContent = e.target.value.length;
+desLogic();
+groupDescriptionInput.addEventListener('input', function() {
+    desLogic();
 });
+function desLogic() {
+    document.getElementById('descCharCount').textContent = groupDescriptionInput.value.length;
+}
 
 // 사용자 제한 입력 검증
 userLimitInput.addEventListener('input', function(e) {
@@ -40,23 +44,27 @@ userLimitInput.addEventListener('input', function(e) {
 
 // 카테고리 선택 제한 (최대 5개)
 categoryInputs.forEach(input => {
+    categoryLogic();
     input.addEventListener('change', function() {
-        const checked = document.querySelectorAll('.categoryInput:checked').length;
-        categoryCountSpan.textContent = checked;
-
-        if (checked >= 5) {
-            categoryInputs.forEach(cb => {
-                if (!cb.checked) {
-                    cb.disabled = true;
-                }
-            });
-        } else {
-            categoryInputs.forEach(cb => {
-                cb.disabled = false;
-            });
-        }
+        categoryLogic();
     });
 });
+function categoryLogic() {
+    const checked = document.querySelectorAll('.categoryInput:checked').length;
+    categoryCountSpan.textContent = checked;
+
+    if (checked >= 5) {
+        categoryInputs.forEach(cb => {
+            if (!cb.checked) {
+                cb.disabled = true;
+            }
+        });
+    } else {
+        categoryInputs.forEach(cb => {
+            cb.disabled = false;
+        });
+    }
+}
 
 // 그룹 대표 이미지 미리보기
 iconUploadInput.addEventListener('change', function(e) {
@@ -149,9 +157,21 @@ function validateStep(step) {
         }
 
         if (!image) {
-            alert('그룹 대표 이미지를 업로드해주세요.');
+            const isUpdatePage = window.location.pathname.startsWith("/group/gupdate");
+            if (isUpdatePage) return true;
+
+            alert("그룹 대표 이미지를 업로드해주세요.");
             iconUploadInput.focus();
             return false;
+        }
+
+        const isCreatePage = window.location.pathname.startsWith("/group/gcreate");
+        if(isCreatePage) {
+            const prevImg = document.getElementById("iconPreviewImg").getAttribute("src");
+            if(!prevImg) {
+                alert("그룹 대표이미지를 설정해주세요.");
+                return false;
+            }
         }
     }
 

@@ -1,6 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page isELIgnored="false" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %> <%--jstl contain문법 사용하기 위해 임포트--%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="loginUser" />
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -15,6 +18,18 @@
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
     <article class="article workspace group">
+
+        <sec:authorize access="isAuthenticated()">
+            <script>
+                window.isLogin = true;
+            </script>
+        </sec:authorize>
+
+        <sec:authorize access="isAnonymous()">
+            <script>
+                window.isLogin = false;
+            </script>
+        </sec:authorize>
 
         <%-- section page--%>
         <section class="section groupMain">
@@ -85,7 +100,7 @@
                             </div>
                             <div class="imageUploadArea">
                                 <div class="imagePreview" id="iconPreview">
-                                    <img id="iconPreviewImg" src="" alt="이미지 미리보기" style="display: none;" />
+                                    <img id="iconPreviewImg" src="${groupDetail.groupImg.path}" alt="이미지 미리보기" style="${not empty groupDetail.groupImg ? 'display: block;' : 'display: none;'}" />
                                     <div class="imagePlaceholder">
                                         <span>이미지 업로드</span>
                                     </div>
@@ -110,14 +125,14 @@
                             </div>
                             <div class="radioGroup">
                                 <label class="radioOption">
-                                    <input type="radio" name="joinState" value="1" checked />
+                                    <input type="radio" name="joinState" value="1" ${groupDetail.joinState == 1 ? "checked" : null} />
                                     <div class="radioContent">
                                         <div class="radioTitle">승인 필요</div>
                                         <div class="radioDescription">그룹 관리자가 가입 요청을 승인해야 합니다</div>
                                     </div>
                                 </label>
                                 <label class="radioOption">
-                                    <input type="radio" name="joinState" value="0" />
+                                    <input type="radio" name="joinState" value="0" ${groupDetail.joinState == 0 ? "checked" : null} />
                                     <div class="radioContent">
                                         <div class="radioTitle">승인 불필요</div>
                                         <div class="radioDescription">누구나 자유롭게 가입할 수 있습니다</div>
@@ -134,14 +149,14 @@
                             </div>
                             <div class="radioGroup">
                                 <label class="radioOption">
-                                    <input type="radio" name="autoJoin" value="1" checked />
+                                    <input type="radio" name="autoJoin" value="1" ${groupDetail.autoJoin == 1 ? "checked" : null} />
                                     <div class="radioContent">
                                         <div class="radioTitle">자동 승인</div>
                                         <div class="radioDescription">가입 요청이 자동으로 승인됩니다</div>
                                     </div>
                                 </label>
                                 <label class="radioOption">
-                                    <input type="radio" name="autoJoin" value="0" />
+                                    <input type="radio" name="autoJoin" value="0" ${groupDetail.autoJoin == 0 ? "checked" : null} />
                                     <div class="radioContent">
                                         <div class="radioTitle">수동 승인</div>
                                         <div class="radioDescription">그룹 관리자가 직접 승인해야 합니다</div>
@@ -163,26 +178,13 @@
                                    placeholder="최대 인원 수"
                                    min="1"
                                    max="1000"
-                                   value="10"
+                                   value="${groupDetail.userLimit}"
                                    required />
                             <div class="inputHelper">
                                 <span class="inputHint">1명 이상 1000명 이하로 설정 가능합니다</span>
                             </div>
                         </div>
 
-                        <%-- 18+ 콘텐츠 섹션 --%>
-                        <div class="formSection">
-                            <div class="formHeader">
-                                <h3 class="formTitle">성인 콘텐츠</h3>
-                            </div>
-                            <label class="checkboxOption">
-                                <input type="checkbox" name="nsfw" value="true" />
-                                <div class="checkboxContent">
-                                    <div class="checkboxTitle">18+ 성인 콘텐츠</div>
-                                    <div class="checkboxDescription">이 그룹에는 성인 콘텐츠가 포함되어 있습니다</div>
-                                </div>
-                            </label>
-                        </div>
                     </div>
 
                     <div class="formStep" data-step="3">
@@ -199,7 +201,12 @@
                                                id="chk_${item.categoryId}"
                                                name="categoryIds"
                                                value="${item.categoryId}"
-                                               class="categoryInput" />
+                                               class="categoryInput"
+                                                <c:forEach var="cid" items="${groupDetail.categoryIds}">
+                                                    <c:if test="${item.categoryId == cid.categoryId}">checked</c:if>
+                                                </c:forEach>
+
+                                        />
                                         <span class="categoryLabel">${item.nameKor}</span>
                                     </label>
                                 </c:forEach>
