@@ -109,14 +109,14 @@ public class ShortsService {
 
             // 2️ 영상 S3 업로드
             videoPath = sus.saveFile(dto.getVideoFile());
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto(videoPath));
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto("shorts", video.getOriginalFilename(), video.getSize(), videoPath));
             saveFile(shorts, dto.getVideoFile(), videoPath, "shorts");
 
             // 3️ 썸네일 분기
             if ("manual".equals(dto.getThumbnailType())) {
                 // s3업로드
                 String thumbUrl = sus.saveFile(thumbnail);
-                applicationEventPublisher.publishEvent(new S3DeleteEventDto(thumbUrl));
+                applicationEventPublisher.publishEvent(new S3DeleteEventDto("shorts", video.getOriginalFilename(), video.getSize(), thumbUrl));
                 saveFile(shorts, thumbnail, thumbUrl, "shortsThumbnail");
 
             } else if ("auto".equals(dto.getThumbnailType())) {
@@ -126,7 +126,7 @@ public class ShortsService {
                 f.setPageType("shortsThumbnail");
                 f.setOriginalname("auto_thumbnail.jpg");
                 f.setSize(0L);
-                f.setPath(null);
+                f.setPath("null");
                 f.setContentType("image/jpeg");
                 // status = 0 (대기)
                 f.setStatus(0);

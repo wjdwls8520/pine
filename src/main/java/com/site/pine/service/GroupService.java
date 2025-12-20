@@ -13,6 +13,7 @@ import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupInCategory;
 import com.site.pine.entity.group.GroupMember;
 import com.site.pine.mapper.GroupMapper;
+import com.site.pine.mapper.S3FileDeleteFailMapper;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.group.*;
@@ -54,6 +55,7 @@ public class GroupService {
     private final GroupMapper gm;
 
     private final S3FileDeleteFailListRepository sfdfr;
+    private final S3FileDeleteFailMapper sfdfm;
 
     // 태초에 db에 저장되는 카테고리들을 가져옴
     @Transactional(readOnly = true)
@@ -115,6 +117,7 @@ public class GroupService {
         String filePageType = "groupBanner";
         String originalFileName = groupContentReqDto.getGroupImg().getOriginalFilename();
         Long fileSize = groupContentReqDto.getGroupImg().getSize();
+        String fileContentType = groupContentReqDto.getGroupImg().getContentType();
         try {
             filePath = sus.saveFile(groupContentReqDto.getGroupImg());
         } catch (IOException e) {
@@ -122,9 +125,8 @@ public class GroupService {
             throw new IllegalStateException("파일 업로드에 실패했습니다."); // s3에서 에러가났을시 강제 에러실행.
         }
         // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-        applicationEventPublisher.publishEvent(new S3DeleteEventDto(filePath));
+        applicationEventPublisher.publishEvent(new S3DeleteEventDto(filePageType, originalFileName, fileSize, filePath));
 
-        String fileContentType = groupContentReqDto.getGroupImg().getContentType();
         // 파일엔티티에 위의 값들을 세터
         File fileEntity = new File();
         fileEntity.setPageType(filePageType);
@@ -223,7 +225,7 @@ public class GroupService {
         }
 
         if(groupContentReqDto.getGroupImg() != null && !groupContentReqDto.getGroupImg().isEmpty()) {
-            String oldS3Path = groupContentsE.getFile().getPath();
+            File oldFile = groupContentsE.getFile();
             String filePath = null;
             try {
                 filePath = sus.saveFile(groupContentReqDto.getGroupImg());
@@ -231,17 +233,24 @@ public class GroupService {
                 log.error("S3 업로드 실패", e);
                 throw new IllegalStateException("파일 업로드에 실패했습니다."); // s3에서 에러가났을시 강제 에러실행.
             }
-            // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto(filePath));
-
             groupContentsE.getFile().setPath(filePath);
             groupContentsE.getFile().setOriginalname(groupContentReqDto.getGroupImg().getOriginalFilename());
             groupContentsE.getFile().setSize(groupContentReqDto.getGroupImg().getSize());
             groupContentsE.getFile().setContentType(groupContentReqDto.getGroupImg().getContentType());
 
+            // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto("groupBanner", groupContentsE.getFile().getOriginalname(), groupContentsE.getFile().getSize(), filePath));
+
 
             // 위코드 어디에서든 에러가 난다면 실행되지 않을 것
-            sus.deleteFile(oldS3Path);
+            try {
+                sus.deleteFile(oldFile.getPath());
+            } catch (Exception e) {
+                S3FileDeleteFailList s3FileDeleteFailList = sfdfm.toS3FileDeleteFailMapper(oldFile, e);
+                sfdfr.save(s3FileDeleteFailList);
+
+                throw new IllegalStateException("S3 삭제 실패" + e.getMessage());
+            }
         }
     }
 
@@ -262,15 +271,10 @@ public class GroupService {
         try {
             sus.deleteFile(oldFile.getPath());
         } catch (Exception e) {
-            S3FileDeleteFailList s3FileDeleteFailList = new S3FileDeleteFailList();
-            s3FileDeleteFailList.setPageType(oldFile.getPageType());
-            s3FileDeleteFailList.setOriginalname(oldFile.getOriginalname());
-            s3FileDeleteFailList.setSize(oldFile.getSize());
-            s3FileDeleteFailList.setPath(oldFile.getPath());
-            s3FileDeleteFailList.setErrorMessage(e.getMessage());
+            S3FileDeleteFailList s3FileDeleteFailList = sfdfm.toS3FileDeleteFailMapper(oldFile, e);
             sfdfr.save(s3FileDeleteFailList);
 
-            throw new IllegalStateException("S3 삭제 실패" + e);
+            throw new IllegalStateException("S3 삭제 실패" + e.getMessage());
         }
     }
 }
