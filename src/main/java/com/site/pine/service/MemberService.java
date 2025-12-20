@@ -2,6 +2,8 @@ package com.site.pine.service;
 
 import com.site.pine.dao.IMemberDao;
 import com.site.pine.dto.community.PostListDto;
+import com.site.pine.dto.community.PostResDto;
+import com.site.pine.dto.member.CountryDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.entity.Member;
@@ -11,6 +13,7 @@ import com.site.pine.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -120,4 +123,31 @@ public class MemberService {
     public List<PostListDto> getPostList(Long id) {
         return cr.findPostList();
     }
+
+//    public List<CountryDto> searchCountry(String keyword) {
+//
+//        if (keyword.length() < 1) return List.of();
+//
+//        String uri = UriComponentsBuilder
+//                .fromPath("/getCountryCodeList3")
+//                .queryParam("serviceKey", "❗발급키")
+//                .queryParam("country_nm", keyword)
+//                .queryParam("numOfRows", 10)   // 자동완성은 적게
+//                .queryParam("pageNo", 1)
+//                .queryParam("type", "json")
+//                .build()
+//                .toUriString();
+//
+//        ApiResponse res = webClient.get()
+//                .uri(uri)
+//                .retrieve()
+//                .bodyToMono(ApiResponse.class)
+//                .block();
+//
+//        return res.getResponse()
+//                .getBody()
+//                .getItems()
+//                .getItem();
+//
+//    }
 }

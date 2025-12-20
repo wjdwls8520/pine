@@ -11,15 +11,15 @@
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
-    <jsp:include page="../include/header.jsp"></jsp:include>
-    <div class="wrap">
-        <jsp:include page="../include/sideBar.jsp"></jsp:include>
+<jsp:include page="../include/header.jsp"></jsp:include>
+<div class="wrap">
+    <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
-        <div id="adSerchOverlay"></div>
+    <div id="adSerchOverlay"></div>
 
-        <article class="article join">
+    <article class="article join">
         <form method="post" action="/insertMember" class="joinMember">
-            <div class="form_title">로그인</div>
+            <div class="form_title">회원 정보 수정</div>
             <p>* 표시는 필수 항목입니다.</p>
             <div class="form_list">*아이디</div>
             <input type="text" name="email" value="${sessionScope.userinfo.email}" readonly /> <p>${emailError}</p>
@@ -53,47 +53,48 @@
             </div>
 
         </form>
-        </article>
-    </div>
+    </article>
+</div>
 
-    <jsp:include page="../include/footer.jsp"></jsp:include>
+<jsp:include page="../include/footer.jsp"></jsp:include>
 
-    <script src="/js/swiper-bundle.min.js"></script>
-    <script>
-        const swiper = new Swiper('.homeSlide', {
-            speed: 400,
-            direction: 'horizontal',
-            loop: true,
-            // autoplay: {
-            //     delay: 2200,
-            // },
-            slidesPerView: 4.5,
-            spaceBetween: 30,
-            //breakpoints: {
-            // when window width is >= 320px
-            // 320: {
-            //     slidesPerView: 2,
-            //     spaceBetween: 20
-            // },
-            // // when window width is >= 480px
-            // 480: {
-            //     slidesPerView: 3,
-            //     spaceBetween: 30
-            // },
-            // // when window width is >= 640px
-            // 640: {
-            //     slidesPerView: 4,
-            //     spaceBetween: 40
-            // }
-            //}
+<script src="/js/swiper-bundle.min.js"></script>
+<script>
+    const swiper = new Swiper('.homeSlide', {
+        speed: 400,
+        direction: 'horizontal',
+        loop: true,
+        // autoplay: {
+        //     delay: 2200,
+        // },
+        slidesPerView: 4.5,
+        spaceBetween: 30,
+        //breakpoints: {
+        // when window width is >= 320px
+        // 320: {
+        //     slidesPerView: 2,
+        //     spaceBetween: 20
+        // },
+        // // when window width is >= 480px
+        // 480: {
+        //     slidesPerView: 3,
+        //     spaceBetween: 30
+        // },
+        // // when window width is >= 640px
+        // 640: {
+        //     slidesPerView: 4,
+        //     spaceBetween: 40
+        // }
+        //}
 
-            // If we need pagination
-            pagination: {
-                el: '.swiper-pagination',
-            },
-        });
+        // If we need pagination
+        pagination: {
+            el: '.swiper-pagination',
+        },
+    });
 
-    </script>
+</script>
+
 
 </body>
 </html>

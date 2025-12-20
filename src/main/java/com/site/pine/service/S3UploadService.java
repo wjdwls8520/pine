@@ -69,12 +69,12 @@ public class S3UploadService {
         System.out.println("S3 DELETE DONE");
     }
 
-    // S3 URL → 로컬 파일 다운로드
-    public void downloadFile(String fileUrl, Path targetPath) throws IOException {
-        try (InputStream in = new URL(fileUrl).openStream()) {
-            Files.copy(in, targetPath);
-        }
-    }
+//    // S3 URL → 로컬 파일 다운로드
+//    public void downloadFile(String fileUrl, Path targetPath) throws IOException {
+//        try (InputStream in = new URL(fileUrl).openStream()) {
+//            Files.copy(in, targetPath);
+//        }
+//    }
 
     // 로컬 파일(Path) → S3 업로드
     public String saveLocalFile(Path filePath) throws IOException {
