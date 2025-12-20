@@ -2,6 +2,7 @@ package com.site.pine.entity.post;
 
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
+import com.site.pine.entity.Tag;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -10,7 +11,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -62,6 +65,7 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
 
 }
 //OneToMany
