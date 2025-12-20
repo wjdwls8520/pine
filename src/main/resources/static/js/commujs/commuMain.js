@@ -57,7 +57,7 @@ window.addEventListener("load", () => {
                                                 ${timeAgoAjax(info.writeDate)}
                                             </div>
                                         </div>
-                                        <div class="moreIcon">...</div>
+                                        <div class="moreIcon"><span class="ico ico_more"></span></div>
                                     </div>
 
                                     <div class="postMiddle">

@@ -2,7 +2,6 @@ package com.site.pine.service;
 
 import com.site.pine.dao.IMemberDao;
 import com.site.pine.dto.community.PostListDto;
-import com.site.pine.dto.community.PostResDto;
 import com.site.pine.dto.member.CountryDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;

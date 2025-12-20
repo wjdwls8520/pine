@@ -39,34 +39,6 @@
     align-items: center;
     gap: 8px;}
 .postSection .postBox .postWrap .postBottom .icoBox + .icoBox {margin-left: 30px;}
-.postSection .postBox .postWrap .postBottom .ico{
-    width: 24px;
-    height: 24px;
-    display: inline-block;
-    background-size: cover;
-    cursor: pointer;
-}
-.postSection .postBox .postWrap .postBottom .ico_like {
-    background: url("../images/ico_like.png") center center no-repeat;
-    background-size: cover;
-}
-
-.postSection .postBox .postWrap .postBottom .ico_like.active {
-    background: url("../images/ico_like_pull.png") center center no-repeat;
-    background-size: cover;
-}
-
-.postSection .postBox .postWrap .postBottom .ico_reply {
-    background: url("../images/ico_reply.png") center center no-repeat;
-    background-size: cover;
-
-}
-
-.postSection .postBox .postWrap .postBottom .ico_link {
-    background: url("../images/ico_link.png") center center no-repeat;
-    background-size: cover;
-}
-
 
 /*---그룹랭크---*/
 .groupSection {width: 250px;

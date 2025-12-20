@@ -2,7 +2,6 @@ package com.site.pine.service;
 
 import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
-import com.site.pine.dto.community.PostResDto;
 import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;

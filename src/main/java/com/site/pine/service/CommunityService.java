@@ -78,6 +78,7 @@ public class CommunityService {
         // 파일테이블 저장 및 s3업로드
         List<MultipartFile> fileList = reqDto.getFiles();
         for(MultipartFile file : fileList) {
+            if (file == null || file.isEmpty()) continue;
             String fileUrl;
             try {
                 fileUrl = sus.saveFile(file); // S3 업로드
