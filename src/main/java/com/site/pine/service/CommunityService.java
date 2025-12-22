@@ -4,17 +4,13 @@ import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
 import com.site.pine.dto.community.PostMainFileDto;
 import com.site.pine.dto.community.PostMainListDto;
-import com.site.pine.dto.community.PostReqDto;
-import com.site.pine.dto.community.PostResDto;
+import com.site.pine.dto.community.PostCreateReqDto;
+import com.site.pine.dto.community.PostDetailResDto;
 import com.site.pine.dto.member.MemberDto;
-import com.site.pine.entity.File;
-import com.site.pine.entity.Likes;
-import com.site.pine.entity.Member;
+import com.site.pine.dto.tag.TagResDto;
+import com.site.pine.entity.*;
 import com.site.pine.entity.post.Post;
-import com.site.pine.repository.CommunityRepository;
-import com.site.pine.repository.FileRepository;
-import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.LikesRepository;
+import com.site.pine.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +37,10 @@ public class CommunityService {
     private final FileRepository fr;
     private final LikesRepository lr;
     private final MemberRepository mr;
+    private final TagRepository tr;
+    private final TagMappingRepository tmr;
 
-    public void insertPost(MemberDto mdto, PostReqDto reqDto) {
+    public void insertPost(MemberDto mdto, PostCreateReqDto reqDto) {
 
         Member memberEntity = mr.findById(mdto.getId()).orElseThrow(() -> new IllegalStateException("[error] 존재하지 않는 멤버 입니다.")); // 멤버조회 대상이 없을시 강제 에러실행.;
 
@@ -54,9 +52,33 @@ public class CommunityService {
         postEntity.setMember(memberEntity);
         cr.save(postEntity);
 
+        //  태그 처리
+        if (reqDto.getTags() != null && !reqDto.getTags().isBlank()) {
+
+            List<String> tagNames = Arrays.stream(reqDto.getTags().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .distinct()
+                    .toList();
+
+            for (String tagName : tagNames) {
+
+                Tag tag = tr.findByName(tagName)
+                        .orElseGet(() -> tr.save(new Tag(null, tagName)));
+
+                TagMapping mapping = new TagMapping();
+                mapping.setTag(tag);
+                mapping.setTargetType(1); // POST
+                mapping.setTargetId(postEntity.getId());
+
+                tmr.save(mapping);
+            }
+        }
+
         // 파일테이블 저장 및 s3업로드
         List<MultipartFile> fileList = reqDto.getFiles();
         for(MultipartFile file : fileList) {
+            if (file == null || file.isEmpty()) continue;
             String fileUrl;
             try {
                 fileUrl = sus.saveFile(file); // S3 업로드
@@ -66,7 +88,7 @@ public class CommunityService {
             }
 
             // db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto(fileUrl));
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto("community", file.getOriginalFilename(), file.getSize(), fileUrl));
 
             File fileEntity = new File();
 
@@ -110,6 +132,27 @@ public class CommunityService {
             }
         }
 
+
+
+        // 태그 조회
+        List<TagResDto> tags =
+                tmr.findTagsByTargetIds(1, postIds); // 1 = POST
+
+        Map<Long, List<TagResDto>> tagMap = tags.stream()
+                .collect(Collectors.groupingBy(TagResDto::getTargetId));
+
+        for (PostMainListDto post : posts) {
+            if (tagMap.containsKey(post.getPostId())) {
+                tagMap.get(post.getPostId()).forEach(post::addTag);
+            }
+        }
+
+        System.out.println("===== TAG DEBUG =====");
+        System.out.println("posts size = " + posts.size());
+        System.out.println("postIds = " + postIds);
+        System.out.println("tags size = " + tags.size());
+
+
         // 4️⃣ 로그인 유저가 좋아요 눌렀는지 체크
         if (mdto != null) { // 로그인 상태일 때만
             for (PostMainListDto post : posts) {
@@ -127,7 +170,7 @@ public class CommunityService {
     }
 
 
-    public PostResDto getDetail(Long memberId, Long id) {
+    public PostDetailResDto getDetail(Long memberId, Long id) {
         Post post = cr.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다. id=" + id));
 
@@ -138,7 +181,7 @@ public class CommunityService {
         }
 
         // 엔티티 → DTO 변환
-        PostResDto dto = new PostResDto();
+        PostDetailResDto dto = new PostDetailResDto();
         dto.setId(post.getId());
         dto.setContent(post.getContent());
         dto.setLikeCount(post.getLikeCount());

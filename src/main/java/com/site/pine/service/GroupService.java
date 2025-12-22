@@ -1,29 +1,30 @@
 package com.site.pine.service;
 
 import com.amazonaws.services.kms.model.NotFoundException;
+import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
 import com.site.pine.dto.group.*;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
+import com.site.pine.entity.S3FileDeleteFailList;
 import com.site.pine.entity.group.GroupCategoryList;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupInCategory;
 import com.site.pine.entity.group.GroupMember;
 import com.site.pine.mapper.GroupMapper;
+import com.site.pine.mapper.S3FileDeleteFailMapper;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.group.GroupContentsRepository;
-import com.site.pine.repository.group.GroupCategoryRepository;
-import com.site.pine.repository.group.GroupInCategoryRepository;
+import com.site.pine.repository.group.*;
 
-import com.site.pine.repository.group.GroupMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,9 +50,12 @@ public class GroupService {
     private final GroupMemberRepository gmr;
 
     private final S3UploadService sus;
-    private final FileRepository frs;
+    private final FileRepository fr;
 
     private final GroupMapper gm;
+
+    private final S3FileDeleteFailListRepository sfdfr;
+    private final S3FileDeleteFailMapper sfdfm;
 
     // 태초에 db에 저장되는 카테고리들을 가져옴
     @Transactional(readOnly = true)
@@ -113,6 +117,7 @@ public class GroupService {
         String filePageType = "groupBanner";
         String originalFileName = groupContentReqDto.getGroupImg().getOriginalFilename();
         Long fileSize = groupContentReqDto.getGroupImg().getSize();
+        String fileContentType = groupContentReqDto.getGroupImg().getContentType();
         try {
             filePath = sus.saveFile(groupContentReqDto.getGroupImg());
         } catch (IOException e) {
@@ -120,9 +125,8 @@ public class GroupService {
             throw new IllegalStateException("파일 업로드에 실패했습니다."); // s3에서 에러가났을시 강제 에러실행.
         }
         // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-        applicationEventPublisher.publishEvent(new S3DeleteEventDto(filePath));
+        applicationEventPublisher.publishEvent(new S3DeleteEventDto(filePageType, originalFileName, fileSize, filePath));
 
-        String fileContentType = groupContentReqDto.getGroupImg().getContentType();
         // 파일엔티티에 위의 값들을 세터
         File fileEntity = new File();
         fileEntity.setPageType(filePageType);
@@ -147,20 +151,14 @@ public class GroupService {
 
 
 
-        // 태초에 db에 저장된 카테고리 정보들을 조회
-        List<GroupCategoryList> allInitCategory = gcr.findAll();
         // 내가 클라이언트한테 받은 선택된 카테고리 개수만큼 for 반복
         for (Integer categoryId : groupContentReqDto.getCategoryIds()) {
-            // 서버에서 태초부터 생긴 카테고리의 값을 필터로 현재 내가 선택한 카테고리랑 같은 catrgoryId이면 그에 맞는 name을 저장
-            GroupCategoryList matchedCategory = allInitCategory.stream()
-                    .filter(cat -> cat.getId().equals(categoryId))
-                    .findFirst()
-                    .orElseThrow(() -> new NotFoundException("카테고리를 찾을 수 없습니다. ID: " + categoryId));
+            // 1) 카테고리 엔티티 조회
+            GroupCategoryList categoryEntity = gcr.findById(categoryId)
+                    .orElseThrow(() -> new IllegalStateException("존재하지 않는 카테고리입니다."));
 
             GroupInCategory groupInCategory = new GroupInCategory();
-            groupInCategory.setCategoryId(categoryId);
-            groupInCategory.setCategoryNameKor(matchedCategory.getNameKor());
-            groupInCategory.setCategoryNameEng(matchedCategory.getNameEng());
+            groupInCategory.setCategoryId(categoryEntity);
             groupInCategory.setGroupContents(groupContentsE);
             groupContentsE.getCategoryIds().add(groupInCategory); // 그룹컨텐츠에 카테고리들을 조인
         }
@@ -187,9 +185,10 @@ public class GroupService {
 
         groupContentResDto.setCategoryIds(categoryResult);
 
-        return groupContentResDto ;
+        return groupContentResDto;
     }
 
+    @Transactional(readOnly = true)
     public GroupMemberResDto getGroupMemberInfo(MemberDto memberdto, Long id) {
         GroupMemberResDto groupMemberResDto = null;
 
@@ -200,5 +199,82 @@ public class GroupService {
             }
         }
         return groupMemberResDto;
+    }
+
+    @Transactional
+    public void updateGroupContent(MemberDto memberdto, Long groupId, GroupContentReqDto groupContentReqDto) {
+        GroupContents groupContentsE = gconr.findById(groupId).orElseThrow(() -> new IllegalStateException("[error] 존재하지 않는 그룹입니다."));
+
+        groupContentsE.setGroupName(groupContentReqDto.getGroupName());
+        groupContentsE.setGroupDescription(groupContentReqDto.getGroupDescription());
+        groupContentsE.setJoinState(groupContentReqDto.getJoinState());
+        groupContentsE.setAutoJoin(groupContentReqDto.getAutoJoin());
+        groupContentsE.setUserLimit(groupContentReqDto.getUserLimit());
+
+
+        gicr.deleteByGroupContents(groupContentsE); // 이 그룹컨텐츠의 카테고리 전부 삭제 그이후 아래에서 재생성
+        for (Integer categoryId : groupContentReqDto.getCategoryIds()) {
+            // 1) 카테고리 엔티티 조회
+            GroupCategoryList categoryEntity = gcr.findById(categoryId)
+                    .orElseThrow(() -> new IllegalStateException("존재하지 않는 카테고리입니다."));
+
+            GroupInCategory groupInCategory = new GroupInCategory();
+            groupInCategory.setCategoryId(categoryEntity);
+            groupInCategory.setGroupContents(groupContentsE);
+            groupContentsE.getCategoryIds().add(groupInCategory); // 그룹컨텐츠에 카테고리들을 조인
+        }
+
+        if(groupContentReqDto.getGroupImg() != null && !groupContentReqDto.getGroupImg().isEmpty()) {
+            File oldFile = groupContentsE.getFile();
+            String filePath = null;
+            try {
+                filePath = sus.saveFile(groupContentReqDto.getGroupImg());
+            } catch (IOException e) {
+                log.error("S3 업로드 실패", e);
+                throw new IllegalStateException("파일 업로드에 실패했습니다."); // s3에서 에러가났을시 강제 에러실행.
+            }
+            groupContentsE.getFile().setPath(filePath);
+            groupContentsE.getFile().setOriginalname(groupContentReqDto.getGroupImg().getOriginalFilename());
+            groupContentsE.getFile().setSize(groupContentReqDto.getGroupImg().getSize());
+            groupContentsE.getFile().setContentType(groupContentReqDto.getGroupImg().getContentType());
+
+            // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto("groupBanner", groupContentsE.getFile().getOriginalname(), groupContentsE.getFile().getSize(), filePath));
+
+
+            // 위코드 어디에서든 에러가 난다면 실행되지 않을 것
+            try {
+                sus.deleteFile(oldFile.getPath());
+            } catch (Exception e) {
+                S3FileDeleteFailList s3FileDeleteFailList = sfdfm.toS3FileDeleteFailMapper(oldFile, e);
+                sfdfr.save(s3FileDeleteFailList);
+
+                throw new IllegalStateException("S3 삭제 실패" + e.getMessage());
+            }
+        }
+    }
+
+    @Transactional
+    public void deleteGroup(Long groupId, MemberDto memberdto) {
+        GroupContents groupContentE = gconr.findById(groupId).orElseThrow(() -> new IllegalStateException("존재하지 않는 그룹입니다."));
+        File oldFile = groupContentE.getFile();
+        Member memberE = mr.findById(memberdto.getId()).orElseThrow(() -> new IllegalStateException("존재하지 않는 멤버입니다."));
+        GroupMember getGroupMemberInfo = gmr.findByMemberAndGroupContents(memberE, groupContentE).orElseThrow(() -> new IllegalStateException("그룹멤버가 아닙니다."));
+
+        System.out.println(getGroupMemberInfo);
+        if(getGroupMemberInfo.getRole() != 1) {
+            throw new AccessDeniedException("그룹장이 아닌 그룹원은 삭제 권한이 없습니다.");
+        }
+
+        gconr.delete(groupContentE);
+
+        try {
+            sus.deleteFile(oldFile.getPath());
+        } catch (Exception e) {
+            S3FileDeleteFailList s3FileDeleteFailList = sfdfm.toS3FileDeleteFailMapper(oldFile, e);
+            sfdfr.save(s3FileDeleteFailList);
+
+            throw new IllegalStateException("S3 삭제 실패" + e.getMessage());
+        }
     }
 }

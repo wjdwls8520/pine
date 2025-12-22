@@ -1,5 +1,6 @@
 package com.site.pine.dto.community;
 
+import com.site.pine.dto.tag.TagResDto;
 import lombok.Getter;
 
 import java.sql.Timestamp;
@@ -27,7 +28,10 @@ public class PostMainListDto {
     // ✅ Files (여러 개)
     private List<PostMainFileDto> files = new ArrayList<>();
 
-    // ⭐ JPQL 생성자 (File 절대 포함 ❌)
+    //태그
+    private List<TagResDto> tags = new ArrayList<>();
+
+    //  JPQL 생성자
     public PostMainListDto(
             Long postId,
             String content,
@@ -50,9 +54,14 @@ public class PostMainListDto {
         this.profileImg = profileImg;
     }
 
-    // ✅ Service에서 파일 주입용
+    //  Service에서 파일 주입용
     public void addFile(PostMainFileDto file) {
         this.files.add(file);
+    }
+
+    //  태그 주입용
+    public void addTag(TagResDto tag) {
+        this.tags.add(tag);
     }
 
     public void setLiked(boolean liked) {

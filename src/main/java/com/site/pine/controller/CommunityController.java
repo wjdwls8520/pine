@@ -1,11 +1,9 @@
 package com.site.pine.controller;
 
-import com.site.pine.dto.community.PostReqDto;
-import com.site.pine.dto.community.PostResDto;
+import com.site.pine.dto.community.PostCreateReqDto;
+import com.site.pine.dto.community.PostDetailResDto;
 import com.site.pine.dto.member.MemberDto;
-import com.site.pine.entity.Member;
 import com.site.pine.service.CommunityService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -13,10 +11,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -42,7 +38,7 @@ public class CommunityController {
     }
 
     @PostMapping("/community/cCreate")
-    public String insertPost(@AuthenticationPrincipal MemberDto mdto, @ModelAttribute PostReqDto reqDto) {
+    public String insertPost(@AuthenticationPrincipal MemberDto mdto, @ModelAttribute PostCreateReqDto reqDto) {
         if (mdto == null) {
             // 로그인 안되어있으면 글쓰기 막고 로그인 페이지로 이동
             return "redirect:/login";
@@ -63,7 +59,7 @@ public class CommunityController {
     @GetMapping("/community/cdetail/{id}")
     public String getDetail(@AuthenticationPrincipal MemberDto mdto, @PathVariable("id") Long id, Model model) {
         Long memberId = (mdto != null) ? mdto.getId() : null; // 로그인 안하면 null
-        PostResDto post = cs.getDetail(memberId, id); // 서비스에서 memberId가 null인 경우 좋아요 체크를 생략하도록
+        PostDetailResDto post = cs.getDetail(memberId, id); // 서비스에서 memberId가 null인 경우 좋아요 체크를 생략하도록
         model.addAttribute("post", post);
         return "community/cDetail"; // JSP에서 ${post.필드} 로 접근
     }

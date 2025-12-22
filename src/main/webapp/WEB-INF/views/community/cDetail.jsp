@@ -28,11 +28,11 @@
                                              src="${not empty post.profile_img ? post.profile_img : '/images/banner02.png'}" />
                                     </div>
                                     <div class="userNick">${post.nickname}</div>
-                                    <div class="postTime relative-time">
+                                    <div class="postTime">
                                         <fmt:formatDate value="${post.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
                                     </div>
                                 </div>
-                                <div class="moreIcon">...</div>
+                                <div class="moreIcon"><span class="ico ico_more"></span></div>
                             </div>
 
                             <div class="postMiddle">
@@ -69,6 +69,46 @@
                                     <span class="ico ico_link"></span>
                                 </div>
                             </div>
+
+<%--                            댓글영역--%>
+                            <div class="replyWrap">
+                                <div class="writeBox">
+                                    <input type="text" class="replyTextBox" placeholder="댓글을 남겨보세요">
+                                </div>
+                                <ul class="replyList">
+                                    <li>
+                                        <div class="replyBox">
+                                            <div class="replyWriterInfo">
+                                                <div class="infoLeft">
+                                                    <div class="profileImgBox">
+                                                        <img
+                                                             src="/images/user.png" />
+                                                    </div>
+                                                    <div class="infoContent">
+                                                        <div class="nickNtime">
+                                                            <div class="userNick">닉네임</div>
+                                                            <div class="replyTime">
+                                                                <%--  ${timeAgoAjax(info.writeDate)}--%>
+                                                                2022.02.22
+                                                            </div>
+                                                        </div>
+                                                        <div class="replyContent"><p class="replyTxt">안녕하십니까 어쩌구저쩌궁 헤헤</p>
+                                                        </div>
+                                                        <div class="replyBottom">
+                                                            <span class="ico ico_like replyLike"></span>
+                                                            <spna class="likeCount">12</spna>
+                                                            <spna>답글</spna>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="replyMoreBtn"><span class="ico ico_more"></span></div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+<%--                            댓글영역 끝--%>
+
                         </div>
                     </div>
                 </div>
@@ -101,9 +141,8 @@
 </div>
 
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
-
+<script src="/js/timeAgo.js"></script>
 <script src="/js/swiper-bundle.min.js"></script>
-<script src="/js/commujs/commuMain.js"></script>
 
 <!-- 🔥 추가: 상세페이지 Swiper 초기화 -->
 <script>
@@ -123,5 +162,3 @@
     });
 </script>
 
-</body>
-</html>

@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page isELIgnored="false" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="loginUser" />
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -15,6 +17,18 @@
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
     <article class="article workspace group">
+
+        <sec:authorize access="isAuthenticated()">
+            <script>
+                window.isLogin = true;
+            </script>
+        </sec:authorize>
+
+        <sec:authorize access="isAnonymous()">
+            <script>
+                window.isLogin = false;
+            </script>
+        </sec:authorize>
 
         <%-- section page--%>
         <section class="section groupMain">
@@ -168,19 +182,6 @@
                             </div>
                         </div>
 
-                        <%-- 18+ 콘텐츠 섹션 --%>
-                        <div class="formSection">
-                            <div class="formHeader">
-                                <h3 class="formTitle">성인 콘텐츠</h3>
-                            </div>
-                            <label class="checkboxOption">
-                                <input type="checkbox" name="nsfw" value="true" />
-                                <div class="checkboxContent">
-                                    <div class="checkboxTitle">18+ 성인 콘텐츠</div>
-                                    <div class="checkboxDescription">이 그룹에는 성인 콘텐츠가 포함되어 있습니다</div>
-                                </div>
-                            </label>
-                        </div>
                     </div>
 
                     <div class="formStep" data-step="3">
@@ -209,8 +210,6 @@
                         </div>
                     </div>
 
-                    <%-- 제출 버튼 / 단계 이동 (group_footer에서 렌더링) --%>
-                    <!-- <div class="formActions" id="formActions"></div> -->
                 </form>
             </div>
         </section>

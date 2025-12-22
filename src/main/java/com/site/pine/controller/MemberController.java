@@ -1,11 +1,12 @@
 package com.site.pine.controller;
 
 import com.site.pine.dto.community.PostListDto;
+
 import com.site.pine.dto.community.PostResDto;
 import com.site.pine.dto.member.CountryDto;
+
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
-import com.site.pine.entity.Member;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.security.AuthUtil;
 import com.site.pine.service.MemberService;
@@ -16,12 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,7 +26,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;

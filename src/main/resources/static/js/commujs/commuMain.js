@@ -50,14 +50,14 @@ window.addEventListener("load", () => {
                                         <div class="postInfo">
                                             <div class="postProfileImgBox">
                                                 <img class="profileImg"
-                                                     src="${info.profileImg || "/images/banner02.png"}" />
+                                                     src="${info.profileImg || "/images/user.png"}" />
                                             </div>
                                             <div class="userNick">${info.nickname}</div>
-                                            <div class="postTime relative-time">
+                                            <div class="postTime">
                                                 ${timeAgoAjax(info.writeDate)}
                                             </div>
                                         </div>
-                                        <div class="moreIcon">...</div>
+                                        <div class="moreIcon"><span class="ico ico_more"></span></div>
                                     </div>
 
                                     <div class="postMiddle">
@@ -65,7 +65,15 @@ window.addEventListener("load", () => {
                                              onclick="location.href='/community/cdetail/${info.postId}'">
                                             ${info.content}
                                         </div>
-
+                                        <div class="tagZone">
+                                            ${
+                                                info.tags && info.tags.length > 0
+                                                    ? info.tags.map(tag =>
+                                                        `<span class="tag">#${tag.name}</span>`
+                                                    ).join("")
+                                                    : ""
+                                            }
+                                        </div>
                                         ${
                                             info.files && info.files.length > 0 
                                             ? `<div class="swiper commuSlide">
