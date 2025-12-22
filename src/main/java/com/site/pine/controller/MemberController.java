@@ -1,6 +1,10 @@
 package com.site.pine.controller;
 
 import com.site.pine.dto.community.PostListDto;
+
+import com.site.pine.dto.community.PostResDto;
+import com.site.pine.dto.member.CountryDto;
+
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.repository.MemberRepository;
@@ -301,10 +305,12 @@ public class MemberController {
     }
 
 
-//    @GetMapping("/countrySearch")
-//    public List<CountryDTO> goCountrySearch(@RequestParam String keyword){
-//        return ms.searchCountry(keyword);
-//    }
+    @ResponseBody
+    @GetMapping("/countrySearch")
+    public List<CountryDto> goCountrySearch(@RequestParam String keyword){
+        if (keyword.length() < 2) return List.of();
+        return ms.searchCountry(keyword);
+    }
 
 
 }

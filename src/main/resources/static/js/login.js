@@ -102,6 +102,10 @@ function beforInsertMember(){
 
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    searchContry();
+});
+
 function searchContry(){
     let timer;
 
@@ -114,6 +118,7 @@ function searchContry(){
 
         if (keyword.length < 1) {
             list.innerHTML = "";
+            list.style.display = "none";
             return;
         }
 
@@ -121,27 +126,40 @@ function searchContry(){
             fetch(`/countrySearch?keyword=${encodeURIComponent(keyword)}`)
                 .then(res => res.json())
                 .then(data => {
+
                     list.innerHTML = "";
+
+                    if (data.length === 0) {
+                        list.style.display = "none";
+                        return;
+                    }
+
+                    // console.log("data : "+ data.country_nm);
 
                     data.forEach(c => {
                         const li = document.createElement("li");
-                        li.textContent = `${c.country_nm} (${c.country_iso_alp2})`;
+                        li.textContent = `${c.country_nm} (${c.country_eng_nm})(${c.country_iso_alp2})`;
 
-                        li.onclick = () => {
-                            input.value = c.country_nm;
+                        li.onclick = e => {
+                            e.stopPropagation();
+                            input.value = c.country_nm + " " + c.country_eng_nm;
                             list.innerHTML = "";
+                            list.style.display = "none";
                         };
 
                         list.appendChild(li);
                     });
+
+                    list.style.display = "block";
                 });
         }, 400);
     });
 
-    // 포커스 아웃 시 목록 닫기
     document.addEventListener("click", e => {
-        if (!e.target.closest(".auto-box")) {
+        if (!e.target.closest(".country_auto_box")) {
             list.innerHTML = "";
+            list.style.display = "none";
         }
     });
 }
+

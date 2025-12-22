@@ -16,3 +16,8 @@
 .join_submit{ display: flex; justify-content: flex-end; width: 90%; }
 .join_submit_btn{ display: flex; justify-content: center; align-items: center; margin: 50px 0; padding: 10px; width: 100px; height: 50px; background: #138044; color: white; }
 .join input[type=text]{ width: 90%; padding: 15px; margin-bottom: 10px; border-radius: 5px; font-size: 12pt; background: #eeeeee; }
+
+.country_auto_box{ position: relative; }
+.country_result_list{ display:none; margin-left:0; padding:0; width: 90%; max-height:200px; background:#ffffff; color:#333333; border:1px solid #cccccc; overflow-x: auto; z-index:1000; }
+.country_result_list li{ display:flex; justify-content:flex-start; align-items:center; margin:0; padding:8px 10px; width:100%; height:36px; background:#ffffff; color:#333333; cursor:pointer; }
+.country_result_list li:hover{ background:#f0f0f0; color:#000000; }
