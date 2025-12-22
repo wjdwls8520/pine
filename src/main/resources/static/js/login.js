@@ -106,39 +106,34 @@ function searchContry(){
     let timer;
 
     const input = document.getElementById("country");
-    const ul  = document.getElementById("country_result");
+    const list  = document.getElementById("country_result");
 
     input.addEventListener("input", e => {
         clearTimeout(timer);
         const keyword = e.target.value.trim();
 
         if (keyword.length < 1) {
-            ul.innerHTML = "";
+            list.innerHTML = "";
             return;
         }
 
         timer = setTimeout(() => {
             fetch(`/countrySearch?keyword=${encodeURIComponent(keyword)}`)
                 .then(res => res.json())
-                .then(list => {
+                .then(data => {
+                    list.innerHTML = "";
 
-                    ul.innerHTML = "";
-
-                    list.forEach(item => {
+                    data.forEach(c => {
                         const li = document.createElement("li");
-                        li.textContent = `${item.country_nm} (${item.country_eng_nm})`;
+                        li.textContent = `${c.country_nm} (${c.country_iso_alp2})`;
 
-                        li.addEventListener("click", e => {
-                            e.stopPropagation();
-                            input.value = `${item.country_nm} (${item.country_eng_nm})(${item.country_iso_alp2})`;
-                            ul.innerHTML = "";
-                            ul.style.display = "none";
-                        });
+                        li.onclick = () => {
+                            input.value = c.country_nm;
+                            list.innerHTML = "";
+                        };
 
-                        ul.appendChild(li);
+                        list.appendChild(li);
                     });
-
-                    ul.style.display = "block";
                 });
         }, 400);
     });
@@ -146,8 +141,7 @@ function searchContry(){
     // 포커스 아웃 시 목록 닫기
     document.addEventListener("click", e => {
         if (!e.target.closest(".auto-box")) {
-            ul.innerHTML = "";
-            ul.style.display = "none";
+            list.innerHTML = "";
         }
     });
 }

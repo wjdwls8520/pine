@@ -1,5 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -32,12 +31,12 @@
             <input type="text" name="phone" value="${sessionScope.userinfo.phone}"   />
             <div class="form_list">직업</div>
             <input type="text" name="job"  />
-
-            <div class="form_list">*주소</div>
-            <c:if test=""
-            <button class="join_btn" type="button" onclick="findPostCode()">주소찾기</button>
+            <div class="join_findAd">
+                <div class="form_list">*주소</div>
+                <button class="join_btn" type="button" onclick="findPostCode()">주소찾기</button>
+            </div>
             <div class="form_list">*국적</div>
-            <input type="text" name="resident" id="country" onchange="searchContry()" />
+            <input type="text" name="country" id="country" onchange="searchContry()" />
             <ul id="country_result" class="country_result_list"></ul>
             <div class="form_list">*우편번호</div>
             <input type="text" name="address_code" id="address_code"  readonly/>

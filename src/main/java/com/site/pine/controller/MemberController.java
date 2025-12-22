@@ -2,7 +2,6 @@ package com.site.pine.controller;
 
 import com.site.pine.dto.community.PostListDto;
 import com.site.pine.dto.community.PostResDto;
-import com.site.pine.dto.member.CountryDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.entity.Member;
@@ -310,11 +309,10 @@ public class MemberController {
     }
 
 
-    @GetMapping("/countrySearch")
-    @ResponseBody
-    public List<CountryDto> goCountrySearch(@RequestParam String keyword){
-        return ms.searchCountry(keyword);
-    }
+//    @GetMapping("/countrySearch")
+//    public List<CountryDTO> goCountrySearch(@RequestParam String keyword){
+//        return ms.searchCountry(keyword);
+//    }
 
 
 }
