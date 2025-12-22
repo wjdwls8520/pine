@@ -33,11 +33,13 @@
             <input type="text" name="job"  />
             <div class="join_findAd">
                 <div class="form_list">*주소</div>
-                <button class="join_btn" type="button" onclick="findPostCode()">주소찾기</button>
             </div>
-            <div class="form_list">*국적</div>
-            <input type="text" name="country" id="country" onchange="searchContry()" />
-            <ul id="country_result" class="country_result_list"></ul>
+            <div class="country_auto_box">
+                <div class="form_list">*국적</div>
+                <input type="text" name="country" id="country" autocomplete="off"/>
+                <ul id="country_result" class="country_result_list"></ul>
+            </div>
+            <button class="join_btn" type="button" onclick="findPostCode()">주소찾기</button>
             <div class="form_list">*우편번호</div>
             <input type="text" name="address_code" id="address_code"  readonly/>
             <div class="form_list">*주소1</div>

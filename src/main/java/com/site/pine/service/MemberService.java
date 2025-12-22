@@ -1,5 +1,7 @@
 package com.site.pine.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.site.pine.config.WebClientConfig;
 import com.site.pine.dao.IMemberDao;
 import com.site.pine.dto.community.PostListDto;
 import com.site.pine.dto.community.PostResDto;
@@ -10,12 +12,15 @@ import com.site.pine.entity.Member;
 import com.site.pine.repository.CommunityRepository;
 import com.site.pine.repository.MemberRepository;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -124,30 +129,53 @@ public class MemberService {
         return cr.findPostList();
     }
 
-//    public List<CountryDto> searchCountry(String keyword) {
-//
-//        if (keyword.length() < 1) return List.of();
-//
-//        String uri = UriComponentsBuilder
-//                .fromPath("/getCountryCodeList3")
-//                .queryParam("serviceKey", "❗발급키")
-//                .queryParam("country_nm", keyword)
-//                .queryParam("numOfRows", 10)   // 자동완성은 적게
-//                .queryParam("pageNo", 1)
-//                .queryParam("type", "json")
-//                .build()
-//                .toUriString();
-//
-//        ApiResponse res = webClient.get()
-//                .uri(uri)
-//                .retrieve()
-//                .bodyToMono(ApiResponse.class)
-//                .block();
-//
-//        return res.getResponse()
-//                .getBody()
-//                .getItems()
-//                .getItem();
-//
-//    }
+    @Autowired
+    WebClient webClient;
+    private List<CountryDto> cachedCountries = new ArrayList<>();
+
+    public MemberService(WebClient webClient) {
+        this.webClient = webClient;
+    }
+
+    @PostConstruct
+    public void loadCountries() {
+
+        String uri =
+                "/getCountryCodeList3"
+                        + "?serviceKey=" + "5a177020f5fbeb60757eb1697251438649db35eb6d7383bd9db462ad216af0e2"
+                        + "&numOfRows=300"
+                        + "&pageNo=1"
+                        + "&type=json";
+
+        JsonNode root = webClient.get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .block();
+
+        JsonNode items = root.path("response")
+                .path("body")
+                .path("items")
+                .path("item");
+
+        for (JsonNode node : items) {
+            CountryDto dto = new CountryDto();
+            dto.setCountry_nm(node.path("country_nm").asText());
+            dto.setCountry_eng_nm(node.path("country_eng_nm").asText());
+            dto.setCountry_iso_alp2(node.path("country_iso_alp2").asText());
+            cachedCountries.add(dto);
+        }
+    }
+
+    public List<CountryDto> searchCountry(String keyword) {
+        String lower = keyword.toLowerCase();
+
+        return cachedCountries.stream()
+                .filter(c ->
+                        c.getCountry_nm().contains(keyword) ||
+                                c.getCountry_eng_nm().toLowerCase().contains(lower)
+                )
+                .limit(10)
+                .toList();
+    }
 }
