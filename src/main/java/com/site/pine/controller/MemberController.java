@@ -4,6 +4,7 @@ import com.site.pine.dto.community.PostListDto;
 
 import com.site.pine.dto.member.CountryDto;
 
+//import com.site.pine.dto.member.LoginUserDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.repository.MemberRepository;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -300,7 +302,10 @@ public class MemberController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/GoEditProfile")
-    public String goEditProfile(){
+    public String goEditProfile(Model model, Authentication auth){
+//        LoginUserDto dto = LoginUserDto.from(auth.getPrincipal());
+//        model.addAttribute("loginUser", dto);
+
         return "member/editprofile";
     }
 
