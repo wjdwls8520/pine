@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<sec:authentication property="principal" var="loginUser" />
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -22,13 +23,13 @@
             <div class="form_title">회원 정보 수정</div>
             <p>* 표시는 필수 항목입니다.</p>
             <div class="form_list">*아이디</div>
-            <input type="text" name="email" value="${sessionScope.userinfo.email}" readonly /> <p>${emailError}</p>
+            <input type="text" name="email" value="${loginUser.email}" readonly /> <p>${emailError}</p>
             <div class="form_list">*이름</div>
-            <input type="text" name="name" value="${sessionScope.userinfo.name}" readonly />
+            <input type="text" name="name" value="${loginUser.name}" readonly />
             <div class="form_list">*별명</div>
-            <input type="text" name="nickname"  /> <p style="color: red;">${nicknameError}</p>
+            <input type="text" name="nickname" value="${loginUser.nickname}" /> <p style="color: red;">${nicknameError}</p>
             <div class="form_list">*전화번호</div>
-            <input type="text" name="phone" value="${sessionScope.userinfo.phone}"   />
+            <input type="text" name="phone" value="${loginUser.phone}"   />
             <div class="form_list">직업</div>
             <input type="text" name="job"  />
             <div class="join_findAd">
@@ -39,19 +40,22 @@
                 <input type="text" name="country" id="country" autocomplete="off"/>
                 <ul id="country_result" class="country_result_list"></ul>
             </div>
-            <button class="join_btn" type="button" onclick="findPostCode()">주소찾기</button>
+            <button class="join_btn" id="addrBtn" type="button" onclick="findPostCode()">주소찾기</button>
+
             <div class="form_list">*우편번호</div>
-            <input type="text" name="address_code" id="address_code"  readonly/>
+            <input type="text" name="address_code" id="address_code" readonly />
+
             <div class="form_list">*주소1</div>
             <input type="text" name="address_1" id="address_1" readonly />
+
             <div class="form_list">상세주소</div>
-            <input type="text" name="address_2" id="address_2"  />
+            <input type="text" name="address_2" id="address_2" />
 
             <div class="form_list">한줄소개</div>
             <input type="text" name="profile_msg" id="profile_msg"  />
 
             <div class="join_submit">
-                <button class="join_submit_btn" type="button" onclick="beforInsertMember()">회원가입</button>
+                <button class="join_submit_btn" type="button" onclick="beforEditMember()">수정 완료</button>
             </div>
 
         </form>

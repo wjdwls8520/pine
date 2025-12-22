@@ -106,6 +106,11 @@ document.addEventListener("DOMContentLoaded", () => {
     searchContry();
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const country = document.getElementById("country").value;
+    handleCountryChange(country);
+});
+
 function searchContry(){
     let timer;
 
@@ -148,6 +153,7 @@ function searchContry(){
                         };
 
                         list.appendChild(li);
+                        handleCountryChange(c.country_nm);
                     });
 
                     list.style.display = "block";
@@ -157,9 +163,30 @@ function searchContry(){
 
     document.addEventListener("click", e => {
         if (!e.target.closest(".country_auto_box")) {
+
             list.innerHTML = "";
             list.style.display = "none";
         }
     });
 }
 
+function handleCountryChange(value) {
+    const addrBtn = document.getElementById("addrBtn");
+    const code = document.getElementById("address_code");
+    const addr1 = document.getElementById("address_1");
+
+    if (value === "대한민국") {
+        addrBtn.style.display = "block";
+        code.readOnly = true;
+        addr1.readOnly = true;
+    } else {
+        addrBtn.style.display = "none";
+        code.readOnly = false;
+        addr1.readOnly = false;
+    }
+}
+
+
+function beforEditMember(){
+
+}
