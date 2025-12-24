@@ -36,12 +36,31 @@ section.section .subTitle {margin-top:-32px; padding-bottom: 14px; font-size: 16
     background: url("../images/ico_more.png") center center no-repeat;
     background-size: cover;
 }
+.ico_view{
+    background: url("../images/ico_view.png") center center no-repeat;
+    background-size: cover;
+}
+
+
 
 /*//////////////댓글섹션/////////////////*/
 .replyWrap {margin-top: 20px;}
-.replyWrap .writeBox {margin-bottom: 20px;}
-.replyWrap .writeBox .replyTextBox {width: 100%;border: 1px solid #ccc; padding: 10px;box-sizing: border-box;}
+.replyWrap .writeBox {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;}
+
+.replyWrap .writeBox .replyTextBox {width: 100%;box-sizing: border-box;margin-left: 20px;}
+.replyWrap .writeBox .replyBtn {
+    width: 70px;
+    height: 37px;
+    margin: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
 .replyWrap .replyBox {border: 1px solid #ccc;font-size: 15px;}
+
 .replyWrap .replyBox .replyWriterInfo {display: flex;justify-content: space-between;align-items: start;}
 .replyWrap .replyBox .replyWriterInfo .infoLeft {    display: flex;    gap: 24px;
 }
@@ -63,3 +82,24 @@ section.section .subTitle {margin-top:-32px; padding-bottom: 14px; font-size: 16
     align-items: center;
     font-size: 14px;}
 .replyWrap .replyBox .replyBottom .likeCount {margin: 0 20px 0 5px;}
+
+
+
+/*토스트 메세지*/
+.toastMsg {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+.toastMsg.show {
+    opacity: 1;
+}
