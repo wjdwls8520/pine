@@ -1,12 +1,18 @@
 package com.site.pine.controller;
 
+import com.site.pine.cookie.CookieUtil;
 import com.site.pine.dto.group.GroupCategoryDto;
 import com.site.pine.dto.group.GroupContentReqDto;
 import com.site.pine.dto.group.GroupContentResDto;
 import com.site.pine.dto.group.GroupMemberResDto;
 import com.site.pine.dto.member.MemberDto;
+import com.site.pine.entity.Member;
 import com.site.pine.service.GroupService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,6 +30,7 @@ import java.util.List;
 public class GroupController {
 
     private final GroupService gs;
+    private final CookieUtil cookieUtil;
 
     // 그룹페이지화면
     @GetMapping("/group")
@@ -150,8 +157,9 @@ public class GroupController {
     @PostMapping("/group/gdelete/{groupId}")
     @ResponseBody
     public ResponseEntity<HashMap<String, Object>> groupDelete(
-            @PathVariable Long groupId,
-            @AuthenticationPrincipal MemberDto memberdto) {
+        @PathVariable Long groupId,
+        @AuthenticationPrincipal MemberDto memberdto
+    ) {
 
         HashMap<String, Object> result = new HashMap<>();
 
@@ -172,5 +180,33 @@ public class GroupController {
 
         result.put("msg", "success");
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/group/gviewcount/{groupId}")
+    @ResponseBody
+    public HashMap<String, Object> groupViewCount(
+        @PathVariable Long groupId,
+        @AuthenticationPrincipal MemberDto memberdto,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        Long isMember = (memberdto != null) ? memberdto.getId() : null;
+        // 쿠키유틸파일에서 쿠키생성하기
+        String viewerCookie = cookieUtil.getOrCreate(request, response);
+
+        try {
+            HashMap<String, Object> viewObject = gs.addViewCount(groupId, isMember, viewerCookie);
+            result.put("allViewCount", viewObject.get("allViewCount"));
+            result.put("todayViewCount", viewObject.get("todayViewCount"));
+        } catch (EntityNotFoundException e) {
+            result.put("msg", e.getMessage());
+            return result;
+        }
+
+
+        result.put("msg", "success");
+        return result;
     }
 }

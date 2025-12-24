@@ -43,23 +43,23 @@ public class GroupContents {
 
     @Comment("오늘 하루 방문자 수")
     @Column(nullable = false)
-    private Integer todayViewCount = 0;
+    private Long todayViewCount = 0L;
 
     @Comment("총 방문자 수")
     @Column(nullable = false)
-    private Integer allViewCount = 0;
+    private Long allViewCount = 0L;
 
     @Comment("좋아요 수")
     @Column(nullable = false)
-    private Integer likeCount = 0;
+    private Long likeCount = 0L;
 
     @Comment("게시글 수")
     @Column(nullable = false)
-    private Integer postCount = 0;
+    private Long postCount = 0L;
 
     @Comment("그룹 멤버 수")
     @Column(nullable = false)
-    private Integer groupMemberCount = 0;
+    private Long groupMemberCount = 0L;
 
     @Comment("그룹 생성 날짜")
     @CreationTimestamp

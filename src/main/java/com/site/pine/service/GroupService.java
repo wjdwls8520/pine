@@ -1,13 +1,12 @@
 package com.site.pine.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
-import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
 import com.site.pine.dto.group.*;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.S3FileDeleteFailList;
+import com.site.pine.entity.ViewHistory;
 import com.site.pine.entity.group.GroupCategoryList;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupInCategory;
@@ -16,11 +15,15 @@ import com.site.pine.mapper.GroupMapper;
 import com.site.pine.mapper.S3FileDeleteFailMapper;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
+import com.site.pine.repository.ViewRepository;
 import com.site.pine.repository.group.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +32,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +54,8 @@ public class GroupService {
     private final MemberRepository mr;
     private final GroupMemberRepository gmr;
 
+    private final ViewRepository vr;
+
     private final S3UploadService sus;
     private final FileRepository fr;
 
@@ -56,6 +63,10 @@ public class GroupService {
 
     private final S3FileDeleteFailListRepository sfdfr;
     private final S3FileDeleteFailMapper sfdfm;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
 
     // 태초에 db에 저장되는 카테고리들을 가져옴
     @Transactional(readOnly = true)
@@ -276,5 +287,48 @@ public class GroupService {
 
             throw new IllegalStateException("S3 삭제 실패" + e.getMessage());
         }
+    }
+
+    @Transactional(noRollbackFor = DataIntegrityViolationException.class)
+    public HashMap<String, Object> addViewCount(Long groupId, Long isMember, String viewerCookie) {
+
+        Member memberE = (isMember != null) ? mr.getReferenceById(isMember) : null;
+        GroupContents group = gconr.findById(groupId)
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 그룹입니다."));
+
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+
+        boolean exists = (isMember != null)
+                ? vr.existsByTargetTypeAndTargetIdAndViewerAndIsView(3, groupId, memberE, today)
+                : vr.existsByTargetTypeAndTargetIdAndViewerCookieAndIsView(3, groupId, viewerCookie, today);
+
+        if (!exists) {
+            try {
+                ViewHistory vh = new ViewHistory();
+                vh.setTargetType(3);
+                vh.setTargetId(groupId);
+                if (isMember != null) {
+                    vh.setViewer(memberE);
+                } else {
+                    vh.setViewerCookie(viewerCookie);
+                }
+                vh.setIsView(today);
+
+                vr.save(vh);
+                gconr.increaseViewCount(groupId);
+
+                // 조회수 최신화
+                entityManager.refresh(group);
+
+            } catch (DataIntegrityViolationException e) {
+                // race condition 패배 → 정상 흐름
+            }
+        }
+
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("allViewCount", group.getAllViewCount());
+        result.put("todayViewCount", group.getTodayViewCount());
+
+        return result;
     }
 }
