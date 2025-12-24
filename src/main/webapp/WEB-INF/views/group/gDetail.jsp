@@ -85,8 +85,8 @@
                 <section class="groupStats">
                     <div class="groupStatCard">
                         <p class="groupStatLabel">전체 조회수</p>
-                        <strong>${groupDetail.allViewCount}</strong>
-                        <span class="groupStatHint">Today ${group.todayViewCount}</span>
+                        <strong class="dataAllViewCount">${groupDetail.allViewCount}</strong>
+                        <span class="groupStatHint">Today <span class="groupStatHint todayViewCount">${groupDetail.todayViewCount}<span></span>
                     </div>
                     <div class="groupStatCard">
                         <p class="groupStatLabel">좋아요</p>
@@ -168,7 +168,7 @@
                         <ul class="groupActivityList">
                             <li>
                                 <p>하루 조회수</p>
-                                <strong>${groupDetail.todayViewCount}</strong>
+                                <strong class="todayViewCount">${groupDetail.todayViewCount}</strong>
                                 <span>어제 대비 +18%</span>
                             </li>
                             <li>
@@ -196,6 +196,22 @@
     </article>
 </div>
 <jsp:include page="../include/group_footer.jsp"></jsp:include>
+<script>
+    let groupId = ${groupDetail.id};
+    fetch(`/group/gviewcount/${groupId}`, {method: "POST"})
+        .then(response => {
+            if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
+            return response.json(); // 성공하면 JSON 반환
+        })
+        .then((result) => {
+            console.log(result.msg);
+            let allViewCounts = document.querySelectorAll(".dataAllViewCount");
+            allViewCounts.forEach((data)=> data.innerText = result.allViewCount);
+
+            let todayViewCounts = document.querySelectorAll(".todayViewCount");
+            todayViewCounts.forEach((data)=> data.innerText = result.todayViewCount);
+        }).catch(err => console.error(err));
+</script>
 </body>
 </html>
 

@@ -5,7 +5,9 @@ import com.site.pine.entity.group.GroupContents;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 
 public interface GroupContentsRepository extends JpaRepository<GroupContents, Long> {
@@ -78,4 +80,8 @@ public interface GroupContentsRepository extends JpaRepository<GroupContents, Lo
         """
     )
     Page<GroupContentsJpqlResDto> findGroupResDto(Integer categoryId, Pageable pageable);
+
+    @Modifying
+    @Query("update GroupContents g set g.allViewCount = g.allViewCount + 1 where g.id = :id")
+    void increaseViewCount(@Param("id") Long groupId);
 }

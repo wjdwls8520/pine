@@ -22,11 +22,11 @@ public class GroupContentResDto {
     private Integer userLimit;
 
     // reqDto에 없는 값들
-    private Integer allViewCount;
-    private Integer todayViewCount;
-    private Integer likeCount;
-    private Integer postCount;
-    private Integer groupMemberCount;
+    private Long allViewCount;
+    private Long todayViewCount;
+    private Long likeCount;
+    private Long postCount;
+    private Long groupMemberCount;
 
     private Timestamp indate;
 

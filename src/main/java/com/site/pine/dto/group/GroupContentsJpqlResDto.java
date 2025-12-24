@@ -11,11 +11,11 @@ public class GroupContentsJpqlResDto {
     private Integer joinState;
     private Integer autoJoin;
     private Integer userLimit;
-    private Integer allViewCount;
-    private Integer likeCount;
-    private Integer postCount;
-    private Integer groupMemberCount;
-    private Integer todayViewCount;
+    private Long allViewCount;
+    private Long likeCount;
+    private Long postCount;
+    private Long groupMemberCount;
+    private Long todayViewCount;
     private Timestamp indate;
 
     private SimpleFileJpqlResDto groupImg;
@@ -27,11 +27,11 @@ public class GroupContentsJpqlResDto {
             Integer joinState,
             Integer autoJoin,
             Integer userLimit,
-            Integer allViewCount,
-            Integer likeCount,
-            Integer postCount,
-            Integer groupMemberCount,
-            Integer todayViewCount,
+            Long allViewCount,
+            Long likeCount,
+            Long postCount,
+            Long groupMemberCount,
+            Long todayViewCount,
             Timestamp indate,
             Long fileId,
             String filePath
