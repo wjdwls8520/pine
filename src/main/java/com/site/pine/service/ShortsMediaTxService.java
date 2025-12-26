@@ -137,18 +137,27 @@ public class ShortsMediaTxService {
     private void runFfmpegCompress(Path src, Path target) throws Exception {
         ProcessBuilder pb = new ProcessBuilder(
                 ffmpegPath,
-                "-y",                       // 🔧 수정: 덮어쓰기(없으면 실패하는 경우 있음)
+                "-y",
                 "-i", src.toString(),
                 "-c:v", "libx264",
                 "-preset", "veryfast",
-                "-crf", "28",
-                "-c:a", "aac",              // 🔧 수정: 오디오도 인코딩 지정(환경에 따라 필요)
+                "-crf", "26",
+                "-c:a", "aac",
+                "-b:a", "128k",
+                "-movflags", "+faststart",
                 target.toString()
         );
 
         int exit = runAndLog(pb, "[ffmpeg-compress]");
-        if (exit != 0) {
-            throw new IllegalStateException("ffmpeg 압축 실패 (exitCode=" + exit + ")");
+
+        Thread.sleep(50); // 🔧 Windows 안정화용 (중요)
+
+        long size = Files.exists(target) ? Files.size(target) : 0;
+
+        if (exit != 0 || size < 1024) { // 1KB 미만은 실패로 간주
+            throw new IllegalStateException(
+                    "ffmpeg 압축 실패 or 결과 이상. size=" + size
+            );
         }
     }
 
