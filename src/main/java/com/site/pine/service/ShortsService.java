@@ -1,7 +1,6 @@
 package com.site.pine.service;
 
 import com.site.pine.dto.FileDto;
-import com.site.pine.dto.S3DeleteEventDto;
 import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
@@ -10,7 +9,6 @@ import com.site.pine.enums.PageType;
 import com.site.pine.event.ShortsMediaEvent;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.ShortsRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,18 +17,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // 🔧 수정: Spring Tx로 통일 권장
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -40,27 +34,22 @@ public class ShortsService {
     private final ShortsRepository sr;
     private final FileRepository fr;
     private final S3UploadService sus;
-    //    private long lastThumbnailSize; // 자동 썸네일 size 임시 보관용
+
     @Value("${ffmpeg.path}")
     private String ffmpegPath;
+
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ShortsAsyncService sas;
 
-
-    @Transactional
+    @Transactional(readOnly = true)
     public HashMap<String, Object> getAllShorts(int page) {
-        //1. 빈 해시맵 만들기
         HashMap<String, Object> result = new HashMap<>();
-        // 2. 빈 리스트 만들기
         List<ShortsResDto> list = new ArrayList<>();
 
-        // 3. 페이지 정의 = page번째 페이지에서 6 개씩 가져와라 라는 정보 담음
         Pageable pageable = PageRequest.of(page, 2);
-        // 4. 페이지객체에 쇼츠엔티티 넣기 (페이지네이션 된 데이터만 가져옴)
-        // Page<Shorts> 에는 페이지정보가 포함되어있음.
-//        Page<Shorts> shortsPages = sr.findAllByOrderByIndateDesc(pageable);
         Page<Shorts> shortsPages = sr.findAllByOrderByIndateDescIdDesc(pageable);
-        for(Shorts shortsEntity : shortsPages) {
+
+        for (Shorts shortsEntity : shortsPages) {
             ShortsResDto resDto = new ShortsResDto();
             resDto.setId(shortsEntity.getId());
             resDto.setTitle(shortsEntity.getTitle());
@@ -69,7 +58,7 @@ public class ShortsService {
             resDto.setUpdateDate(shortsEntity.getUpdateDate());
 
             List<FileDto> fileDtoList = new ArrayList<>();
-            for( File file : shortsEntity.getFiles()) {
+            for (File file : shortsEntity.getFiles()) {
                 FileDto fileDto = new FileDto();
                 fileDto.setId(file.getId());
                 fileDto.setPageType(file.getPageType());
@@ -83,12 +72,11 @@ public class ShortsService {
             resDto.setFiles(fileDtoList);
             list.add(resDto);
         }
+
         result.put("shortsList", list);
         result.put("totalPage", shortsPages.getTotalPages());
-
         return result;
     }
-
 
     @Transactional
     public void insertShorts(ShortsUploadReqDto dto) {
@@ -96,199 +84,78 @@ public class ShortsService {
         MultipartFile video = dto.getVideoFile();
         MultipartFile thumbnail = dto.getThumbnailFile();
 
+        Path tempVideo = null;      // 🔧 수정: catch에서 삭제하기 위해 밖으로 뺌
+        Path tempManualThumb = null; // 🔧 수정: manual 썸네일일 경우 안전하게 파일로 만들어 넘김(선택)
+
         try {
-            // 1️ Shorts 저장
+            // 1) Shorts 저장
             Shorts shorts = new Shorts();
             shorts.setTitle(dto.getTitle());
             shorts.setContent(dto.getContent());
             sr.save(shorts);
 
-            /**
-             * 2️ VIDEO File row 생성
-             * 🔧 수정: S3 업로드
-             * 🔧 수정: path = null
-             * 🔧 수정: status = 0 (WAIT)
-             */
+            // 2) VIDEO File row 생성 (WAIT)
             File videoFile = new File();
             videoFile.setPageType(PageType.SHORTS);
             videoFile.setOriginalname(video.getOriginalFilename());
             videoFile.setContentType(video.getContentType());
-            videoFile.setSize(0L);          // 아직 모름
-            videoFile.setPath(null);        // 🔧 중요
-            videoFile.setStatus(0);         // WAIT
+            videoFile.setSize(0L);
+            videoFile.setPath(null);
+            videoFile.setStatus(0); // WAIT
             videoFile.setShorts(shorts);
             fr.save(videoFile);
 
-            /**
-             * 3️ THUMBNAIL File row 생성
-             */
+            // 3) THUMBNAIL File row 생성 (WAIT)
             File thumbFile = new File();
-            thumbFile.setPageType(PageType.SHORTS);
-            thumbFile.setOriginalname("auto_thumbnail.jpg");
+            thumbFile.setPageType(PageType.SHORTS_THUMBNAIL);
+            thumbFile.setOriginalname("auto_thumbnail.jpg"); // 기본값
             thumbFile.setContentType("image/jpeg");
             thumbFile.setSize(0L);
-            thumbFile.setPath(null);        // 🔧 문자열 "null" 제거
-            thumbFile.setStatus(0);         // WAIT
+            thumbFile.setPath(null);
+            thumbFile.setStatus(0); // WAIT
             thumbFile.setShorts(shorts);
             fr.save(thumbFile);
 
-            /**
-             * 4️ AFTER_COMMIT 이벤트 발행
-             * 🔧 수정: videoPath ❌
-             * 🔧 수정: MultipartFile 전달
-             */
-            // ✅ MultipartFile → 로컬 임시 파일 (요청 스레드에서!)
-            Path tempVideo = Files.createTempFile("upload-video-", ".mp4");
+            // 4) 요청 스레드에서 MultipartFile -> "내가 만든" 임시 파일로 복사 (핵심)
+            tempVideo = Files.createTempFile("upload-video-", ".mp4");
             video.transferTo(tempVideo.toFile());
 
-            // AFTER_COMMIT 이벤트
+            // 🔧 수정(선택): manual일 때도 MultipartFile을 비동기로 넘기지 않기 위해
+            // 임시 썸네일 파일을 만들어 경로만 넘길 수 있음
+            String thumbType = dto.getThumbnailType();
+            String tempManualThumbPath = null;
+            if ("manual".equals(thumbType) && thumbnail != null && !thumbnail.isEmpty()) {
+                tempManualThumb = Files.createTempFile("upload-thumb-", ".jpg");
+                thumbnail.transferTo(tempManualThumb.toFile());
+                tempManualThumbPath = tempManualThumb.toString();
+                thumbFile.setOriginalname(thumbnail.getOriginalFilename()); // 원래 이름 반영
+            }
+
+            // 5) AFTER_COMMIT 이벤트 발행 (경로 문자열만 전달)
             applicationEventPublisher.publishEvent(
                     new ShortsMediaEvent(
                             shorts.getId(),
                             videoFile.getId(),
                             thumbFile.getId(),
-                            tempVideo.toString(),   // ✅ Path 문자열만 전달
-                            dto.getThumbnailType()
+                            tempVideo.toString(),
+                            thumbType,
+                            tempManualThumbPath // 🔧 수정: manual일 때만 값 존재, auto면 null
                     )
             );
 
         } catch (Exception e) {
+            // 🔧 수정: insert 단계에서 실패하면 임시파일 정리
+            safeDelete(tempVideo);
+            safeDelete(tempManualThumb);
+
             log.error("쇼츠 업로드 실패", e);
             throw new IllegalStateException("쇼츠 업로드 중 오류가 발생했습니다.");
         }
     }
 
-
-
-//    private void saveFile(
-//            Shorts shorts,
-//            MultipartFile file,
-//            String path,
-//            String pageType
-//    ) {
-//        File f = new File();
-//        f.setPageType(pageType);
-//        f.setOriginalname(file.getOriginalFilename());
-//        f.setSize(file.getSize());
-//        f.setPath(path);
-//        f.setContentType(file.getContentType());
-//        // 즉시 사용 가능한 파일 → 2 = 완료
-//        f.setStatus(2);
-//        f.setShorts(shorts);
-//
-//        fr.save(f);
-//    }
-
-//    private void saveAutoThumbnail(Shorts shorts, String path, long size) {
-//        File f = new File();
-//        f.setPageType("shortsThumbnail");
-//        f.setOriginalname("auto_thumbnail.jpg");
-//        f.setSize(size);
-//        f.setPath(path);
-//        f.setContentType("image/jpeg");
-//        f.setShorts(shorts);
-//
-//        fr.save(f);
-//    }
-
-//    private String createThumbnailFromVideo(MultipartFile video) {
-//
-//        Path tempVideoPath = null;
-//        Path tempThumbnailPath = null;
-//
-//        try {
-//            String uuid = UUID.randomUUID().toString();
-//
-//            tempVideoPath = Paths.get(System.getProperty("java.io.tmpdir"), uuid + ".mp4");
-//            tempThumbnailPath = Paths.get(System.getProperty("java.io.tmpdir"), uuid + ".jpg");
-//
-//            //  MultipartFile → 로컬 임시 영상
-//            video.transferTo(tempVideoPath.toFile());
-//
-//            // ffmpeg 실행
-//            ProcessBuilder pb = new ProcessBuilder(
-//                    ffmpegPath,
-//                    "-ss", "00:00:00.1",
-//                    "-i", tempVideoPath.toString(),
-//                    "-vf", "scale=720:1280",
-//                    "-vframes", "1",
-//                    tempThumbnailPath.toString()
-//            );
-//
-//            pb.redirectErrorStream(true);
-//            Process process = pb.start();
-//
-//            //  ffmpeg 로그 출력 (디버깅용)
-//            try (BufferedReader br = new BufferedReader(
-//                    new InputStreamReader(process.getInputStream()))) {
-//                String line;
-//                while ((line = br.readLine()) != null) {
-//                    System.out.println("[ffmpeg] " + line);
-//                }
-//            }
-//
-//            //  ffmpeg 정상 종료 체크
-//            int exitCode = process.waitFor();
-//            if (exitCode != 0) {
-//                throw new IllegalStateException("ffmpeg 실행 실패 (exitCode=" + exitCode + ")");
-//            }
-//
-//            // 썸네일 파일 생성 여부 + 0 byte 방어
-//            if (!Files.exists(tempThumbnailPath) || Files.size(tempThumbnailPath) == 0) {
-//                throw new IllegalStateException("썸네일 생성 실패 (0 byte)");
-//            }
-//
-//            // 썸네일 사이즈 기록 (DB 저장용)
-//            lastThumbnailSize = Files.size(tempThumbnailPath);
-//
-//            // 로컬 썸네일 → S3 업로드
-//            return sus.saveLocalFile(tempThumbnailPath);
-//
-//        } catch (Exception e) {
-//            throw new IllegalStateException("썸네일 생성 실패", e);
-//
-//        } finally {
-//            // 임시 파일 정리!
-//            try {
-//                if (tempVideoPath != null) {
-//                    Files.deleteIfExists(tempVideoPath);
-//                    System.out.println("임시 영상 삭제 완료: " + tempVideoPath);
-//                }
-//                if (tempThumbnailPath != null) {
-//                    Files.deleteIfExists(tempThumbnailPath);
-//                    System.out.println("임시 썸네일 삭제 완료: " + tempThumbnailPath);
-//                }
-//            } catch (IOException e) {
-//                System.out.println("임시 파일 삭제 실패: " + e.getMessage());
-//            }
-//        }
-//    }
-
-
-
-
-//    public void insertShorts(ShortsUploadReqDto shortsuploadreqdto) throws IOException {
-//        Shorts shortsEntity = new Shorts();
-//        shortsEntity.setTitle(shortsuploadreqdto.getTitle());
-//        shortsEntity.setContent(shortsuploadreqdto.getContent());
-//        sr.save(shortsEntity);
-//
-//        for (MultipartFile file : shortsuploadreqdto.getFiles()) {
-//
-//            String fileUrl = sus.saveFile(file); // S3 업로드
-//
-//            File fileEntity = new File();
-//            fileEntity.setPageType("shorts");
-//            fileEntity.setOriginalname(file.getOriginalFilename());
-//            fileEntity.setSize(file.getSize());
-//            fileEntity.setPath(fileUrl);
-//            fileEntity.setContentType(file.getContentType());
-//            fileEntity.setShorts(shortsEntity);
-//
-//            fr.save(fileEntity);
-//        }
-//
-//    }
-
-
+    private void safeDelete(Path p) {
+        try {
+            if (p != null) Files.deleteIfExists(p);
+        } catch (Exception ignored) {}
+    }
 }

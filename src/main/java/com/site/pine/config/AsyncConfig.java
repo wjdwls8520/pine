@@ -43,7 +43,7 @@ public class AsyncConfig {
 
         // 대기 큐 크기
         // (동시에 몰릴 때 버퍼)
-        executor.setQueueCapacity(50);
+        executor.setQueueCapacity(20);
 
         // 스레드 이름 (로그 확인용)
         executor.setThreadNamePrefix("SHORTS-ASYNC-");
