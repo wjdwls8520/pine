@@ -6,6 +6,7 @@ import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.shorts.Shorts;
+import com.site.pine.enums.PageType;
 import com.site.pine.event.ShortsMediaEvent;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.ShortsRepository;
@@ -109,7 +110,7 @@ public class ShortsService {
              * 🔧 수정: status = 0 (WAIT)
              */
             File videoFile = new File();
-            videoFile.setPageType("shorts");
+            videoFile.setPageType(PageType.SHORTS);
             videoFile.setOriginalname(video.getOriginalFilename());
             videoFile.setContentType(video.getContentType());
             videoFile.setSize(0L);          // 아직 모름
@@ -122,7 +123,7 @@ public class ShortsService {
              * 3️ THUMBNAIL File row 생성
              */
             File thumbFile = new File();
-            thumbFile.setPageType("shortsThumbnail");
+            thumbFile.setPageType(PageType.SHORTS);
             thumbFile.setOriginalname("auto_thumbnail.jpg");
             thumbFile.setContentType("image/jpeg");
             thumbFile.setSize(0L);
