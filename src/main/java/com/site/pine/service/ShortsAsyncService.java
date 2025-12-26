@@ -19,9 +19,11 @@ public class ShortsAsyncService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMediaEvent(ShortsMediaEvent event) {
 
-        log.info("[EVENT RECEIVED] shortsId={}, thread={}",
+        log.info("[EVENT RECEIVED] shortsId={}, thread={}, tempVideoPath={}",
                 event.shortsId(),
-                Thread.currentThread().getName());
+                Thread.currentThread().getName(),
+                event.tempVideoPath()
+        );
 
         // 핵심: 트랜잭션 서비스로 위임
         txService.processMediaTx(event);
