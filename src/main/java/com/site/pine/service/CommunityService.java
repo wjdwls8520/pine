@@ -10,6 +10,7 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.tag.TagResDto;
 import com.site.pine.entity.*;
 import com.site.pine.entity.post.Post;
+import com.site.pine.enums.PageType;
 import com.site.pine.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,7 @@ public class CommunityService {
 
                 TagMapping mapping = new TagMapping();
                 mapping.setTag(tag);
-                mapping.setTargetType(1); // POST
+                mapping.setTargetType(PageType.COMMUNITY); // POST
                 mapping.setTargetId(postEntity.getId());
 
                 tmr.save(mapping);
@@ -88,7 +89,7 @@ public class CommunityService {
             }
 
             // db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto("community", file.getOriginalFilename(), file.getSize(), fileUrl));
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto(PageType.COMMUNITY, file.getOriginalFilename(), file.getSize(), fileUrl));
 
             File fileEntity = new File();
 
@@ -99,7 +100,7 @@ public class CommunityService {
             fileEntity.setOriginalname(file.getOriginalFilename());
             fileEntity.setContentType(file.getContentType());
             fileEntity.setSize(file.getSize());
-            fileEntity.setPageType("community");
+            fileEntity.setPageType(PageType.COMMUNITY);
 
             // 포스트 조인
             fileEntity.setPost(postEntity);
@@ -235,7 +236,7 @@ public class CommunityService {
         } else {
             // 좋아요 추가
             Likes like = new Likes();
-            like.setTargetType(1); // POST_TYPE
+            like.setTargetType(PageType.COMMUNITY); // POST_TYPE
             like.setTargetId(postId);
             like.setMember(new Member());
             like.getMember().setId(memberId);

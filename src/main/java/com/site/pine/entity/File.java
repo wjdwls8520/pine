@@ -2,6 +2,7 @@ package com.site.pine.entity;
 
 import com.site.pine.entity.post.Post;
 import com.site.pine.entity.shorts.Shorts;
+import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -16,9 +17,10 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Comment("파일의 페이지 타입 ex) community, groupBanner. groupPost, shorts, shortsThumbnail")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String pageType;
+    @Comment("파일의 페이지 타입")
+    private PageType pageType;
 
     @Comment("파일의 원래이름")
     @Column(nullable = false)

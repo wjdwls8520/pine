@@ -1,5 +1,6 @@
 package com.site.pine.entity;
 
+import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class TagMapping {
 
     @Comment("대상 타입 (POST=1, SHORTS=2...등)")
     @Column(nullable = false)
-    private int targetType;
+    private PageType targetType;
 
     @Comment("대상 ID")
     @Column(nullable = false)

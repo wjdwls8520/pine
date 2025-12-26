@@ -11,6 +11,7 @@ import com.site.pine.entity.group.GroupCategoryList;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupInCategory;
 import com.site.pine.entity.group.GroupMember;
+import com.site.pine.enums.PageType;
 import com.site.pine.mapper.GroupMapper;
 import com.site.pine.mapper.S3FileDeleteFailMapper;
 import com.site.pine.repository.FileRepository;
@@ -125,7 +126,7 @@ public class GroupService {
 
 
         // 멀티파트파일의 기본 속성들 사용 + sus(s3)서비스에서 임의값을 추가한 파일 저장
-        String filePageType = "groupBanner";
+        PageType filePageType = PageType.GROUP;
         String originalFileName = groupContentReqDto.getGroupImg().getOriginalFilename();
         Long fileSize = groupContentReqDto.getGroupImg().getSize();
         String fileContentType = groupContentReqDto.getGroupImg().getContentType();
@@ -250,7 +251,7 @@ public class GroupService {
             groupContentsE.getFile().setContentType(groupContentReqDto.getGroupImg().getContentType());
 
             // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto("groupBanner", groupContentsE.getFile().getOriginalname(), groupContentsE.getFile().getSize(), filePath));
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto(PageType.GROUP, groupContentsE.getFile().getOriginalname(), groupContentsE.getFile().getSize(), filePath));
 
 
             // 위코드 어디에서든 에러가 난다면 실행되지 않을 것
@@ -305,7 +306,7 @@ public class GroupService {
         if (!exists) {
             try {
                 ViewHistory vh = new ViewHistory();
-                vh.setTargetType(3);
+                vh.setTargetType(PageType.GROUP);
                 vh.setTargetId(groupId);
                 if (isMember != null) {
                     vh.setViewer(memberE);
@@ -316,6 +317,7 @@ public class GroupService {
 
                 vr.save(vh);
                 gconr.increaseViewCount(groupId);
+                Long todayViewCount = vr.countByTargetTypeAndTargetIdAndIsView(3, groupId, today);
 
                 // 조회수 최신화
                 entityManager.refresh(group);

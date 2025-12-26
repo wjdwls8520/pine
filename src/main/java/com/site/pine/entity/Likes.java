@@ -1,5 +1,6 @@
 package com.site.pine.entity;
 
+import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -20,7 +21,7 @@ public class Likes {
 
     @Comment("컨텐츠 타입(Post=1, Reply 등)")
     @Column(nullable = false)
-    private int targetType;
+    private PageType targetType;
 
     @Comment("해당 컨텐츠의 id")
     @Column(nullable = false)

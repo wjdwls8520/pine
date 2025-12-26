@@ -1,5 +1,6 @@
 package com.site.pine.entity;
 
+import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,7 +39,7 @@ public class ViewHistory {
 
     @Comment("컨텐츠 타입(Post=1, Reply 등)")
     @Column(name = "target_type", nullable = false)
-    private Integer targetType;
+    private PageType targetType;
 
     @Comment("해당 컨텐츠의 id")
     @Column(name = "target_id", nullable = false)
