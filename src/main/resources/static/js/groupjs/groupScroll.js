@@ -33,12 +33,12 @@ async function getData(page) {
                 data.resDto.groupList.map((info, idx) => {
                     groupWrap.insertAdjacentHTML("beforeend", `
                         <div class="groupList">
-                            <div class="imgBox" onclick="location.href='/group/gdetail/${info.id}'">
+                            <div class="imgBox cursor" onclick="location.href='/group/gdetail/${info.id}'">
                                 <img src="${info.groupImg.path}" alt="이미지" />
                             </div>
                             <div class="groupInfo">
                                 <div class="top">
-                                    <div class="groupName" onclick="location.href='/group/gdetail/${info.id}'">
+                                    <div class="groupName cursor" onclick="location.href='/group/gdetail/${info.id}'">
                                         ${info.groupName}
                                     </div>
                                 </div>

@@ -10,6 +10,8 @@ html {font-family: "Noto Sans", sans-serif; font-size: 16px; color: #141414;}
 .dim {display: none; position: fixed; z-index: 8000; top: 0; left: 0; width: 100%; height: 100%; background: hsla(0, 0%, 0%, 0.7);}
 .dim.on {display: block;}
 
+.btn {cursor: pointer; !important;}
+.cursor {cursor: pointer !important;}
 
 br.pc {display: block !important;}
 br.t {display: none !important;}
