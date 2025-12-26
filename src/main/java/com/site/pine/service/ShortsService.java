@@ -6,6 +6,7 @@ import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.shorts.Shorts;
+import com.site.pine.enums.PageType;
 import com.site.pine.event.ShortsThumbnailEvent;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.ShortsRepository;
@@ -109,21 +110,21 @@ public class ShortsService {
 
             // 2️ 영상 S3 업로드
             videoPath = sus.saveFile(dto.getVideoFile());
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto("shorts", video.getOriginalFilename(), video.getSize(), videoPath));
-            saveFile(shorts, dto.getVideoFile(), videoPath, "shorts");
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto(PageType.SHORTS, video.getOriginalFilename(), video.getSize(), videoPath));
+            saveFile(shorts, dto.getVideoFile(), videoPath, PageType.SHORTS);
 
             // 3️ 썸네일 분기
             if ("manual".equals(dto.getThumbnailType())) {
                 // s3업로드
                 String thumbUrl = sus.saveFile(thumbnail);
-                applicationEventPublisher.publishEvent(new S3DeleteEventDto("shorts", video.getOriginalFilename(), video.getSize(), thumbUrl));
-                saveFile(shorts, thumbnail, thumbUrl, "shortsThumbnail");
+                applicationEventPublisher.publishEvent(new S3DeleteEventDto(PageType.SHORTS, video.getOriginalFilename(), video.getSize(), thumbUrl));
+                saveFile(shorts, thumbnail, thumbUrl, PageType.SHORTS_THUMBNAIL);
 
             } else if ("auto".equals(dto.getThumbnailType())) {
 
                 // 자동 썸네일 전 File row만 미리 만들어 둔다
                 File f = new File();
-                f.setPageType("shortsThumbnail");
+                f.setPageType(PageType.SHORTS_THUMBNAIL);
                 f.setOriginalname("auto_thumbnail.jpg");
                 f.setSize(0L);
                 f.setPath("null");
@@ -156,7 +157,7 @@ public class ShortsService {
             Shorts shorts,
             MultipartFile file,
             String path,
-            String pageType
+            PageType pageType
     ) {
         File f = new File();
         f.setPageType(pageType);

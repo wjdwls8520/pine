@@ -11,4 +11,6 @@ public interface ViewRepository extends JpaRepository<ViewHistory, Long> {
     boolean existsByTargetTypeAndTargetIdAndViewerAndIsView(int i, Long groupId, Member memberE, LocalDate today);
 
     boolean existsByTargetTypeAndTargetIdAndViewerCookieAndIsView(int i, Long groupId, String viewerCookie, LocalDate today);
+
+    Long countByTargetTypeAndTargetIdAndIsView(int i, Long groupId, LocalDate today);
 }

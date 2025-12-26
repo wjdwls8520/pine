@@ -1,5 +1,6 @@
 package com.site.pine.entity;
 
+import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,7 +30,7 @@ public class Reply {
 
     @Comment("컨텐츠 타입(Post=1.. 등)")
     @Column(nullable = false)
-    private int targetType;
+    private PageType targetType;
 
     @Comment("해당 컨텐츠의 id")
     @Column(nullable = false)
@@ -37,7 +38,7 @@ public class Reply {
 
     @Comment("일반=0,비공개(암호)=1,삭제=2,신고됨=3")
     @Column(nullable = false)
-    private int status = 0;
+    private Integer status = 0;
 
     @Comment("작성 날짜")
     @CreationTimestamp
