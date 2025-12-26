@@ -6,7 +6,7 @@ import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.shorts.Shorts;
-import com.site.pine.event.ShortsThumbnailEvent;
+import com.site.pine.event.ShortsMediaEvent;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.ShortsRepository;
 import jakarta.transaction.Transactional;
@@ -92,84 +92,91 @@ public class ShortsService {
     @Transactional
     public void insertShorts(ShortsUploadReqDto dto) {
 
-        // 업로드 파일 꺼내기
         MultipartFile video = dto.getVideoFile();
         MultipartFile thumbnail = dto.getThumbnailFile();
 
-        // s3저장 경로 변수
-        String videoPath = null;
-        String thumbnailPath = null;
-
-        try{
+        try {
             // 1️ Shorts 저장
             Shorts shorts = new Shorts();
             shorts.setTitle(dto.getTitle());
             shorts.setContent(dto.getContent());
             sr.save(shorts);
 
-            // 2️ 영상 S3 업로드
-            videoPath = sus.saveFile(dto.getVideoFile());
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto("shorts", video.getOriginalFilename(), video.getSize(), videoPath));
-            saveFile(shorts, dto.getVideoFile(), videoPath, "shorts");
+            /**
+             * 2️ VIDEO File row 생성
+             * 🔧 수정: S3 업로드
+             * 🔧 수정: path = null
+             * 🔧 수정: status = 0 (WAIT)
+             */
+            File videoFile = new File();
+            videoFile.setPageType("shorts");
+            videoFile.setOriginalname(video.getOriginalFilename());
+            videoFile.setContentType(video.getContentType());
+            videoFile.setSize(0L);          // 아직 모름
+            videoFile.setPath(null);        // 🔧 중요
+            videoFile.setStatus(0);         // WAIT
+            videoFile.setShorts(shorts);
+            fr.save(videoFile);
 
-            // 3️ 썸네일 분기
-            if ("manual".equals(dto.getThumbnailType())) {
-                // s3업로드
-                String thumbUrl = sus.saveFile(thumbnail);
-                applicationEventPublisher.publishEvent(new S3DeleteEventDto("shorts", video.getOriginalFilename(), video.getSize(), thumbUrl));
-                saveFile(shorts, thumbnail, thumbUrl, "shortsThumbnail");
+            /**
+             * 3️ THUMBNAIL File row 생성
+             */
+            File thumbFile = new File();
+            thumbFile.setPageType("shortsThumbnail");
+            thumbFile.setOriginalname("auto_thumbnail.jpg");
+            thumbFile.setContentType("image/jpeg");
+            thumbFile.setSize(0L);
+            thumbFile.setPath(null);        // 🔧 문자열 "null" 제거
+            thumbFile.setStatus(0);         // WAIT
+            thumbFile.setShorts(shorts);
+            fr.save(thumbFile);
 
-            } else if ("auto".equals(dto.getThumbnailType())) {
+            /**
+             * 4️ AFTER_COMMIT 이벤트 발행
+             * 🔧 수정: videoPath ❌
+             * 🔧 수정: MultipartFile 전달
+             */
+            // ✅ MultipartFile → 로컬 임시 파일 (요청 스레드에서!)
+            Path tempVideo = Files.createTempFile("upload-video-", ".mp4");
+            video.transferTo(tempVideo.toFile());
 
-                // 자동 썸네일 전 File row만 미리 만들어 둔다
-                File f = new File();
-                f.setPageType("shortsThumbnail");
-                f.setOriginalname("auto_thumbnail.jpg");
-                f.setSize(0L);
-                f.setPath("null");
-                f.setContentType("image/jpeg");
-                // status = 0 (대기)
-                f.setStatus(0);
-                f.setShorts(shorts);
-                fr.save(f);
+            // AFTER_COMMIT 이벤트
+            applicationEventPublisher.publishEvent(
+                    new ShortsMediaEvent(
+                            shorts.getId(),
+                            videoFile.getId(),
+                            thumbFile.getId(),
+                            tempVideo.toString(),   // ✅ Path 문자열만 전달
+                            dto.getThumbnailType()
+                    )
+            );
 
-                // Async 썸네일 생성 시작
-//                sas.createThumbnailAsync(
-//                        f.getId(),   // File ID 기준
-//                        videoPath        // 원본 영상
-//                );
-                applicationEventPublisher.publishEvent(
-                        new ShortsThumbnailEvent(f.getId(), videoPath)
-                );
-
-            } else {
-                throw new IllegalStateException("썸네일 타입이 올바르지 않습니다.");
-            }
-
-        } catch (IOException e){
-            throw new IllegalStateException("파일 업로드 중 오류가 발생했습니다.");
+        } catch (Exception e) {
+            log.error("쇼츠 업로드 실패", e);
+            throw new IllegalStateException("쇼츠 업로드 중 오류가 발생했습니다.");
         }
-
     }
 
-    private void saveFile(
-            Shorts shorts,
-            MultipartFile file,
-            String path,
-            String pageType
-    ) {
-        File f = new File();
-        f.setPageType(pageType);
-        f.setOriginalname(file.getOriginalFilename());
-        f.setSize(file.getSize());
-        f.setPath(path);
-        f.setContentType(file.getContentType());
-        // 즉시 사용 가능한 파일 → 2 = 완료
-        f.setStatus(2);
-        f.setShorts(shorts);
 
-        fr.save(f);
-    }
+
+//    private void saveFile(
+//            Shorts shorts,
+//            MultipartFile file,
+//            String path,
+//            String pageType
+//    ) {
+//        File f = new File();
+//        f.setPageType(pageType);
+//        f.setOriginalname(file.getOriginalFilename());
+//        f.setSize(file.getSize());
+//        f.setPath(path);
+//        f.setContentType(file.getContentType());
+//        // 즉시 사용 가능한 파일 → 2 = 완료
+//        f.setStatus(2);
+//        f.setShorts(shorts);
+//
+//        fr.save(f);
+//    }
 
 //    private void saveAutoThumbnail(Shorts shorts, String path, long size) {
 //        File f = new File();
