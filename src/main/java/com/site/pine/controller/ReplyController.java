@@ -3,6 +3,7 @@ package com.site.pine.controller;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.reply.ReplyCreateReqDto;
 import com.site.pine.dto.reply.ReplyResDto;
+import com.site.pine.enums.PageType;
 import com.site.pine.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,7 +33,7 @@ public class ReplyController {
     @ResponseBody
     @GetMapping("/reply/list")
     public List<ReplyResDto> list(
-            @RequestParam int targetType,
+            @RequestParam PageType targetType,
             @RequestParam Long targetId
     ) {
         return rs.getReplyList(targetType, targetId);

@@ -27,7 +27,8 @@ public class TagMapping {
     @Comment("태그매핑 고유번호")
     private Long id;
 
-    @Comment("대상 타입 (POST=1, SHORTS=2...등)")
+    @Comment("페이지타입 enum")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PageType targetType;
 
