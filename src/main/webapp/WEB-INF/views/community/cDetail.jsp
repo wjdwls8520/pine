@@ -74,37 +74,10 @@
                             <div class="replyWrap">
                                 <div class="writeBox">
                                     <input type="text" class="replyTextBox" placeholder="댓글을 남겨보세요">
+                                    <button class="replyBtn">등록</button>
                                 </div>
                                 <ul class="replyList">
-                                    <li>
-                                        <div class="replyBox">
-                                            <div class="replyWriterInfo">
-                                                <div class="infoLeft">
-                                                    <div class="profileImgBox">
-                                                        <img
-                                                             src="/images/user.png" />
-                                                    </div>
-                                                    <div class="infoContent">
-                                                        <div class="nickNtime">
-                                                            <div class="userNick">닉네임</div>
-                                                            <div class="replyTime">
-                                                                <%--  ${timeAgoAjax(info.writeDate)}--%>
-                                                                2022.02.22
-                                                            </div>
-                                                        </div>
-                                                        <div class="replyContent"><p class="replyTxt">안녕하십니까 어쩌구저쩌궁 헤헤</p>
-                                                        </div>
-                                                        <div class="replyBottom">
-                                                            <span class="ico ico_like replyLike"></span>
-                                                            <spna class="likeCount">12</spna>
-                                                            <spna>답글</spna>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="replyMoreBtn"><span class="ico ico_more"></span></div>
-                                            </div>
-                                        </div>
-                                    </li>
+                                    <%-- 댓글들 js로 생성--%>
                                 </ul>
                             </div>
 <%--                            댓글영역 끝--%>
@@ -139,9 +112,13 @@
         </section>
     </article>
 </div>
-
+<div id="replyToast" class="toastMsg">댓글이 등록되었습니다</div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
+<script>
+    const POST_ID = ${post.id};
+</script>
 <script src="/js/timeAgo.js"></script>
+<script src="/js/commujs/commuDetail.js"></script>
 <script src="/js/swiper-bundle.min.js"></script>
 
 <!-- 🔥 추가: 상세페이지 Swiper 초기화 -->
@@ -161,4 +138,5 @@
         }
     });
 </script>
+
 
