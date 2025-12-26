@@ -4,6 +4,7 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.reply.ReplyCreateReqDto;
 import com.site.pine.dto.reply.ReplyResDto;
 import com.site.pine.entity.Reply;
+import com.site.pine.enums.PageType;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.ReplyRepository;
 import jakarta.transaction.Transactional;
@@ -52,7 +53,7 @@ public class ReplyService {
 
     }
 
-    public List<ReplyResDto> getReplyList(int targetType, Long targetId) {
+    public List<ReplyResDto> getReplyList(PageType targetType, Long targetId) {
         List<Reply> parents =
                 rr.findParentReplies(targetType, targetId);
 

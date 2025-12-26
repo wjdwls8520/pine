@@ -19,7 +19,8 @@ public class Likes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Comment("컨텐츠 타입(Post=1, Reply 등)")
+    @Comment("페이지타입 enum")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PageType targetType;
 

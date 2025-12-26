@@ -137,7 +137,7 @@ public class CommunityService {
 
         // 태그 조회
         List<TagResDto> tags =
-                tmr.findTagsByTargetIds(1, postIds); // 1 = POST
+                tmr.findTagsByTargetIds(PageType.COMMUNITY, postIds);
 
         Map<Long, List<TagResDto>> tagMap = tags.stream()
                 .collect(Collectors.groupingBy(TagResDto::getTargetId));
@@ -158,7 +158,7 @@ public class CommunityService {
         if (mdto != null) { // 로그인 상태일 때만
             for (PostMainListDto post : posts) {
                 boolean liked = lr.existsByMember_IdAndTargetTypeAndTargetId(
-                        mdto.getId(), 1, post.getPostId()
+                        mdto.getId(), PageType.COMMUNITY, post.getPostId()
                 );
                 post.setLiked(liked);
             }
@@ -178,7 +178,7 @@ public class CommunityService {
         //좋아요여부확인
         boolean isLiked = false;
         if(memberId != null) {
-            isLiked  = lr.existsByMember_IdAndTargetTypeAndTargetId(memberId, 1, post.getId());
+            isLiked  = lr.existsByMember_IdAndTargetTypeAndTargetId(memberId, PageType.COMMUNITY, post.getId());
         }
 
         // 엔티티 → DTO 변환
@@ -224,7 +224,7 @@ public class CommunityService {
 
 
     public int toggleLike(Long postId, Long memberId) {
-        Optional<Likes> existingLike = lr.findByMember_IdAndTargetTypeAndTargetId(memberId, 1, postId);
+        Optional<Likes> existingLike = lr.findByMember_IdAndTargetTypeAndTargetId(memberId, PageType.COMMUNITY, postId);
 
         Post post = cr.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("포스트가 존재하지 않습니다."));
