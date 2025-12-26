@@ -37,6 +37,7 @@ public class ViewHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Comment("컨텐츠 타입(Post=1, Reply 등)")
     @Column(name = "target_type", nullable = false)
     private PageType targetType;

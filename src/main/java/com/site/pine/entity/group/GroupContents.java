@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.nio.file.Files;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +61,10 @@ public class GroupContents {
     @Comment("그룹 멤버 수")
     @Column(nullable = false)
     private Long groupMemberCount = 0L;
+
+    @Comment("그룹의 오늘조회수를 기준하기 위한 날짜 저장")
+    @CreationTimestamp
+    private LocalDate todayViewDate;
 
     @Comment("그룹 생성 날짜")
     @CreationTimestamp

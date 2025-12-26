@@ -298,10 +298,14 @@ public class GroupService {
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 그룹입니다."));
 
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        if (!today.equals(group.getTodayViewDate())) {
+            group.setTodayViewDate(today);
+            group.setTodayViewCount(0L);
+        }
 
         boolean exists = (isMember != null)
-                ? vr.existsByTargetTypeAndTargetIdAndViewerAndIsView(3, groupId, memberE, today)
-                : vr.existsByTargetTypeAndTargetIdAndViewerCookieAndIsView(3, groupId, viewerCookie, today);
+                ? vr.existsByTargetTypeAndTargetIdAndViewerAndIsView(PageType.GROUP, groupId, memberE, today)
+                : vr.existsByTargetTypeAndTargetIdAndViewerCookieAndIsView(PageType.GROUP, groupId, viewerCookie, today);
 
         if (!exists) {
             try {
@@ -317,7 +321,7 @@ public class GroupService {
 
                 vr.save(vh);
                 gconr.increaseViewCount(groupId);
-                Long todayViewCount = vr.countByTargetTypeAndTargetIdAndIsView(3, groupId, today);
+                gconr.increaseTodayViewCount(groupId);
 
                 // 조회수 최신화
                 entityManager.refresh(group);
