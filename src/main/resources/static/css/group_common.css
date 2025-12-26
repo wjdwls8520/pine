@@ -115,7 +115,7 @@
 .groupDetail .groupStats {display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;}
 .groupDetail .groupStatCard {display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 20px; background: #414c67; color: #f8fafc; box-shadow: 0 18px 45px rgba(15,23,42,0.2);}
 .groupDetail .groupStatLabel {margin: 0; font-size: 13px; color: rgba(248,250,252,0.7);}
-.groupDetail .groupStatCard strong {font-size: 26px; font-weight: 700;}
+.groupDetail .groupStatCard strong {font-size: 26px; font-weight: 500;}
 .groupDetail .groupStatHint {font-size: 12px; color: rgba(248,250,252,0.6);}
 .groupDetail .groupStatHint > span {font-weight: 500; color: #fff;}
 
@@ -132,7 +132,7 @@
 .groupDetail .groupCategoryEmpty {background: #e2e8f0; color: #475569;}
 
 .groupDetail .groupActivity {display: flex; flex-direction: column; gap: 20px; padding: 32px; border-radius: 24px; background: #0f172a; color: #fff; box-shadow: 0 20px 60px rgba(15,23,42,0.4);}
-.groupDetail .groupActivity h2 {margin: 0; font-size: 22px; font-weight: 600;}
+.groupDetail .groupActivity h2 {margin: 0; font-size: 22px; font-weight: 600; color: #fff;}
 .groupDetail .groupActivityList {display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none;}
 .groupDetail .groupActivityList li {display: flex; flex-direction: column; gap: 4px; padding: 18px; border-radius: 18px; background: rgba(255,255,255,0.06);}
 .groupDetail .groupActivityList p {margin: 0; font-size: 13px; color: rgba(255,255,255,0.75);}

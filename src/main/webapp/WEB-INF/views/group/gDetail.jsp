@@ -49,9 +49,10 @@
                             <h1 class="groupHeroTitle">${groupDetail.groupName}</h1>
                             <p class="groupHeroDesc">${groupDetail.groupDescription}</p>
                             <div class="groupHeroBadges">
-                                <span>멤버 ${groupDetail.groupMemberCount}</span>
-                                <span>게시글 ${groupDetail.postCount}</span>
+                                <span>전체 조회수 ${groupDetail.allViewCount}</span>
+                                <span>멤버 수 ${groupDetail.groupMemberCount}</span>
                                 <span>좋아요 ${groupDetail.likeCount}</span>
+                                <span>게시물 ${groupDetail.postCount}</span>
                             </div>
                             <div class="groupHeroActions">
                                 <c:choose>
@@ -76,7 +77,8 @@
                                     </c:otherwise>
                                 </c:choose>
 
-                                <button type="button" class="groupGhostBtn">공유하기</button>
+                                <button type="button" class="groupGhostBtn share">공유하기</button>
+                                <button type="button" class="groupGhostBtn like">좋아요</button>
                             </div>
                         </div>
                     </div>
@@ -84,9 +86,9 @@
 
                 <section class="groupStats">
                     <div class="groupStatCard">
-                        <p class="groupStatLabel">전체 조회수</p>
-                        <strong class="dataAllViewCount">${groupDetail.allViewCount}</strong>
-                        <span class="groupStatHint">Today <span class="groupStatHint todayViewCount">${groupDetail.todayViewCount}<span></span>
+                        <p class="groupStatLabel">TODAY</p>
+                        <strong class="todayViewCount">${groupDetail.todayViewCount}</strong>
+                        <span class="groupStatHint">전체 조회수 <span class="groupStatHint dataAllViewCount">${groupDetail.allViewCount}<span></span>
                     </div>
                     <div class="groupStatCard">
                         <p class="groupStatLabel">좋아요</p>
@@ -99,6 +101,35 @@
                         <span class="groupStatHint">활성 커뮤니티</span>
                     </div>
                     <div class="groupStatCard">
+                        <p class="groupStatLabel">등급</p>
+                        <strong>
+                            <c:choose>
+                                <c:when test="${not empty isGroupMember and isGroupMember.role == 1}">${isGroupMember.role}
+                                    그룹장
+                                </c:when>
+                                <c:when test="${not empty isGroupMember and isGroupMember.role == 2}">${isGroupMember.role}
+                                    그룹 매니저
+                                </c:when>
+                                <c:when test="${not empty isGroupMember and isGroupMember.role == 3}">${isGroupMember.role}
+                                    일반 그룹원
+                                </c:when>
+                                <c:otherwise>그룹 손님</c:otherwise>
+                            </c:choose>
+                        </strong>
+                        <span class="groupStatHint">현재 회원님의 그룹원 등급</span>
+                    </div>
+                    <div class="groupStatCard">
+                        <p class="groupStatLabel">가입 여부</p>
+                        <strong>
+                            <c:choose>
+                                <c:when test="${groupDetail.joinState == 1}">가입 가능</c:when>
+                                <c:otherwise>가입 불가능</c:otherwise>
+                            </c:choose>
+                        </strong>
+                        <span class="groupStatHint">
+                            현재 그룹 가입 여부
+                        </span>
+                    </div><div class="groupStatCard">
                         <p class="groupStatLabel">가입 방식</p>
                         <strong>
                             <c:choose>

@@ -38,7 +38,7 @@ public class GroupContents {
     @Column(nullable = false)
     private Integer autoJoin = 1;
 
-    @Comment("그룹의 가입 승인 여부, 기본값은 10명")
+    @Comment("그룹의 가입 인원수 제한, 기본값은 10명")
     @Column(nullable = false)
     private Integer userLimit = 10;
 
