@@ -1,5 +1,6 @@
 package com.site.pine.service;
 
+import com.site.pine.dto.group.ViewCompareResult;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.ViewHistory;
 import com.site.pine.enums.PageType;
@@ -65,5 +66,36 @@ public class ViewService {
 //            case SHORTS -> ss.getViewCounts(targetId);
             default -> throw new IllegalStateException("지원하지 않는 페이지 타입입니다.");
         };
+    }
+
+
+    @Transactional(readOnly = true)
+    public ViewCompareResult calculateCompare(Long targetId) {
+        Long todayCount = vr.countByTargetTypeAndTargetIdAndIsView(
+                PageType.GROUP,
+                targetId,
+                LocalDate.now(ZoneId.of("Asia/Seoul"))
+        );
+
+        Long yesterdayCount = vr.countByTargetTypeAndTargetIdAndIsView(
+                PageType.GROUP,
+                targetId,
+                LocalDate.now().minusDays(1)
+        );
+
+        if (yesterdayCount == 0) {
+            if (todayCount == 0) {
+                return new ViewCompareResult(0, 0, "SAME");
+            }
+            return new ViewCompareResult(todayCount, 100, "NEW");
+        }
+
+        double percent = ((double)(todayCount - yesterdayCount) / yesterdayCount) * 100;
+
+        return new ViewCompareResult(
+                todayCount,
+                Math.round(percent * 10) / 10.0, // 소수 1자리
+                percent > 0 ? "UP" : percent < 0 ? "DOWN" : "SAME"
+        );
     }
 }

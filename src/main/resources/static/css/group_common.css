@@ -113,11 +113,30 @@
 .groupDetail .groupGhostBtn {display: inline-flex; align-items: center; justify-content: center; padding: 12px 22px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer;}
 
 .groupDetail .groupStats {display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;}
-.groupDetail .groupStatCard {display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 20px; background: #414c67; color: #f8fafc; box-shadow: 0 18px 45px rgba(15,23,42,0.2);}
+.groupDetail .groupStatCard {position: relative; display: flex; flex-direction: column; gap: 6px; padding: 20px; border-radius: 20px; background: #414c67; color: #f8fafc; box-shadow: 0 18px 45px rgba(15,23,42,0.2); transition: transform 0.2s, box-shadow 0.2s;}
 .groupDetail .groupStatLabel {margin: 0; font-size: 13px; color: rgba(248,250,252,0.7);}
 .groupDetail .groupStatCard strong {font-size: 26px; font-weight: 500;}
 .groupDetail .groupStatHint {font-size: 12px; color: rgba(248,250,252,0.6);}
 .groupDetail .groupStatHint > span {font-weight: 500; color: #fff;}
+
+/* groupStatCard 팝업 */
+.groupDetail .groupStatPopup {position: fixed; top: 0; left: 0; display: none; align-items: center; justify-content: center; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(4px);}
+.groupDetail .groupStatCard:hover .groupStatPopup {display: flex;}
+.groupDetail .groupStatPopupContent {position: relative; display: flex; flex-direction: column; width: 90%; max-width: 500px; max-height: 80vh; border-radius: 20px; background: #fff; box-shadow: 0 24px 60px rgba(0,0,0,0.3); overflow: hidden;}
+.groupDetail .groupStatPopupHeader {display: flex; align-items: center; justify-content: space-between; padding: 24px 28px; border-bottom: 1px solid #f3f4f6;}
+.groupDetail .groupStatPopupTitle {margin: 0; font-size: 22px; font-weight: 700; color: #141414;}
+.groupDetail .groupStatPopupClose {display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; border-radius: 50%; background: #f3f4f6; color: #6b7280; font-size: 18px; cursor: pointer; transition: background 0.2s, color 0.2s;}
+.groupDetail .groupStatPopupClose:hover {background: #e5e7eb; color: #141414;}
+.groupDetail .groupStatPopupBody {display: flex; flex-direction: column; padding: 8px; overflow-y: auto;}
+.groupDetail .groupStatPopupList {display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none;}
+.groupDetail .groupStatPopupItem {display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 12px; transition: background 0.2s; cursor: pointer;}
+.groupDetail .groupStatPopupItem:hover {background: #f9fafb;}
+.groupDetail .groupStatPopupItemIcon {flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; font-size: 20px; font-weight: 600;}
+.groupDetail .groupStatPopupItemContent {display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;}
+.groupDetail .groupStatPopupItemTitle {margin: 0; font-size: 16px; font-weight: 600; color: #141414; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+.groupDetail .groupStatPopupItemDesc {margin: 0; font-size: 13px; font-weight: 400; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+.groupDetail .groupStatPopupItemMeta {display: flex; align-items: center; gap: 8px; margin-top: 4px;}
+.groupDetail .groupStatPopupItemMeta span {font-size: 11px; font-weight: 500; color: #9ca3af;}
 
 .groupDetail .groupLayout {display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 32px;}
 .groupDetail .groupAbout {display: flex; flex-direction: column; gap: 20px; padding: 32px; border-radius: 24px; background: #fff; box-shadow: 0 20px 60px rgba(15,23,42,0.08);}
@@ -140,6 +159,30 @@
 .groupDetail .groupActivityList span {font-size: 12px; color: rgba(255,255,255,0.65);}
 
 
+/* groupJoinList 페이지 */
+.groupJoinListWrap {display: flex; flex-direction: column; gap: 24px; max-width: 900px; margin: 0 auto; padding: 0 20px;}
+.groupJoinListHeader {display: flex; flex-direction: column; gap: 8px;}
+.groupJoinListDesc {margin: 0; font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5;}
+.groupJoinListContent {display: flex; flex-direction: column; gap: 12px;}
+.groupJoinListItem {display: flex; align-items: center; gap: 16px; padding: 20px; border-radius: 16px; background: #fff; border: 1px solid #e5e7eb; transition: transform 0.2s, box-shadow 0.2s;}
+.groupJoinListItemAvatar {flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; overflow: hidden;}
+.groupJoinListItemAvatarImg {display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; font-size: 20px; font-weight: 600;}
+.groupJoinListItemInfo {display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0;}
+.groupJoinListItemTop {display: flex; align-items: center; gap: 12px;}
+.groupJoinListItemName {margin: 0; font-size: 18px; font-weight: 600; color: #141414;}
+.groupJoinListItemBadge {display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 12px; background: #dbeafe; color: #1e40af; font-size: 12px; font-weight: 500;}
+.groupJoinListItemBadgePending {background: #fef3c7; color: #92400e;}
+.groupJoinListItemDesc {margin: 0; font-size: 14px; font-weight: 400; color: #6b7280; line-height: 1.5;}
+.groupJoinListItemMeta {display: flex; align-items: center; gap: 12px;}
+.groupJoinListItemDate {font-size: 12px; font-weight: 400; color: #9ca3af;}
+.groupJoinListItemId {font-size: 12px; font-weight: 400; color: #9ca3af;}
+.groupJoinListItemActions {display: flex; align-items: center; gap: 8px; flex-shrink: 0;}
+.groupJoinListBtn {display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;}
+.groupJoinListBtnApprove {background: #194f37; color: #fff;}
+.groupJoinListBtnApprove:hover {background: #0f3d26;}
+.groupJoinListBtnReject {background: #f3f4f6; color: #6b7280;}
+.groupJoinListBtnReject:hover {background: #e5e7eb; color: #141414;}
+
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
     .groupDetail {padding: 24px;}
@@ -160,9 +203,27 @@
     .groupCreateForm .stepItem {width: 100%;}
 }
 
+@media (max-width: 1024px) {
+    .groupDetail .groupStatPopupContent {width: 95%; max-width: 450px;}
+
+    .groupJoinListItem {flex-wrap: wrap;}
+    .groupJoinListItemActions {width: 100%; justify-content: flex-end;}
+}
+
 @media (max-width: 640px) {
     .groupDetail {padding: 18px;}
     .groupDetail .groupHeroTitle {font-size: 32px;}
     .groupDetail .groupHeroArt {width: 160px; height: 160px;}
     .groupDetail .groupStats {grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));}
+    .groupDetail .groupStatPopupContent {width: 100%; max-width: 100%; max-height: 90vh; border-radius: 20px 20px 0 0;}
+    .groupDetail .groupStatPopupHeader {padding: 20px 24px;}
+    .groupDetail .groupStatPopupTitle {font-size: 20px;}
+    .groupDetail .groupStatPopupItem {padding: 14px 18px;}
+
+    .groupJoinListWrap {padding: 0 16px;}
+    .groupJoinListItem {padding: 16px;}
+    .groupJoinListItemAvatar {width: 48px; height: 48px;}
+    .groupJoinListItemAvatarImg {font-size: 18px;}
+    .groupJoinListItemName {font-size: 16px;}
+    .groupJoinListBtn {padding: 8px 16px; font-size: 13px;}
 }
