@@ -1,13 +1,18 @@
 package com.site.pine.service;
 
 import com.site.pine.dto.FileDto;
+import com.site.pine.dto.member.MemberDto;
+import com.site.pine.dto.shorts.ShortsFileDto;
+import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
+import com.site.pine.entity.Member;
 import com.site.pine.entity.shorts.Shorts;
 import com.site.pine.enums.PageType;
 import com.site.pine.event.ShortsMediaEvent;
 import com.site.pine.repository.FileRepository;
+import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.ShortsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +30,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ShortsService {
 
+    private final MemberRepository mr;
     private final ShortsRepository sr;
     private final FileRepository fr;
     private final S3UploadService sus;
@@ -42,44 +50,94 @@ public class ShortsService {
     private final ShortsAsyncService sas;
 
     @Transactional(readOnly = true)
-    public HashMap<String, Object> getAllShorts(int page) {
+    public HashMap<String, Object> getAllShorts(MemberDto memberdto, int page) {
         HashMap<String, Object> result = new HashMap<>();
-        List<ShortsResDto> list = new ArrayList<>();
 
         Pageable pageable = PageRequest.of(page, 2);
-        Page<Shorts> shortsPages = sr.findAllByOrderByIndateDescIdDesc(pageable);
 
-        for (Shorts shortsEntity : shortsPages) {
-            ShortsResDto resDto = new ShortsResDto();
-            resDto.setId(shortsEntity.getId());
-            resDto.setTitle(shortsEntity.getTitle());
-            resDto.setContent(shortsEntity.getContent());
-            resDto.setIndate(shortsEntity.getIndate());
-            resDto.setUpdateDate(shortsEntity.getUpdateDate());
+        // 1️ 쇼츠 메인 DTO 조회 (엔티티 x)
+        Page<ShortsMainDto> shortsPages =
+                sr.findMainShortsList(pageable);
 
-            List<FileDto> fileDtoList = new ArrayList<>();
-            for (File file : shortsEntity.getFiles()) {
-                FileDto fileDto = new FileDto();
-                fileDto.setId(file.getId());
-                fileDto.setPageType(file.getPageType());
-                fileDto.setOriginalname(file.getOriginalname());
-                fileDto.setPath(file.getPath());
-                fileDto.setContentType(file.getContentType());
-                fileDto.setSize(file.getSize());
-                fileDtoList.add(fileDto);
+        List<ShortsMainDto> shortsList = shortsPages.getContent();
+
+        // 2️ 쇼츠 ID 수집
+        List<Long> shortsIds = shortsList.stream()
+                .map(ShortsMainDto::getShortsId)
+                .toList();
+
+        if (!shortsIds.isEmpty()) {
+
+            // 3️ 파일 DTO 일괄 조회
+            List<ShortsFileDto> files =
+                    fr.findFilesByShortsIds(shortsIds);
+
+            Map<Long, List<ShortsFileDto>> fileMap =files.stream().collect(Collectors.groupingBy(ShortsFileDto::getShortsId));
+
+            // 4️ 파일 주입
+            for (ShortsMainDto dto : shortsList) {
+                if (fileMap.containsKey(dto.getShortsId())) {
+                    fileMap.get(dto.getShortsId()).forEach(dto::addFile);
+                }
             }
 
-            resDto.setFiles(fileDtoList);
-            list.add(resDto);
+            // 5️ 좋아요 여부 (로그인 유저만)
+//            if (memberdto != null) {
+//                for (ShortsMainDto dto : shortsList) {
+//                    boolean liked = likeRepository.existsByMember_IdAndTargetTypeAndTargetId(
+//                                    memberDto.getId(),
+//                                    PageType.SHORTS,
+//                                    dto.getShortsId()
+//                            );
+//                    dto.setLiked(liked);
+//                }
+//            }
         }
 
-        result.put("shortsList", list);
+        result.put("shortsList", shortsList);
         result.put("totalPage", shortsPages.getTotalPages());
         return result;
     }
 
+//    @Transactional(readOnly = true)
+//    public HashMap<String, Object> getAllShorts(int page) {
+//        HashMap<String, Object> result = new HashMap<>();
+//        List<ShortsResDto> list = new ArrayList<>();
+//
+//        Pageable pageable = PageRequest.of(page, 2);
+//        Page<Shorts> shortsPages = sr.findAllByOrderByIndateDescIdDesc(pageable);
+//
+//        for (Shorts shortsEntity : shortsPages) {
+//            ShortsResDto resDto = new ShortsResDto();
+//            resDto.setId(shortsEntity.getId());
+//            resDto.setTitle(shortsEntity.getTitle());
+//            resDto.setContent(shortsEntity.getContent());
+//            resDto.setIndate(shortsEntity.getIndate());
+//            resDto.setUpdateDate(shortsEntity.getUpdateDate());
+//
+//            List<FileDto> fileDtoList = new ArrayList<>();
+//            for (File file : shortsEntity.getFiles()) {
+//                FileDto fileDto = new FileDto();
+//                fileDto.setId(file.getId());
+//                fileDto.setPageType(file.getPageType());
+//                fileDto.setOriginalname(file.getOriginalname());
+//                fileDto.setPath(file.getPath());
+//                fileDto.setContentType(file.getContentType());
+//                fileDto.setSize(file.getSize());
+//                fileDtoList.add(fileDto);
+//            }
+//
+//            resDto.setFiles(fileDtoList);
+//            list.add(resDto);
+//        }
+//
+//        result.put("shortsList", list);
+//        result.put("totalPage", shortsPages.getTotalPages());
+//        return result;
+//    }
+
     @Transactional
-    public void insertShorts(ShortsUploadReqDto dto) {
+    public void insertShorts(ShortsUploadReqDto dto, MemberDto memberdto) {
 
         MultipartFile video = dto.getVideoFile();
         MultipartFile thumbnail = dto.getThumbnailFile();
@@ -87,11 +145,14 @@ public class ShortsService {
         Path tempVideo = null;      // 🔧 수정: catch에서 삭제하기 위해 밖으로 뺌
         Path tempManualThumb = null; // 🔧 수정: manual 썸네일일 경우 안전하게 파일로 만들어 넘김(선택)
 
+        Member member = mr.findById(memberdto.getId()).orElseThrow(() -> new IllegalStateException("회원 정보가 없습니다."));
+
         try {
             // 1) Shorts 저장
             Shorts shorts = new Shorts();
             shorts.setTitle(dto.getTitle());
             shorts.setContent(dto.getContent());
+            shorts.setMember(member);
             sr.save(shorts);
 
             // 2) VIDEO File row 생성 (WAIT)

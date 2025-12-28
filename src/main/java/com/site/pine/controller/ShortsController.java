@@ -1,8 +1,10 @@
 package com.site.pine.controller;
 
+import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.service.ShortsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,8 +26,8 @@ public class ShortsController {
 
     @GetMapping("/shorts/{page}")
     @ResponseBody
-    public HashMap<String, Object> shorts(@PathVariable("page") int page){
-        return ss.getAllShorts(page);
+    public HashMap<String, Object> shorts(@AuthenticationPrincipal MemberDto memberdto, @PathVariable("page") int page){
+        return ss.getAllShorts(memberdto, page);
     }
 
     @GetMapping("/shorts/shortsUpload")
@@ -34,8 +36,14 @@ public class ShortsController {
     }
 
     @PostMapping("/shorts/shortsUpload")
-    public String shortsUpload(@ModelAttribute ShortsUploadReqDto shortsuploadreqdto, RedirectAttributes redirectAttrs){
+    public String shortsUpload(@AuthenticationPrincipal MemberDto memberdto, @ModelAttribute ShortsUploadReqDto shortsuploadreqdto, RedirectAttributes redirectAttrs){
         System.out.println(shortsuploadreqdto);
+        System.out.println(memberdto);
+
+        if (memberdto == null) {
+            redirectAttrs.addFlashAttribute("msg", "로그인 후 이용해주세요");
+            return "redirect:/login";
+        }
 
         MultipartFile video = shortsuploadreqdto.getVideoFile();
         MultipartFile thumbnail = shortsuploadreqdto.getThumbnailFile();
@@ -75,7 +83,7 @@ public class ShortsController {
         }
 
         try {
-            ss.insertShorts(shortsuploadreqdto);
+            ss.insertShorts(shortsuploadreqdto, memberdto);
             redirectAttrs.addFlashAttribute("msg", "쇼츠가 정상적으로 업로드되었습니다");
         }catch (IllegalStateException e){
             redirectAttrs.addFlashAttribute("msg", e.getMessage());
