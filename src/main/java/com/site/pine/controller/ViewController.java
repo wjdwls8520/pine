@@ -50,4 +50,11 @@ public class ViewController {
         result.put("msg", "success");
         return result;
     }
+
+    @GetMapping("/calculateCompare/{targetId}")
+    public HashMap<String, Object> calculateCompare(@PathVariable("targetId") Long targetId) {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("viewCompareResult", vs.calculateCompare(targetId));
+        return result;
+    }
 }

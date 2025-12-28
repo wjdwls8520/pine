@@ -104,13 +104,13 @@
                         <p class="groupStatLabel">등급</p>
                         <strong>
                             <c:choose>
-                                <c:when test="${not empty isGroupMember and isGroupMember.role == 1}">${isGroupMember.role}
+                                <c:when test="${not empty isGroupMember and isGroupMember.role == 1}">
                                     그룹장
                                 </c:when>
-                                <c:when test="${not empty isGroupMember and isGroupMember.role == 2}">${isGroupMember.role}
+                                <c:when test="${not empty isGroupMember and isGroupMember.role == 2}">
                                     그룹 매니저
                                 </c:when>
-                                <c:when test="${not empty isGroupMember and isGroupMember.role == 3}">${isGroupMember.role}
+                                <c:when test="${not empty isGroupMember and isGroupMember.role == 3}">
                                     일반 그룹원
                                 </c:when>
                                 <c:otherwise>그룹 손님</c:otherwise>
@@ -129,7 +129,8 @@
                         <span class="groupStatHint">
                             현재 그룹 가입 여부
                         </span>
-                    </div><div class="groupStatCard">
+                    </div>
+                    <div class="groupStatCard cursor" onClick="location.href='/group/gdetail/' + ${groupDetail.id} + '/gjoinlist';">
                         <p class="groupStatLabel">가입 방식</p>
                         <strong>
                             <c:choose>
@@ -200,7 +201,7 @@
                             <li>
                                 <p>하루 조회수</p>
                                 <strong class="todayViewCount">${groupDetail.todayViewCount}</strong>
-                                <span>어제 대비 +18%</span>
+                                <span>어제 대비 <span class="dataViewCompareResult"></span></span>
                             </li>
                             <li>
                                 <p>좋아요 누적</p>
@@ -228,7 +229,9 @@
 </div>
 <jsp:include page="../include/group_footer.jsp"></jsp:include>
 <script>
-    let targetId = Number(${groupDetail.id});
+    let targetId = Number("${groupDetail.id}");
+
+    <%-- 현재 조회수 가져오기 --%>
     fetch(`/view/viewcount/` + targetId, {
         method: "POST",
         headers: {
@@ -241,12 +244,25 @@
             return response.json(); // 성공하면 JSON 반환
         })
         .then((result) => {
-            console.log(result.msg);
             let allViewCounts = document.querySelectorAll(".dataAllViewCount");
             allViewCounts.forEach((data)=> data.innerText = result.allViewCount);
 
             let todayViewCounts = document.querySelectorAll(".todayViewCount");
             todayViewCounts.forEach((data)=> data.innerText = result.todayViewCount);
+        }).catch(err => console.error(err));
+
+
+    <%-- 어제 대비 오늘 조회수 가져오기 GROUP 고유 기능 --%>
+    fetch(`/view/calculateCompare/` + targetId, {
+        method: "GET",
+    })
+        .then(response => {
+            if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
+            return response.json(); // 성공하면 JSON 반환
+        })
+        .then((result) => {
+            let dataViewCompareResult = document.querySelectorAll(".dataViewCompareResult");
+            dataViewCompareResult.forEach((data)=> data.innerText = result.viewCompareResult.percent + '% ' + result.viewCompareResult.status);
         }).catch(err => console.error(err));
 </script>
 </body>

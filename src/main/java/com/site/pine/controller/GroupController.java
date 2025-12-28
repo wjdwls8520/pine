@@ -175,5 +175,13 @@ public class GroupController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/group/gdetail/{groupId}/gjoinlist")
+    public String getJoinList(@PathVariable("groupId") Long groupId, @AuthenticationPrincipal MemberDto memberdto, Model model, RedirectAttributes redirectAttrs) {
+        if (memberdto == null) {
+            return "redirect:/errorLogin";
+        }
+
+        return "group/gJoinList";
+    }
 
 }
