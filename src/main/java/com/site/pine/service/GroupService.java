@@ -6,7 +6,6 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.S3FileDeleteFailList;
-import com.site.pine.entity.ViewHistory;
 import com.site.pine.entity.group.GroupCategoryList;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupInCategory;
@@ -24,7 +23,6 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -290,50 +287,38 @@ public class GroupService {
         }
     }
 
-    @Transactional(noRollbackFor = DataIntegrityViolationException.class)
-    public HashMap<String, Object> addViewCount(Long groupId, Long isMember, String viewerCookie) {
-
-        Member memberE = (isMember != null) ? mr.getReferenceById(isMember) : null;
-        GroupContents group = gconr.findById(groupId)
+    @Transactional
+    public HashMap<String, Object> addViewCount(Long targetId, LocalDate today) {
+        GroupContents group = gconr.findById(targetId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 그룹입니다."));
 
-        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        // 그룹만 오늘 조회수가 있어서 쓰이는 코드
         if (!today.equals(group.getTodayViewDate())) {
             group.setTodayViewDate(today);
             group.setTodayViewCount(0L);
         }
 
-        boolean exists = (isMember != null)
-                ? vr.existsByTargetTypeAndTargetIdAndViewerAndIsView(PageType.GROUP, groupId, memberE, today)
-                : vr.existsByTargetTypeAndTargetIdAndViewerCookieAndIsView(PageType.GROUP, groupId, viewerCookie, today);
+        gconr.increaseViewCount(targetId);
+        gconr.increaseTodayViewCount(targetId);  // 그룹만 오늘 조회수가 있어서 쓰이는 코드
 
-        if (!exists) {
-            try {
-                ViewHistory vh = new ViewHistory();
-                vh.setTargetType(PageType.GROUP);
-                vh.setTargetId(groupId);
-                if (isMember != null) {
-                    vh.setViewer(memberE);
-                } else {
-                    vh.setViewerCookie(viewerCookie);
-                }
-                vh.setIsView(today);
-
-                vr.save(vh);
-                gconr.increaseViewCount(groupId);
-                gconr.increaseTodayViewCount(groupId);
-
-                // 조회수 최신화
-                entityManager.refresh(group);
-
-            } catch (DataIntegrityViolationException e) {
-                // race condition 패배 → 정상 흐름
-            }
-        }
+        // 조회수 최신화
+        entityManager.refresh(group);
 
         HashMap<String, Object> result = new HashMap<>();
         result.put("allViewCount", group.getAllViewCount());
-        result.put("todayViewCount", group.getTodayViewCount());
+        result.put("todayViewCount", group.getTodayViewCount()); // 그룹만 오늘 조회수가 있어서 쓰이는 코드
+
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public HashMap<String, Object> getViewCounts(Long targetId) {
+        GroupContents group = gconr.findById(targetId)
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 그룹입니다."));
+
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("allViewCount", group.getAllViewCount());
+        result.put("todayViewCount", group.getTodayViewCount()); // 그룹만 오늘 조회수가 있어서 쓰이는 코드
 
         return result;
     }
