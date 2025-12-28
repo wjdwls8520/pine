@@ -1,6 +1,7 @@
 package com.site.pine.entity.shorts;
 
 import com.site.pine.entity.File;
+import com.site.pine.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -47,8 +48,8 @@ public class Shorts {
     )
     private List<File> files = new ArrayList<>();
 
-//    @Comment("회원 연관관계")
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "id")
-//    private Member member;
+    @Comment("회원 연관관계")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 }
