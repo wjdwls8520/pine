@@ -228,8 +228,14 @@
 </div>
 <jsp:include page="../include/group_footer.jsp"></jsp:include>
 <script>
-    let groupId = ${groupDetail.id};
-    fetch(`/group/gviewcount/${groupId}`, {method: "POST"})
+    let targetId = Number(${groupDetail.id});
+    fetch(`/view/viewcount/` + targetId, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ pageType: "GROUP"})
+    })
         .then(response => {
             if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
             return response.json(); // 성공하면 JSON 반환

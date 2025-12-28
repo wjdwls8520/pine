@@ -62,4 +62,21 @@ public class ViewHistory {
     @Comment("비로그인 조회자")
     @Column(name = "viewer_cookie")
     private String viewerCookie;
+
+    public static ViewHistory create(
+            PageType pageType,
+            Long targetId,
+            Member viewer,
+            String viewerCookie,
+            LocalDate today
+    ) {
+            ViewHistory vh = new ViewHistory();
+            vh.targetType = pageType;
+            vh.targetId = targetId;
+            vh.viewer = viewer;
+            vh.viewerCookie = (viewer != null) ? null : viewerCookie;
+            vh.isView = today;
+            return vh;
+    }
+
 }
