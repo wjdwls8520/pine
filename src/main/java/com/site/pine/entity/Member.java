@@ -2,7 +2,7 @@ package com.site.pine.entity;
 
 import com.site.pine.entity.group.GroupMember;
 import com.site.pine.entity.post.Post;
-import com.site.pine.entity.shorts.Shorts;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -72,7 +72,7 @@ public class Member {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private List<Post> communityPost = new ArrayList<>();
+    private List<Post> posts = new ArrayList<>();
 
 
     @Comment("그룹에 가입된 멤버")
@@ -83,16 +83,5 @@ public class Member {
             fetch = FetchType.LAZY
     )
     private List<GroupMember> groupMembers = new ArrayList<>();
-
-
-    @Comment("쇼츠를 업로드한 멤버")
-    @OneToMany(
-            mappedBy = "member",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private List<Shorts> shortsMembers = new ArrayList<>();
-
 
 }

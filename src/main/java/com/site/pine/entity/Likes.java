@@ -1,6 +1,5 @@
 package com.site.pine.entity;
 
-import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -18,11 +17,6 @@ public class Likes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Comment("페이지타입 enum")
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PageType targetType;
 
     @Comment("해당 컨텐츠의 id")
     @Column(nullable = false)

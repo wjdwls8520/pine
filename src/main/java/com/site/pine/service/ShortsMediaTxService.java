@@ -28,7 +28,7 @@ public class ShortsMediaTxService {
     /**
      * 🔥 핵심 트랜잭션 로직
      * - 로컬 임시 영상(Path)을 기준으로 처리
-     * - MultipartFile ❌ 사용하지 않음
+     * - MultipartFile x 사용하지 않음
      * - 성공하면 DB(path/size/status) 반영
      * - 실패하면 status=3 + RuntimeException으로 롤백(네 방식 유지)
      */
@@ -104,14 +104,14 @@ public class ShortsMediaTxService {
             thumbFile.setStatus(2); // DONE
 
             log.info("[MEDIA DONE] shortsId={}, videoFileId={}, thumbFileId={}",
-                    event.shortsId(), event.videoFileId(), event.thumbFileId());
+                    event.postId(), event.videoFileId(), event.thumbFileId());
 
         } catch (Exception e) {
             videoFile.setStatus(3); // FAIL
             thumbFile.setStatus(3);
 
             log.error("미디어 처리 실패 shortsId={}, videoFileId={}, thumbFileId={}",
-                    event.shortsId(), event.videoFileId(), event.thumbFileId(), e);
+                    event.postId(), event.videoFileId(), event.thumbFileId(), e);
 
             // 네 예외처리 스타일 유지(실패 시 롤백)
             throw new RuntimeException(e);

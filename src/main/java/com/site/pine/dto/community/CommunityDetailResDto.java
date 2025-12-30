@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Data
-public class PostDetailResDto {
+public class CommunityDetailResDto {
 
     private Long id;
     private String content;

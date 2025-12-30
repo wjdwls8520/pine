@@ -1,6 +1,5 @@
 package com.site.pine.entity;
 
-import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +16,7 @@ import org.hibernate.annotations.Comment;
 @Table( //중복 태그 매핑 방지
         uniqueConstraints = {
                 @UniqueConstraint(
-                        columnNames = {"tag_id", "targetType", "targetId"}
+                        columnNames = {"tag_id", "targetId"}
                 )
         }
 )
@@ -26,11 +25,6 @@ public class TagMapping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("태그매핑 고유번호")
     private Long id;
-
-    @Comment("페이지타입 enum")
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PageType targetType;
 
     @Comment("대상 ID")
     @Column(nullable = false)

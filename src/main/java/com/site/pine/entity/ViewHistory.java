@@ -1,6 +1,5 @@
 package com.site.pine.entity;
 
-import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,14 +16,13 @@ import java.time.LocalDate;
         indexes = {
                 @Index(
                         name = "idx_view_history_target_date",
-                        columnList = "target_type, target_id, is_view"
+                        columnList = "target_id, is_view"
                 )
         },
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_view_history_unique_view",
                         columnNames = {
-                                "target_type",
                                 "target_id",
                                 "viewer_cookie",
                                 "is_view"
@@ -36,11 +34,6 @@ public class ViewHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Enumerated(EnumType.STRING)
-    @Comment("컨텐츠 타입(Post=1, Reply 등)")
-    @Column(name = "target_type", nullable = false)
-    private PageType targetType;
 
     @Comment("해당 컨텐츠의 id")
     @Column(name = "target_id", nullable = false)
@@ -64,14 +57,12 @@ public class ViewHistory {
     private String viewerCookie;
 
     public static ViewHistory create(
-            PageType pageType,
             Long targetId,
             Member viewer,
             String viewerCookie,
             LocalDate today
     ) {
             ViewHistory vh = new ViewHistory();
-            vh.targetType = pageType;
             vh.targetId = targetId;
             vh.viewer = viewer;
             vh.viewerCookie = (viewer != null) ? null : viewerCookie;

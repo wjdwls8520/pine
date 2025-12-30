@@ -1,6 +1,5 @@
 package com.site.pine.entity;
 
-import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,10 +26,6 @@ public class Reply {
     @Comment("내용")
     @Column(nullable = false, length = 500)
     private String content;
-
-    @Comment("페이지타입 enum")
-    @Enumerated(EnumType.STRING)
-    private PageType targetType;
 
     @Comment("해당 컨텐츠의 id")
     @Column(nullable = false)

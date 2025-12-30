@@ -1,8 +1,6 @@
 package com.site.pine.entity;
 
 import com.site.pine.entity.post.Post;
-import com.site.pine.entity.shorts.Shorts;
-import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -16,11 +14,6 @@ public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Comment("파일의 페이지 타입")
-    private PageType pageType;
 
     @Comment("파일의 원래이름")
     @Column(nullable = false)
@@ -47,14 +40,5 @@ public class File {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
-
-    @Comment("쇼츠/썸내일 파일")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shorts_id")
-    private Shorts shorts;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "groupPost_id")
-//    private GroupPost groupPost;
 
 }

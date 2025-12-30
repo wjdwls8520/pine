@@ -1,7 +1,6 @@
 package com.site.pine.repository;
 
 import com.site.pine.entity.Reply;
-import com.site.pine.enums.PageType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,11 +12,10 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Query("""
     select r from Reply r
     left join fetch r.children
-    where r.targetType = :type
-    and r.targetId = :targetId
+    where r.targetId = :targetId
     and r.parent is null
     order by r.writeDate asc
     """)
-    List<Reply> findParentReplies(PageType type, Long targetId);
+    List<Reply> findParentReplies(Long targetId);
 
 }

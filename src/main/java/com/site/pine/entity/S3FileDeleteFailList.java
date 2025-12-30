@@ -1,6 +1,5 @@
 package com.site.pine.entity;
 
-import com.site.pine.enums.PageType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,10 +15,6 @@ public class S3FileDeleteFailList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Comment("파일의 페이지 타입 ex) community, groupBanner. groupPost, shorts, shortsThumbnail")
-    @Column(nullable = false)
-    private PageType pageType;
 
     @Comment("파일의 원래이름")
     @Column(nullable = false)

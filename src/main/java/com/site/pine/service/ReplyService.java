@@ -4,7 +4,6 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.reply.ReplyCreateReqDto;
 import com.site.pine.dto.reply.ReplyResDto;
 import com.site.pine.entity.Reply;
-import com.site.pine.enums.PageType;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.ReplyRepository;
 import jakarta.transaction.Transactional;
@@ -32,7 +31,6 @@ public class ReplyService {
 
         Reply reply = new Reply();
         reply.setContent(dto.getContent());
-        reply.setTargetType(dto.getTargetType());
         reply.setTargetId(dto.getTargetId());
         reply.setStatus(0);
 
@@ -53,9 +51,9 @@ public class ReplyService {
 
     }
 
-    public List<ReplyResDto> getReplyList(PageType targetType, Long targetId) {
+    public List<ReplyResDto> getReplyList(Long targetId) {
         List<Reply> parents =
-                rr.findParentReplies(targetType, targetId);
+                rr.findParentReplies(targetId);
 
         return parents.stream()
                 .map(ReplyResDto::from)

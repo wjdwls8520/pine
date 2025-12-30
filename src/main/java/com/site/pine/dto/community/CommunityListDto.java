@@ -1,5 +1,6 @@
 package com.site.pine.dto.community;
 
+import com.site.pine.dto.post.PostMainFileDto;
 import com.site.pine.dto.tag.TagResDto;
 import lombok.Getter;
 
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class PostMainListDto {
+public class CommunityListDto {
 
     // Post
     private Long postId;
@@ -32,7 +33,7 @@ public class PostMainListDto {
     private List<TagResDto> tags = new ArrayList<>();
 
     //  JPQL 생성자
-    public PostMainListDto(
+    public CommunityListDto(
             Long postId,
             String content,
             Integer category,

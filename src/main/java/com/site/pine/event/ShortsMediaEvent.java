@@ -8,7 +8,7 @@ package com.site.pine.event;
  * - "임시 파일 경로 문자열"만 전달
  */
 public record ShortsMediaEvent(
-        Long shortsId,
+        Long postId,
         Long videoFileId,
         Long thumbFileId,
         String tempVideoPath,

@@ -10,7 +10,6 @@ import com.site.pine.entity.group.GroupCategoryList;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupInCategory;
 import com.site.pine.entity.group.GroupMember;
-import com.site.pine.enums.PageType;
 import com.site.pine.mapper.GroupMapper;
 import com.site.pine.mapper.S3FileDeleteFailMapper;
 import com.site.pine.repository.FileRepository;
@@ -123,7 +122,6 @@ public class GroupService {
 
 
         // 멀티파트파일의 기본 속성들 사용 + sus(s3)서비스에서 임의값을 추가한 파일 저장
-        PageType filePageType = PageType.GROUP;
         String originalFileName = groupContentReqDto.getGroupImg().getOriginalFilename();
         Long fileSize = groupContentReqDto.getGroupImg().getSize();
         String fileContentType = groupContentReqDto.getGroupImg().getContentType();
@@ -134,11 +132,10 @@ public class GroupService {
             throw new IllegalStateException("파일 업로드에 실패했습니다."); // s3에서 에러가났을시 강제 에러실행.
         }
         // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-        applicationEventPublisher.publishEvent(new S3DeleteEventDto(filePageType, originalFileName, fileSize, filePath));
+        applicationEventPublisher.publishEvent(new S3DeleteEventDto(originalFileName, fileSize, filePath));
 
         // 파일엔티티에 위의 값들을 세터
         File fileEntity = new File();
-        fileEntity.setPageType(filePageType);
         fileEntity.setOriginalname(originalFileName);
         fileEntity.setSize(fileSize);
         fileEntity.setPath(filePath);
@@ -248,7 +245,7 @@ public class GroupService {
             groupContentsE.getFile().setContentType(groupContentReqDto.getGroupImg().getContentType());
 
             // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto(PageType.GROUP, groupContentsE.getFile().getOriginalname(), groupContentsE.getFile().getSize(), filePath));
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto(groupContentsE.getFile().getOriginalname(), groupContentsE.getFile().getSize(), filePath));
 
 
             // 위코드 어디에서든 에러가 난다면 실행되지 않을 것

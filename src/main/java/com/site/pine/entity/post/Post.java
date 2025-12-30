@@ -42,10 +42,6 @@ public class Post {
     @Column(nullable = false)
     private Integer status = 0;
 
-    @Comment("카테고리, (기본)자게 1/ kpop 2")
-    @Column(nullable = false)
-    private Integer category = 1;
-
     @Comment("작성 날짜")
     @CreationTimestamp
     private Timestamp writeDate;
