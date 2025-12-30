@@ -470,6 +470,14 @@
     font-weight: bold;
 }
 
+.commuSection .emptyPost {
+    padding: 160px 0;
+    text-align: center;
+    color: #999;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    width: 450px;
+}
 
 /*--------------------------------------------------*/
 

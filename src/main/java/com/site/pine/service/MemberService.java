@@ -1,14 +1,13 @@
 package com.site.pine.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.site.pine.config.WebClientConfig;
 import com.site.pine.dao.IMemberDao;
 import com.site.pine.dto.community.PostListDto;
 import com.site.pine.dto.member.CountryDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.member.MemberJoinDto;
 import com.site.pine.entity.Member;
-import com.site.pine.repository.CommunityRepository;
+import com.site.pine.repository.PostRepository;
 import com.site.pine.repository.MemberRepository;
 
 import jakarta.annotation.PostConstruct;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -33,7 +31,7 @@ public class MemberService {
     MemberRepository mr;
 
     @Autowired
-    CommunityRepository cr;
+    PostRepository cr;
 
     public MemberJoinDto getMemberInfo(String email, String nickname) {
         MemberJoinDto mdto = new MemberJoinDto();

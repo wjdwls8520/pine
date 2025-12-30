@@ -1,19 +1,21 @@
 package com.site.pine.service;
 
-import com.site.pine.dto.FileDto;
+import com.site.pine.dto.community.PostMainFileDto;
+import com.site.pine.dto.community.PostMainListDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.shorts.ShortsFileDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
-import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
-import com.site.pine.entity.shorts.Shorts;
+import com.site.pine.entity.post.Post;
+import com.site.pine.entity.shorts.ShortsPost;
 import com.site.pine.enums.PageType;
 import com.site.pine.event.ShortsMediaEvent;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.ShortsRepository;
+import com.site.pine.repository.PostRepository;
+import com.site.pine.repository.shorts.ShortsPostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,8 +40,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ShortsService {
 
+    private final ShortsPostRepository spr;
+    private final PostRepository pr;
     private final MemberRepository mr;
-    private final ShortsRepository sr;
     private final FileRepository fr;
     private final S3UploadService sus;
 
@@ -56,28 +59,28 @@ public class ShortsService {
         Pageable pageable = PageRequest.of(page, 2);
 
         // 1️ 쇼츠 메인 DTO 조회 (엔티티 x)
-        Page<ShortsMainDto> shortsPages =
-                sr.findMainShortsList(pageable);
+        Page<ShortsMainDto> postPages =
+                pr.getAllShortsPostList(pageable);
 
-        List<ShortsMainDto> shortsList = shortsPages.getContent();
+        List<ShortsMainDto> posts = postPages.getContent();
 
         // 2️ 쇼츠 ID 수집
-        List<Long> shortsIds = shortsList.stream()
-                .map(ShortsMainDto::getShortsId)
+        List<Long> postIds = posts.stream()
+                .map(ShortsMainDto::getPostId)
                 .toList();
 
-        if (!shortsIds.isEmpty()) {
+        if (!postIds.isEmpty()) {
 
             // 3️ 파일 DTO 일괄 조회
-            List<ShortsFileDto> files =
-                    fr.findFilesByShortsIds(shortsIds);
+            List<PostMainFileDto> files =
+                    fr.findFilesByPostIds(postIds);
 
-            Map<Long, List<ShortsFileDto>> fileMap =files.stream().collect(Collectors.groupingBy(ShortsFileDto::getShortsId));
+            Map<Long, List<PostMainFileDto>> fileMap =files.stream().collect(Collectors.groupingBy(PostMainFileDto::getPostId));
 
             // 4️ 파일 주입
-            for (ShortsMainDto dto : shortsList) {
-                if (fileMap.containsKey(dto.getShortsId())) {
-                    fileMap.get(dto.getShortsId()).forEach(dto::addFile);
+            for (ShortsMainDto post : posts) {
+                if (fileMap.containsKey(post.getPostId())) {
+                    fileMap.get(post.getPostId()).forEach(post::addFile);
                 }
             }
 
@@ -94,47 +97,10 @@ public class ShortsService {
 //            }
         }
 
-        result.put("shortsList", shortsList);
-        result.put("totalPage", shortsPages.getTotalPages());
+        result.put("shortsList", posts);
+        result.put("totalPage", postPages.getTotalPages());
         return result;
     }
-
-//    @Transactional(readOnly = true)
-//    public HashMap<String, Object> getAllShorts(int page) {
-//        HashMap<String, Object> result = new HashMap<>();
-//        List<ShortsResDto> list = new ArrayList<>();
-//
-//        Pageable pageable = PageRequest.of(page, 2);
-//        Page<Shorts> shortsPages = sr.findAllByOrderByIndateDescIdDesc(pageable);
-//
-//        for (Shorts shortsEntity : shortsPages) {
-//            ShortsResDto resDto = new ShortsResDto();
-//            resDto.setId(shortsEntity.getId());
-//            resDto.setTitle(shortsEntity.getTitle());
-//            resDto.setContent(shortsEntity.getContent());
-//            resDto.setIndate(shortsEntity.getIndate());
-//            resDto.setUpdateDate(shortsEntity.getUpdateDate());
-//
-//            List<FileDto> fileDtoList = new ArrayList<>();
-//            for (File file : shortsEntity.getFiles()) {
-//                FileDto fileDto = new FileDto();
-//                fileDto.setId(file.getId());
-//                fileDto.setPageType(file.getPageType());
-//                fileDto.setOriginalname(file.getOriginalname());
-//                fileDto.setPath(file.getPath());
-//                fileDto.setContentType(file.getContentType());
-//                fileDto.setSize(file.getSize());
-//                fileDtoList.add(fileDto);
-//            }
-//
-//            resDto.setFiles(fileDtoList);
-//            list.add(resDto);
-//        }
-//
-//        result.put("shortsList", list);
-//        result.put("totalPage", shortsPages.getTotalPages());
-//        return result;
-//    }
 
     @Transactional
     public void insertShorts(ShortsUploadReqDto dto, MemberDto memberdto) {
@@ -149,11 +115,10 @@ public class ShortsService {
 
         try {
             // 1) Shorts 저장
-            Shorts shorts = new Shorts();
-            shorts.setTitle(dto.getTitle());
-            shorts.setContent(dto.getContent());
-            shorts.setMember(member);
-            sr.save(shorts);
+            Post post = new Post();
+            post.setContent(dto.getContent());
+            post.setMember(member);
+            pr.save(post);
 
             // 2) VIDEO File row 생성 (WAIT)
             File videoFile = new File();
@@ -163,7 +128,7 @@ public class ShortsService {
             videoFile.setSize(0L);
             videoFile.setPath(null);
             videoFile.setStatus(0); // WAIT
-            videoFile.setShorts(shorts);
+            videoFile.setPost(post);
             fr.save(videoFile);
 
             // 3) THUMBNAIL File row 생성 (WAIT)
@@ -174,7 +139,7 @@ public class ShortsService {
             thumbFile.setSize(0L);
             thumbFile.setPath(null);
             thumbFile.setStatus(0); // WAIT
-            thumbFile.setShorts(shorts);
+            thumbFile.setPost(post);
             fr.save(thumbFile);
 
             // 4) 요청 스레드에서 MultipartFile -> "내가 만든" 임시 파일로 복사 (핵심)
@@ -195,7 +160,7 @@ public class ShortsService {
             // 5) AFTER_COMMIT 이벤트 발행 (경로 문자열만 전달)
             applicationEventPublisher.publishEvent(
                     new ShortsMediaEvent(
-                            shorts.getId(),
+                            post.getId(),
                             videoFile.getId(),
                             thumbFile.getId(),
                             tempVideo.toString(),
@@ -203,6 +168,11 @@ public class ShortsService {
                             tempManualThumbPath // 🔧 수정: manual일 때만 값 존재, auto면 null
                     )
             );
+
+            ShortsPost shortsPost = new ShortsPost();
+            shortsPost.setPost(post);
+            shortsPost.setTitle(dto.getTitle());
+            spr.save(shortsPost);
 
         } catch (Exception e) {
             // 🔧 수정: insert 단계에서 실패하면 임시파일 정리

@@ -20,7 +20,7 @@ public class ShortsAsyncService {
     public void handleMediaEvent(ShortsMediaEvent event) {
 
         log.info("[EVENT RECEIVED] shortsId={}, thread={}, tempVideoPath={}",
-                event.shortsId(),
+                event.postId(),
                 Thread.currentThread().getName(),
                 event.tempVideoPath()
         );

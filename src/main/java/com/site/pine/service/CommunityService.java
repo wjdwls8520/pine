@@ -9,9 +9,11 @@ import com.site.pine.dto.community.PostDetailResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.tag.TagResDto;
 import com.site.pine.entity.*;
+import com.site.pine.entity.community.CommunityPost;
 import com.site.pine.entity.post.Post;
 import com.site.pine.enums.PageType;
 import com.site.pine.repository.*;
+import com.site.pine.repository.community.CommunityPostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +35,8 @@ import java.util.stream.Collectors;
 public class CommunityService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final CommunityRepository cr;
+    private final CommunityPostRepository cpr;
+    private final PostRepository cr;
     private final S3UploadService sus;
     private final FileRepository fr;
     private final LikesRepository lr;
@@ -47,7 +50,6 @@ public class CommunityService {
 
         //post저장
         Post postEntity = new Post();
-        postEntity.setCategory(reqDto.getCategory());
         postEntity.setContent(reqDto.getPostBody());
         postEntity.setStatus(reqDto.getStatus());
         postEntity.setMember(memberEntity);
@@ -107,6 +109,12 @@ public class CommunityService {
 
             fr.save(fileEntity);
         }
+
+        CommunityPost communityPost = new CommunityPost();
+        communityPost.setPost(postEntity);
+        communityPost.setCategory(reqDto.getCategory());
+        cpr.save(communityPost);
+
     }
 
     public HashMap<String, Object> getPostPage(MemberDto mdto, Integer page) {
@@ -114,14 +122,16 @@ public class CommunityService {
 
         Pageable pageable = PageRequest.of(page, 6);
 
-        Page<PostMainListDto> postPages = cr.findMainPostList(pageable);
+        Page<PostMainListDto> postPages = cr.getAllCommunityPostList(pageable);
+        System.out.println();
         List<PostMainListDto> posts = postPages.getContent();
+
 
         // 1️⃣ 게시글 ID 리스트 추출
         List<Long> postIds = posts.stream().map(PostMainListDto::getPostId).collect(Collectors.toList());
 
         // 2️⃣ 파일 조회
-        List<PostMainFileDto> files = cr.findFilesByPostIds(postIds);
+        List<PostMainFileDto> files = fr.findFilesByPostIds(postIds);
 
         // 3️⃣ DTO에 파일 주입
         Map<Long, List<PostMainFileDto>> fileMap = files.stream()
@@ -172,8 +182,9 @@ public class CommunityService {
 
 
     public PostDetailResDto getDetail(Long memberId, Long id) {
-        Post post = cr.findById(id)
+        CommunityPost communityPost = cpr.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다. id=" + id));
+        Post post = communityPost.getPost();
 
         //좋아요여부확인
         boolean isLiked = false;
@@ -188,7 +199,7 @@ public class CommunityService {
         dto.setLikeCount(post.getLikeCount());
         dto.setReplyCount(post.getReplyCount());
         dto.setStatus(post.getStatus());
-        dto.setCategory(post.getCategory());
+        dto.setCategory(communityPost.getCategory());
         dto.setWriteDate(post.getWriteDate());
         dto.setUpdateDate(post.getUpdateDate());
         dto.setLiked(isLiked);

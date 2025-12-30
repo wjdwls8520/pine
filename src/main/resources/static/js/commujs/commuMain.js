@@ -39,6 +39,16 @@ window.addEventListener("load", () => {
 
                 totalPages = data.totalPage;
 
+                // 첫 페이지 + 글 없음
+                if (page === 0 && (!data.postList || data.postList.length === 0)) {
+                    postWrap.innerHTML = `
+                        <div class="emptyPost">
+                            작성된 포스트가 없습니다.
+                        </div>
+                    `;
+                    return;
+                }
+
                 data.postList.forEach(info => {
 
                     postWrap.insertAdjacentHTML("beforeend", `
@@ -147,33 +157,3 @@ window.addEventListener("load", () => {
             });
     }
 });
-
-
-// ❤️ 좋아요
-window.toggleLike = function (postId, el) {
-    if (window.isLogin === false) {
-        alert("로그인이 필요합니다");
-        window.location.href = "/login";
-        return;
-    }
-
-    const countSpan = document.getElementById(`likeCount_${postId}`);
-    let count = parseInt(countSpan.textContent);
-
-    const isActive = el.classList.toggle("active");
-    countSpan.textContent = isActive ? count + 1 : count - 1;
-
-    fetch(`/community/likeCount/${postId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ like: isActive })
-    })
-        .then(res => res.json())
-        .then(data => {
-            countSpan.textContent = data.likeCount;
-        })
-        .catch(() => {
-            el.classList.toggle("active");
-            countSpan.textContent = count;
-        });
-};

@@ -1,5 +1,6 @@
 package com.site.pine.dto.shorts;
 
+import com.site.pine.dto.community.PostMainFileDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,10 +12,10 @@ import java.util.List;
 @Setter
 public class ShortsMainDto {
 
-    private Long shortsId;
+    private Long postId;
     private String title;
     private String content;
-    private Timestamp indate;
+    private Timestamp writeDate;
     private Timestamp updateDate;
 
     private Long memberId;
@@ -23,29 +24,29 @@ public class ShortsMainDto {
 
     private boolean liked;
 
-    private List<ShortsFileDto> files = new ArrayList<>();
+    private List<PostMainFileDto> files = new ArrayList<PostMainFileDto>();
 
     public ShortsMainDto(
-            Long shortsId,
+            Long postId,
             String title,
             String content,
-            Timestamp indate,
+            Timestamp writeDate,
             Timestamp updateDate,
             Long memberId,
             String nickname,
             String profileImg
     ) {
-        this.shortsId = shortsId;
+        this.postId = postId;
         this.title = title;
         this.content = content;
-        this.indate = indate;
+        this.writeDate = writeDate;
         this.updateDate = updateDate;
         this.memberId = memberId;
         this.nickname = nickname;
         this.profileImg = profileImg;
     }
 
-    public void addFile(ShortsFileDto file) {
+    public void addFile(PostMainFileDto file) {
         this.files.add(file);
     }
 }

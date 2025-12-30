@@ -48,13 +48,4 @@ public class File {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @Comment("쇼츠/썸내일 파일")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shorts_id")
-    private Shorts shorts;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "groupPost_id")
-//    private GroupPost groupPost;
-
 }

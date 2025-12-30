@@ -22,7 +22,8 @@ body {
 }
 
 .article.shorts {overflow: hidden }
-.shortsFeed {display: flex; flex-direction: column; gap: 0px; overflow-x: hidden; overflow-y: scroll; scroll-snap-type: y mandatory;}
+.shortsFeed {display: flex; flex-direction: column; gap: 0px;
+    width: 100%; overflow-x: hidden; overflow-y: scroll; scroll-snap-type: y mandatory;}
 .shortsFeed .shortsCard {scroll-snap-align: start;}
 .shortsFeed .cardInner {display: flex; justify-content: center; padding: 40px 40px 0; height: calc(100vh - 156px); box-sizing: border-box; gap: 25px;}
 
