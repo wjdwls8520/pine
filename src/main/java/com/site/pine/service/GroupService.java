@@ -14,7 +14,7 @@ import com.site.pine.mapper.GroupMapper;
 import com.site.pine.mapper.S3FileDeleteFailMapper;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.ViewRepository;
+import com.site.pine.repository.ViewGroupRepository;
 import com.site.pine.repository.group.*;
 
 import jakarta.persistence.EntityManager;
@@ -51,7 +51,7 @@ public class GroupService {
     private final MemberRepository mr;
     private final GroupMemberRepository gmr;
 
-    private final ViewRepository vr;
+    private final ViewGroupRepository vr;
 
     private final S3UploadService sus;
     private final FileRepository fr;

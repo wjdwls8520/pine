@@ -232,7 +232,7 @@
     let targetId = Number("${groupDetail.id}");
 
     <%-- 현재 조회수 가져오기 --%>
-    fetch(`/view/viewcount/` + targetId, {
+    fetch(`/view/groupviewcount/` + targetId, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -252,7 +252,7 @@
 
 
     <%-- 어제 대비 오늘 조회수 가져오기 GROUP 고유 기능 --%>
-    fetch(`/view/calculateCompare/` + targetId, {
+    fetch(`/view/groupcalculateCompare/` + targetId, {
         method: "GET",
     })
         .then(response => {

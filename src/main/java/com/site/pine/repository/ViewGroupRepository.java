@@ -1,12 +1,12 @@
 package com.site.pine.repository;
 
 import com.site.pine.entity.Member;
-import com.site.pine.entity.ViewHistory;
+import com.site.pine.entity.ViewGroupHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 
-public interface ViewRepository extends JpaRepository<ViewHistory, Long> {
+public interface ViewGroupRepository extends JpaRepository<ViewGroupHistory, Long> {
 
     boolean existsByTargetIdAndViewerAndIsView(Long groupId, Member memberE, LocalDate today);
 
