@@ -2,16 +2,15 @@ package com.site.pine.service;
 
 import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
-import com.site.pine.dto.community.PostMainFileDto;
-import com.site.pine.dto.community.PostMainListDto;
-import com.site.pine.dto.community.PostCreateReqDto;
-import com.site.pine.dto.community.PostDetailResDto;
+import com.site.pine.dto.post.PostMainFileDto;
+import com.site.pine.dto.community.CommunityListDto;
+import com.site.pine.dto.community.CommunityCreateReqDto;
+import com.site.pine.dto.community.CommunityDetailResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.tag.TagResDto;
 import com.site.pine.entity.*;
 import com.site.pine.entity.community.CommunityPost;
 import com.site.pine.entity.post.Post;
-import com.site.pine.enums.PageType;
 import com.site.pine.repository.*;
 import com.site.pine.repository.community.CommunityPostRepository;
 import jakarta.transaction.Transactional;
@@ -44,7 +43,7 @@ public class CommunityService {
     private final TagRepository tr;
     private final TagMappingRepository tmr;
 
-    public void insertPost(MemberDto mdto, PostCreateReqDto reqDto) {
+    public void insertPost(MemberDto mdto, CommunityCreateReqDto reqDto) {
 
         Member memberEntity = mr.findById(mdto.getId()).orElseThrow(() -> new IllegalStateException("[error] 존재하지 않는 멤버 입니다.")); // 멤버조회 대상이 없을시 강제 에러실행.;
 
@@ -71,7 +70,6 @@ public class CommunityService {
 
                 TagMapping mapping = new TagMapping();
                 mapping.setTag(tag);
-                mapping.setTargetType(PageType.COMMUNITY); // POST
                 mapping.setTargetId(postEntity.getId());
 
                 tmr.save(mapping);
@@ -91,7 +89,7 @@ public class CommunityService {
             }
 
             // db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
-            applicationEventPublisher.publishEvent(new S3DeleteEventDto(PageType.COMMUNITY, file.getOriginalFilename(), file.getSize(), fileUrl));
+            applicationEventPublisher.publishEvent(new S3DeleteEventDto(file.getOriginalFilename(), file.getSize(), fileUrl));
 
             File fileEntity = new File();
 
@@ -102,7 +100,6 @@ public class CommunityService {
             fileEntity.setOriginalname(file.getOriginalFilename());
             fileEntity.setContentType(file.getContentType());
             fileEntity.setSize(file.getSize());
-            fileEntity.setPageType(PageType.COMMUNITY);
 
             // 포스트 조인
             fileEntity.setPost(postEntity);
@@ -122,13 +119,13 @@ public class CommunityService {
 
         Pageable pageable = PageRequest.of(page, 6);
 
-        Page<PostMainListDto> postPages = cr.getAllCommunityPostList(pageable);
+        Page<CommunityListDto> postPages = cr.getAllCommunityPostList(pageable);
         System.out.println();
-        List<PostMainListDto> posts = postPages.getContent();
+        List<CommunityListDto> posts = postPages.getContent();
 
 
         // 1️⃣ 게시글 ID 리스트 추출
-        List<Long> postIds = posts.stream().map(PostMainListDto::getPostId).collect(Collectors.toList());
+        List<Long> postIds = posts.stream().map(CommunityListDto::getPostId).collect(Collectors.toList());
 
         // 2️⃣ 파일 조회
         List<PostMainFileDto> files = fr.findFilesByPostIds(postIds);
@@ -137,7 +134,7 @@ public class CommunityService {
         Map<Long, List<PostMainFileDto>> fileMap = files.stream()
                 .collect(Collectors.groupingBy(PostMainFileDto::getPostId));
 
-        for (PostMainListDto post : posts) {
+        for (CommunityListDto post : posts) {
             if (fileMap.containsKey(post.getPostId())) {
                 fileMap.get(post.getPostId()).forEach(post::addFile);
             }
@@ -147,12 +144,12 @@ public class CommunityService {
 
         // 태그 조회
         List<TagResDto> tags =
-                tmr.findTagsByTargetIds(PageType.COMMUNITY, postIds);
+                tmr.findTagsByTargetIds(postIds);
 
         Map<Long, List<TagResDto>> tagMap = tags.stream()
                 .collect(Collectors.groupingBy(TagResDto::getTargetId));
 
-        for (PostMainListDto post : posts) {
+        for (CommunityListDto post : posts) {
             if (tagMap.containsKey(post.getPostId())) {
                 tagMap.get(post.getPostId()).forEach(post::addTag);
             }
@@ -166,9 +163,9 @@ public class CommunityService {
 
         // 4️⃣ 로그인 유저가 좋아요 눌렀는지 체크
         if (mdto != null) { // 로그인 상태일 때만
-            for (PostMainListDto post : posts) {
-                boolean liked = lr.existsByMember_IdAndTargetTypeAndTargetId(
-                        mdto.getId(), PageType.COMMUNITY, post.getPostId()
+            for (CommunityListDto post : posts) {
+                boolean liked = lr.existsByMember_IdAndTargetId(
+                        mdto.getId(), post.getPostId()
                 );
                 post.setLiked(liked);
             }
@@ -181,7 +178,7 @@ public class CommunityService {
     }
 
 
-    public PostDetailResDto getDetail(Long memberId, Long id) {
+    public CommunityDetailResDto getDetail(Long memberId, Long id) {
         CommunityPost communityPost = cpr.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다. id=" + id));
         Post post = communityPost.getPost();
@@ -189,11 +186,11 @@ public class CommunityService {
         //좋아요여부확인
         boolean isLiked = false;
         if(memberId != null) {
-            isLiked  = lr.existsByMember_IdAndTargetTypeAndTargetId(memberId, PageType.COMMUNITY, post.getId());
+            isLiked  = lr.existsByMember_IdAndTargetId(memberId, post.getId());
         }
 
         // 엔티티 → DTO 변환
-        PostDetailResDto dto = new PostDetailResDto();
+        CommunityDetailResDto dto = new CommunityDetailResDto();
         dto.setId(post.getId());
         dto.setContent(post.getContent());
         dto.setLikeCount(post.getLikeCount());
@@ -219,7 +216,6 @@ public class CommunityService {
             FileDto fileDto = new FileDto();
             // File 엔티티 → FileDto 로 값 복사
             fileDto.setId(postFile.getId());
-            fileDto.setPageType(postFile.getPageType());
             fileDto.setOriginalname(postFile.getOriginalname());
             fileDto.setSize(postFile.getSize());
             fileDto.setPath(postFile.getPath());
@@ -235,7 +231,7 @@ public class CommunityService {
 
 
     public int toggleLike(Long postId, Long memberId) {
-        Optional<Likes> existingLike = lr.findByMember_IdAndTargetTypeAndTargetId(memberId, PageType.COMMUNITY, postId);
+        Optional<Likes> existingLike = lr.findByMember_IdAndTargetId(memberId, postId);
 
         Post post = cr.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("포스트가 존재하지 않습니다."));
@@ -247,7 +243,6 @@ public class CommunityService {
         } else {
             // 좋아요 추가
             Likes like = new Likes();
-            like.setTargetType(PageType.COMMUNITY); // POST_TYPE
             like.setTargetId(postId);
             like.setMember(new Member());
             like.getMember().setId(memberId);

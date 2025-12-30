@@ -3,11 +3,8 @@ package com.site.pine.service;
 import com.site.pine.dto.group.ViewCompareResult;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.ViewHistory;
-import com.site.pine.enums.PageType;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.ViewRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,62 +20,48 @@ public class ViewService {
 
     private final MemberRepository mr;
     private final ViewRepository vr;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private final GroupService gs;
-    private final CommunityService cs;
-    private final ShortsService ss;
 
     @Transactional(noRollbackFor = DataIntegrityViolationException.class)
-    public HashMap<String, Object> addViewCount(Long targetId, PageType pageType, Long isMember, String viewerCookie) {
+    public HashMap<String, Object> addViewCount(Long targetId, Long isMember, String viewerCookie) {
 
         Member memberE = (isMember != null) ? mr.getReferenceById(isMember) : null;
 
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         boolean exists = (isMember != null)
-                ? vr.existsByTargetTypeAndTargetIdAndViewerAndIsView(pageType, targetId, memberE, today)
-                : vr.existsByTargetTypeAndTargetIdAndViewerCookieAndIsView(pageType, targetId, viewerCookie, today);
+                ? vr.existsByTargetIdAndViewerAndIsView(targetId, memberE, today)
+                : vr.existsByTargetIdAndViewerCookieAndIsView(targetId, viewerCookie, today);
 
         if (!exists) {
             try {
                 ViewHistory vh = ViewHistory.create(
-                        pageType, targetId, memberE, viewerCookie, today
+                        targetId, memberE, viewerCookie, today
                 );
                 vr.save(vh);
 
-                return switch (pageType) {
-                    case GROUP -> gs.addViewCount(targetId, today);
-//                    case COMMUNITY -> cs.addViewCount(targetId);
-//                    case SHORTS -> ss.addViewCount(targetId);
-                    default -> throw new IllegalStateException("지원하지 않는 페이지 타입입니다.");
-                };
+
+                gs.addViewCount(targetId, today);
+
 
             } catch (DataIntegrityViolationException e) {
                 // race condition 패배 → 정상 흐름
             }
         }
-        return switch (pageType) {
-            case GROUP -> gs.getViewCounts(targetId);
-//            case COMMUNITY -> cs.getViewCounts(targetId);
-//            case SHORTS -> ss.getViewCounts(targetId);
-            default -> throw new IllegalStateException("지원하지 않는 페이지 타입입니다.");
-        };
+
+        return gs.getViewCounts(targetId);
+
     }
 
 
     @Transactional(readOnly = true)
     public ViewCompareResult calculateCompare(Long targetId) {
-        Long todayCount = vr.countByTargetTypeAndTargetIdAndIsView(
-                PageType.GROUP,
+        Long todayCount = vr.countByTargetIdAndIsView(
                 targetId,
                 LocalDate.now(ZoneId.of("Asia/Seoul"))
         );
 
-        Long yesterdayCount = vr.countByTargetTypeAndTargetIdAndIsView(
-                PageType.GROUP,
+        Long yesterdayCount = vr.countByTargetIdAndIsView(
                 targetId,
                 LocalDate.now().minusDays(1)
         );

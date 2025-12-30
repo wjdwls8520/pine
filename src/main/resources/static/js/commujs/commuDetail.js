@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadReplies();
 
     function loadReplies() {
-        fetch(`/reply/list?targetType=COMMUNITY&targetId=${POST_ID}`)
+        fetch(`/reply/list?targetId=${POST_ID}`)
             .then(res => {
                 if (!res.ok) throw new Error("댓글 조회 실패");
                 return res.json();
@@ -171,7 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                targetType: "COMMUNITY",
                 targetId: POST_ID,
                 content: content,
                 parentId: null

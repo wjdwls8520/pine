@@ -1,25 +1,21 @@
 package com.site.pine.repository;
 
 import com.site.pine.dto.community.PostListDto;
-import com.site.pine.dto.community.PostMainFileDto;
-import com.site.pine.dto.community.PostMainListDto;
+import com.site.pine.dto.community.CommunityListDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.entity.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query(
     value = """
-        select new com.site.pine.dto.community.PostMainListDto(
+        select new com.site.pine.dto.community.CommunityListDto(
             p.id,
             p.content,
             cp.category,
@@ -41,7 +37,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         from CommunityPost cp
     """
     )
-    Page<PostMainListDto> getAllCommunityPostList(Pageable pageable);
+    Page<CommunityListDto> getAllCommunityPostList(Pageable pageable);
 
     @Query(
             value = """

@@ -1,4 +1,4 @@
-window.toggleLike = function ({ targetType, targetId, el }) {
+window.toggleLike = function ({  targetId, el }) {
     if (window.isLogin === false) {
         alert("로그인이 필요합니다");
         location.href = "/login";
@@ -16,7 +16,6 @@ window.toggleLike = function ({ targetType, targetId, el }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            targetType,
             targetId
         })
     })

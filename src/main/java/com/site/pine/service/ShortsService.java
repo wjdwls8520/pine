@@ -1,16 +1,13 @@
 package com.site.pine.service;
 
-import com.site.pine.dto.community.PostMainFileDto;
-import com.site.pine.dto.community.PostMainListDto;
+import com.site.pine.dto.post.PostMainFileDto;
 import com.site.pine.dto.member.MemberDto;
-import com.site.pine.dto.shorts.ShortsFileDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.post.Post;
 import com.site.pine.entity.shorts.ShortsPost;
-import com.site.pine.enums.PageType;
 import com.site.pine.event.ShortsMediaEvent;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
@@ -29,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +85,6 @@ public class ShortsService {
 //                for (ShortsMainDto dto : shortsList) {
 //                    boolean liked = likeRepository.existsByMember_IdAndTargetTypeAndTargetId(
 //                                    memberDto.getId(),
-//                                    PageType.SHORTS,
 //                                    dto.getShortsId()
 //                            );
 //                    dto.setLiked(liked);
@@ -122,7 +117,6 @@ public class ShortsService {
 
             // 2) VIDEO File row 생성 (WAIT)
             File videoFile = new File();
-            videoFile.setPageType(PageType.SHORTS);
             videoFile.setOriginalname(video.getOriginalFilename());
             videoFile.setContentType(video.getContentType());
             videoFile.setSize(0L);
@@ -133,7 +127,6 @@ public class ShortsService {
 
             // 3) THUMBNAIL File row 생성 (WAIT)
             File thumbFile = new File();
-            thumbFile.setPageType(PageType.SHORTS_THUMBNAIL);
             thumbFile.setOriginalname("auto_thumbnail.jpg"); // 기본값
             thumbFile.setContentType("image/jpeg");
             thumbFile.setSize(0L);

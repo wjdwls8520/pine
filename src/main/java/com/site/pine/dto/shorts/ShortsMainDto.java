@@ -1,6 +1,6 @@
 package com.site.pine.dto.shorts;
 
-import com.site.pine.dto.community.PostMainFileDto;
+import com.site.pine.dto.post.PostMainFileDto;
 import lombok.Getter;
 import lombok.Setter;
 

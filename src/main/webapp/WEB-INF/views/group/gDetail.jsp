@@ -237,7 +237,6 @@
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ pageType: "GROUP"})
     })
         .then(response => {
             if (!response.ok) throw new Error(`상태 코드: ${response.status}`);

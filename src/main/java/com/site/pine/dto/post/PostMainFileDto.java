@@ -1,4 +1,4 @@
-package com.site.pine.dto.community;
+package com.site.pine.dto.post;
 
 import lombok.Getter;
 
