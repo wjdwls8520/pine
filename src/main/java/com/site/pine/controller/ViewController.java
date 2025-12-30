@@ -21,7 +21,7 @@ public class ViewController {
 
     private final ViewService vs;
 
-    @PostMapping("/viewcount/{targetId}")
+    @PostMapping("/groupviewcount/{targetId}")
     public HashMap<String, Object> groupViewCount(
             @PathVariable Long targetId,
             @AuthenticationPrincipal MemberDto memberdto,
@@ -35,7 +35,7 @@ public class ViewController {
         String viewerCookie = cookieUtil.getOrCreate(request, response);
 
         try {
-            HashMap<String, Object> viewObject = vs.addViewCount(targetId, isMember, viewerCookie);
+            HashMap<String, Object> viewObject = vs.addGroupViewCount(targetId, isMember, viewerCookie);
             result.put("allViewCount", viewObject.get("allViewCount"));
             result.put("todayViewCount", viewObject.get("todayViewCount"));
         } catch (EntityNotFoundException e) {
@@ -48,10 +48,10 @@ public class ViewController {
         return result;
     }
 
-    @GetMapping("/calculateCompare/{targetId}")
+    @GetMapping("/groupcalculateCompare/{targetId}")
     public HashMap<String, Object> calculateCompare(@PathVariable("targetId") Long targetId) {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("viewCompareResult", vs.calculateCompare(targetId));
+        result.put("viewCompareResult", vs.groupCalculateCompare(targetId));
         return result;
     }
 }

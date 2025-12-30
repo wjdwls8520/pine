@@ -30,7 +30,7 @@ import java.time.LocalDate;
                 )
         }
 )
-public class ViewHistory {
+public class ViewGroupHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -56,13 +56,13 @@ public class ViewHistory {
     @Column(name = "viewer_cookie")
     private String viewerCookie;
 
-    public static ViewHistory create(
+    public static ViewGroupHistory create(
             Long targetId,
             Member viewer,
             String viewerCookie,
             LocalDate today
     ) {
-            ViewHistory vh = new ViewHistory();
+            ViewGroupHistory vh = new ViewGroupHistory();
             vh.targetId = targetId;
             vh.viewer = viewer;
             vh.viewerCookie = (viewer != null) ? null : viewerCookie;

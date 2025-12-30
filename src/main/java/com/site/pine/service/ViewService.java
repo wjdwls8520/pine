@@ -2,9 +2,9 @@ package com.site.pine.service;
 
 import com.site.pine.dto.group.ViewCompareResult;
 import com.site.pine.entity.Member;
-import com.site.pine.entity.ViewHistory;
+import com.site.pine.entity.ViewGroupHistory;
 import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.ViewRepository;
+import com.site.pine.repository.ViewGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -19,28 +19,27 @@ import java.util.HashMap;
 public class ViewService {
 
     private final MemberRepository mr;
-    private final ViewRepository vr;
+    private final ViewGroupRepository vgr;
     private final GroupService gs;
 
     @Transactional(noRollbackFor = DataIntegrityViolationException.class)
-    public HashMap<String, Object> addViewCount(Long targetId, Long isMember, String viewerCookie) {
+    public HashMap<String, Object> addGroupViewCount(Long targetId, Long isMember, String viewerCookie) {
 
         Member memberE = (isMember != null) ? mr.getReferenceById(isMember) : null;
 
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
         boolean exists = (isMember != null)
-                ? vr.existsByTargetIdAndViewerAndIsView(targetId, memberE, today)
-                : vr.existsByTargetIdAndViewerCookieAndIsView(targetId, viewerCookie, today);
+                ? vgr.existsByTargetIdAndViewerAndIsView(targetId, memberE, today)
+                : vgr.existsByTargetIdAndViewerCookieAndIsView(targetId, viewerCookie, today);
 
         if (!exists) {
             try {
-                ViewHistory vh = ViewHistory.create(
+                ViewGroupHistory vh = ViewGroupHistory.create(
                         targetId, memberE, viewerCookie, today
                 );
-                vr.save(vh);
-
-
+                vgr.save(vh);
+                // 그룹 뷰 중가.
                 gs.addViewCount(targetId, today);
 
 
@@ -55,13 +54,13 @@ public class ViewService {
 
 
     @Transactional(readOnly = true)
-    public ViewCompareResult calculateCompare(Long targetId) {
-        Long todayCount = vr.countByTargetIdAndIsView(
+    public ViewCompareResult groupCalculateCompare(Long targetId) {
+        Long todayCount = vgr.countByTargetIdAndIsView(
                 targetId,
                 LocalDate.now(ZoneId.of("Asia/Seoul"))
         );
 
-        Long yesterdayCount = vr.countByTargetIdAndIsView(
+        Long yesterdayCount = vgr.countByTargetIdAndIsView(
                 targetId,
                 LocalDate.now().minusDays(1)
         );
