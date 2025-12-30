@@ -37,7 +37,7 @@
             </div>
             <div class="country_auto_box">
                 <div class="form_list">*국적</div>
-                <input type="text" name="country" id="country" autocomplete="off"/>
+                <input type="text" name="country" id="country" autocomplete="off" value="${loginUser.country}" />
                 <ul id="country_result" class="country_result_list"></ul>
             </div>
             <button class="join_btn" id="addrBtn" type="button" onclick="findPostCode()">주소찾기</button>
@@ -63,44 +63,6 @@
 </div>
 
 <jsp:include page="../include/footer.jsp"></jsp:include>
-
-<script src="/js/swiper-bundle.min.js"></script>
-<script>
-    const swiper = new Swiper('.homeSlide', {
-        speed: 400,
-        direction: 'horizontal',
-        loop: true,
-        // autoplay: {
-        //     delay: 2200,
-        // },
-        slidesPerView: 4.5,
-        spaceBetween: 30,
-        //breakpoints: {
-        // when window width is >= 320px
-        // 320: {
-        //     slidesPerView: 2,
-        //     spaceBetween: 20
-        // },
-        // // when window width is >= 480px
-        // 480: {
-        //     slidesPerView: 3,
-        //     spaceBetween: 30
-        // },
-        // // when window width is >= 640px
-        // 640: {
-        //     slidesPerView: 4,
-        //     spaceBetween: 40
-        // }
-        //}
-
-        // If we need pagination
-        pagination: {
-            el: '.swiper-pagination',
-        },
-    });
-
-</script>
-
 
 </body>
 </html>

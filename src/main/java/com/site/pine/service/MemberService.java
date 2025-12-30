@@ -54,7 +54,7 @@ public class MemberService {
         return mdto;
     }
 
-    public void insertMember(String email, String name, String nickname, String job, String addressCode, String address1, String address2, String profile_msg, String phone, MemberDto mdto) {
+    public void insertMember(String email, String name, String nickname, String job, String country, String addressCode, String address1, String address2, String profile_msg, String phone, MemberDto mdto) {
 
         Date date = new Date();
         Timestamp timestamp = new Timestamp(date.getTime());
@@ -64,6 +64,7 @@ public class MemberService {
         member.setName(name);
         member.setNickname(nickname);
         member.setJob(job);
+        member.setCountry(country);
         member.setAddress_code(addressCode);
         member.setAddress_1(address1);
         member.setAddress_2(address2);
@@ -85,7 +86,6 @@ public class MemberService {
         member.setAgreed_version("1.0");
         member.setLevel(0);
         member.setPosition(mdto.getPosition());
-        member.setResident_num("0");
         mr.save(member);
 
     }

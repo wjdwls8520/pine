@@ -16,6 +16,7 @@
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
     <div class="mypage">
+        <article>
         <div class="mypage_info">
             <div class="mypage_profile">
                 <c:if test="${member.profileimg}">
@@ -69,9 +70,11 @@
                 </div>
             </div>
         </div>
-
+            </article>
     </div>
+
 </div>
+<jsp:include page="../include/footer.jsp"></jsp:include>
 
 </body>
 </html>
