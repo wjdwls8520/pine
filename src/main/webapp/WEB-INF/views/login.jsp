@@ -12,10 +12,10 @@
     <div class="wrap">
         <jsp:include page="./include/sideBar.jsp"></jsp:include>
         <article class="article_login">
-            <div>뒤로가기</div>
+            <div class="login_back">뒤로가기</div>
 
             <div class="login_container">
-                <div>PINE TREE</div>
+                <div class="login_title">PINE TREE</div>
 
                 <div class="login_input">
                     <button onclick="googleLogin()">구글로 로그인</button>
@@ -24,10 +24,9 @@
                 </div>
 
             </div>
-
-
         </article>
     </div>
+    <jsp:include page="./include/footer.jsp"></jsp:include>
 
 </body>
 </html>

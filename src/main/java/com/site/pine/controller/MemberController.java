@@ -248,6 +248,7 @@ public class MemberController {
             @RequestParam("nickname") String nickname,
             @RequestParam("phone") String phone,
             @RequestParam(value ="job", required = false, defaultValue = "") String job,
+            @RequestParam("country") String country,
             @RequestParam("address_code") String addressCode,
             @RequestParam("address_1") String address1,
             @RequestParam(value = "profile_msg", required = false, defaultValue = "") String profile_msg,
@@ -277,7 +278,7 @@ public class MemberController {
 
             if (session != null) {
                 MemberDto mdto = (MemberDto) session.getAttribute("userinfo");
-                ms.insertMember(email, name, nickname, job, addressCode, address1, address2, profile_msg, phone, mdto);
+                ms.insertMember(email, name, nickname, job, country, addressCode, address1, address2, profile_msg, phone, mdto);
                 session.removeAttribute("userinfo");
             }
 
