@@ -120,7 +120,7 @@ public class ShortsService {
             videoFile.setOriginalname(video.getOriginalFilename());
             videoFile.setContentType(video.getContentType());
             videoFile.setSize(0L);
-            videoFile.setPath(null);
+            videoFile.setPath("/images/GwakCheol-i.png");
             videoFile.setStatus(0); // WAIT
             videoFile.setPost(post);
             fr.save(videoFile);
@@ -130,7 +130,7 @@ public class ShortsService {
             thumbFile.setOriginalname("auto_thumbnail.jpg"); // 기본값
             thumbFile.setContentType("image/jpeg");
             thumbFile.setSize(0L);
-            thumbFile.setPath(null);
+            thumbFile.setPath("/images/GwakCheol-i.png");
             thumbFile.setStatus(0); // WAIT
             thumbFile.setPost(post);
             fr.save(thumbFile);

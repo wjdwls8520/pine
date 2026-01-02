@@ -20,6 +20,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
     )
     from File f
     where f.post.id in :postIds
+    and f.status = 2
     """)
     List<PostMainFileDto> findFilesByPostIds(@Param("postIds") List<Long> postIds);
 }

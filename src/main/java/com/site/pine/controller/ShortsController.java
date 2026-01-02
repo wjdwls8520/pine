@@ -31,7 +31,11 @@ public class ShortsController {
     }
 
     @GetMapping("/shorts/shortsUpload")
-    public String shortsCreate(){
+    public String shortsCreate(@AuthenticationPrincipal MemberDto memberdto, RedirectAttributes redirectAttributes){
+        if(memberdto == null){
+//            redirectAttributes.addFlashAttribute("msg", "로그인 후 이용가능합니다.");
+            return "redirect:/errorLogin";
+        }
         return "shorts/shortsUpload";
     }
 

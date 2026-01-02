@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager; // 추가
+import org.springframework.transaction.support.TransactionTemplate; // 추가
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,33 +23,38 @@ public class ShortsMediaTxService {
     private final FileRepository fr;
     private final S3UploadService sus;
 
+    // 트랜잭션 매니저 주입 (수동 제어를 위해 필요)
+    private final PlatformTransactionManager transactionManager;
+
     @Value("${ffmpeg.path}")
     private String ffmpegPath;
 
     /**
-     * 🔥 핵심 트랜잭션 로직
-     * - 로컬 임시 영상(Path)을 기준으로 처리
-     * - MultipartFile x 사용하지 않음
-     * - 성공하면 DB(path/size/status) 반영
-     * - 실패하면 status=3 + RuntimeException으로 롤백(네 방식 유지)
+     *  핵심 트랜잭션 로직
+     * - @Transactional 어노테이션 제거 (전체 메서드가 DB 연결을 물고 있지 않게 함)
+     * - DB 업데이트가 필요한 순간에만 TransactionTemplate 사용
      */
-    @Transactional
     public void processMediaTx(ShortsMediaEvent event) {
-
-        File videoFile = fr.findById(event.videoFileId())
-                .orElseThrow(() -> new IllegalStateException("video file 없음"));
-
-        File thumbFile = fr.findById(event.thumbFileId())
-                .orElseThrow(() -> new IllegalStateException("thumbnail file 없음"));
 
         Path tempVideo = null;
         Path tempCompressed = null;
         Path tempThumb = null;
         Path manualThumb = null;
 
-        try {
+        // [STEP 1] 시작 상태 업데이트 (짧은 트랜잭션)
+        // 로직 시작 전 '처리중'으로 변경하고 즉시 커밋 (유저에게 바로 보임)
+        new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+            File videoFile = fr.findById(event.videoFileId())
+                    .orElseThrow(() -> new IllegalStateException("video file 없음"));
+            File thumbFile = fr.findById(event.thumbFileId())
+                    .orElseThrow(() -> new IllegalStateException("thumbnail file 없음"));
+
             videoFile.setStatus(1); // PROCESSING
             thumbFile.setStatus(1);
+        });
+
+        try {
+            // [STEP 2] 무거운 작업 (트랜잭션 없이 실행 -> DB 커넥션 사용 X)
 
             // 1) ShortsService에서 만들어둔 임시 영상
             tempVideo = Path.of(event.tempVideoPath());
@@ -74,7 +80,7 @@ public class ShortsMediaTxService {
             String thumbType = event.thumbnailType();
 
             if ("manual".equals(thumbType) && event.tempManualThumbPath() != null) {
-                // 🔧 수정: manual이면 업로드된 썸네일 임시파일을 그대로 사용
+                // manual이면 업로드된 썸네일 임시파일을 그대로 사용
                 manualThumb = Path.of(event.tempManualThumbPath());
                 if (!Files.exists(manualThumb) || Files.size(manualThumb) == 0) {
                     throw new IllegalStateException("manual 썸네일 임시 파일이 없거나 0 byte 입니다.");
@@ -94,31 +100,52 @@ public class ShortsMediaTxService {
             String videoPath = sus.saveLocalFile(tempCompressed);
             String thumbPath = sus.saveLocalFile(tempThumb);
 
-            // 5) DB 반영
-            videoFile.setPath(videoPath);
-            videoFile.setSize(Files.size(tempCompressed));
-            videoFile.setStatus(2); // DONE
+            long videoSize = Files.size(tempCompressed);
+            long thumbSize = Files.size(tempThumb);
 
-            thumbFile.setPath(thumbPath);
-            thumbFile.setSize(Files.size(tempThumb));
-            thumbFile.setStatus(2); // DONE
+            // [STEP 3] 성공 상태 업데이트 (짧은 트랜잭션)
+            // 업로드 완료 후 정보를 업데이트하고 즉시 커밋
+            new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+                File videoFile = fr.findById(event.videoFileId())
+                        .orElseThrow(() -> new IllegalStateException("video file 없음"));
+                File thumbFile = fr.findById(event.thumbFileId())
+                        .orElseThrow(() -> new IllegalStateException("thumbnail file 없음"));
+
+                videoFile.setPath(videoPath);
+                videoFile.setSize(videoSize);
+                videoFile.setStatus(2); // DONE
+
+                thumbFile.setPath(thumbPath);
+                thumbFile.setSize(thumbSize);
+                thumbFile.setStatus(2); // DONE
+            });
 
             log.info("[MEDIA DONE] shortsId={}, videoFileId={}, thumbFileId={}",
                     event.postId(), event.videoFileId(), event.thumbFileId());
 
         } catch (Exception e) {
-            videoFile.setStatus(3); // FAIL
-            thumbFile.setStatus(3);
+            // [STEP 4] 실패 상태 업데이트 (짧은 트랜잭션)
+            new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
+                try {
+                    File videoFile = fr.findById(event.videoFileId())
+                            .orElseThrow(() -> new IllegalStateException("video file 없음"));
+                    File thumbFile = fr.findById(event.thumbFileId())
+                            .orElseThrow(() -> new IllegalStateException("thumbnail file 없음"));
+
+                    videoFile.setStatus(3); // FAIL
+                    thumbFile.setStatus(3);
+                } catch (Exception ex) {
+                    log.error("실패 상태 업데이트 중 오류 발생", ex);
+                }
+            });
 
             log.error("미디어 처리 실패 shortsId={}, videoFileId={}, thumbFileId={}",
                     event.postId(), event.videoFileId(), event.thumbFileId(), e);
 
-            // 네 예외처리 스타일 유지(실패 시 롤백)
             throw new RuntimeException(e);
 
         } finally {
             // 6) 임시 파일 정리
-            // 🔧 수정: manualThumb는 ShortsService가 만든 임시파일이므로 여기서도 정리해줘도 OK
             safeDelete(tempVideo);
             safeDelete(tempCompressed);
 
@@ -150,7 +177,7 @@ public class ShortsMediaTxService {
 
         int exit = runAndLog(pb, "[ffmpeg-compress]");
 
-        Thread.sleep(50); // 🔧 Windows 안정화용 (중요)
+        Thread.sleep(50); // Windows 안정화용
 
         long size = Files.exists(target) ? Files.size(target) : 0;
 
@@ -180,10 +207,6 @@ public class ShortsMediaTxService {
         }
     }
 
-    /**
-     * 🔧 수정: ffmpeg 로그를 INFO로도 남겨서
-     * "왜 실패했는지"가 콘솔에 보이게 함
-     */
     private int runAndLog(ProcessBuilder pb, String tag) throws Exception {
         pb.redirectErrorStream(true);
         Process p = pb.start();
@@ -191,7 +214,6 @@ public class ShortsMediaTxService {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
             String line;
             while ((line = br.readLine()) != null) {
-                // 너무 많으면 debug로 내리고, 지금은 원인 찾는 중이라 info 추천
                 log.info("{} {}", tag, line);
             }
         }

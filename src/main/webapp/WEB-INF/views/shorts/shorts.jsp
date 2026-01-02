@@ -12,114 +12,7 @@
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
-            <div id="shortsFeed" class="shortsFeed">
-<%--                <div class="shorts-card" data-title="한복 입고 서울 야경 즐기기" data-user="pinedory">--%>
-<%--                    <div class="card-inner">--%>
-<%--                        <aside class="user-panel">--%>
-<%--                            <div class="avatar">--%>
-<%--                                <img src="/images/icon_pinedory.png" alt="pinedory">--%>
-<%--                            </div>--%>
-<%--                            <div class="user-meta">--%>
-<%--                                <strong>파인데도리</strong>--%>
-<%--                                <p>역사와 문화를 즐기는 짧은 브이로그</p>--%>
-<%--                            </div>--%>
-<%--                        </aside>--%>
-
-<%--                        <div class="video-shell">--%>
-<%--                            <video autoplay muted loop playsinline poster="/images/culture01.jpg">--%>
-<%--                                <source src="/shorts/sample1.mp4" type="video/mp4">--%>
-<%--                            </video>--%>
-<%--                        </div>--%>
-
-<%--                        <div class="action-panel">--%>
-<%--                            <button class="action-btn like">--%>
-<%--                                <span>좋아요</span>--%>
-<%--                                <em>2.1K</em>--%>
-<%--                            </button>--%>
-<%--                            <button class="action-btn share">--%>
-<%--                                <span>공유</span>--%>
-<%--                                <em>128</em>--%>
-<%--                            </button>--%>
-<%--                            <button class="action-btn comment-toggle" data-target="commentsPanel">--%>
-<%--                                <span>댓글</span>--%>
-<%--                                <em>356</em>--%>
-<%--                            </button>--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-
-<%--                <div class="shorts-card" data-title="세종대왕릉 산책 루틴" data-user="jang_g">--%>
-<%--                    <div class="card-inner">--%>
-<%--                        <aside class="user-panel">--%>
-<%--                            <div class="avatar">--%>
-<%--                                <img src="/images/king-sejong.png" alt="jang_g">--%>
-<%--                            </div>--%>
-<%--                            <div class="user-meta">--%>
-<%--                                <strong>장군</strong>--%>
-<%--                                <span>@jang_g</span>--%>
-<%--                                <p>도심 속 힐링 스팟을 소개합니다</p>--%>
-<%--                            </div>--%>
-<%--                        </aside>--%>
-
-<%--                        <div class="video-shell">--%>
-<%--                            <video autoplay muted loop playsinline poster="/images/culture02.jpg">--%>
-<%--                                <source src="/shorts/sample2.mp4" type="video/mp4">--%>
-<%--                            </video>--%>
-<%--                        </div>--%>
-
-<%--                        <div class="action-panel">--%>
-<%--                            <button class="action-btn like">--%>
-<%--                                <span>좋아요</span>--%>
-<%--                                <em>987</em>--%>
-<%--                            </button>--%>
-<%--                            <button class="action-btn share">--%>
-<%--                                <span>공유</span>--%>
-<%--                                <em>64</em>--%>
-<%--                            </button>--%>
-<%--                            <button class="action-btn comment-toggle" data-target="commentsPanel">--%>
-<%--                                <span>댓글</span>--%>
-<%--                                <em>98</em>--%>
-<%--                            </button>--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-
-<%--                <div class="shorts-card" data-title="한옥마을 새벽 풍경" data-user="yeoni">--%>
-<%--                    <div class="card-inner">--%>
-<%--                        <aside class="user-panel">--%>
-<%--                            <div class="avatar">--%>
-<%--                                <img src="/images/sample.jpg" alt="yeoni">--%>
-<%--                            </div>--%>
-<%--                            <div class="user-meta">--%>
-<%--                                <strong>여니</strong>--%>
-<%--                                <span>@yeoni</span>--%>
-<%--                                <p>감성 카메라로 담아낸 한국의 아침</p>--%>
-<%--                            </div>--%>
-<%--                        </aside>--%>
-
-<%--                        <div class="video-shell">--%>
-<%--                            <video autoplay muted loop playsinline poster="/images/culture03.jpg">--%>
-<%--                                <source src="/shorts/sample3.mp4" type="video/mp4">--%>
-<%--                            </video>--%>
-<%--                        </div>--%>
-
-<%--                        <div class="action-panel">--%>
-<%--                            <button class="action-btn like">--%>
-<%--                                <span>좋아요</span>--%>
-<%--                                <em>1.4K</em>--%>
-<%--                            </button>--%>
-<%--                            <button class="action-btn share">--%>
-<%--                                <span>공유</span>--%>
-<%--                                <em>201</em>--%>
-<%--                            </button>--%>
-<%--                            <button class="action-btn comment-toggle" data-target="commentsPanel">--%>
-<%--                                <span>댓글</span>--%>
-<%--                                <em>512</em>--%>
-<%--                            </button>--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-<%--            </div>--%>
+        <div id="shortsFeed" class="shortsFeed">
 
             <div class="commentsPanel" id="commentsPanel">
                 <div class="panel-header">
@@ -150,6 +43,7 @@
                     </div>
                 </div>
             </div>
+        </div>
 
 </div>
 
