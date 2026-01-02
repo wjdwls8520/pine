@@ -118,7 +118,7 @@ public class GroupService {
         groupContentsE.setJoinState(groupContentReqDto.getJoinState());
         groupContentsE.setAutoJoin(groupContentReqDto.getAutoJoin());
         groupContentsE.setUserLimit(groupContentReqDto.getUserLimit());
-
+        groupContentsE.setGroupMemberCount(0L);
 
 
         // 멀티파트파일의 기본 속성들 사용 + sus(s3)서비스에서 임의값을 추가한 파일 저장
@@ -143,6 +143,8 @@ public class GroupService {
         // 그룹에 해당 파일 엔티티를 연결 ( 파일과 원투원관계로 케스케이드 all 설정 )
         groupContentsE.setFile(fileEntity);
 
+        // 그룹엔티티와 연결된 파일엔티티 그리고 그룹멤버를 같이 저장함
+        gconr.save(groupContentsE);
 
 
         // 그룹멤버엔티티에 멤버엔티티와 그룹엔티티를 추가해서 그룹 -> 그룹멤버 <- 멤버 그룹멤버라는 중간연결엔티티를 제작
@@ -150,14 +152,15 @@ public class GroupService {
         groupMemberEntity.setGroupContents(groupContentsE);
         groupMemberEntity.setMember(memberEntity);
         groupMemberEntity.setRole(1); // 그룹장
-        groupContentsE.getGroupMembers().add(groupMemberEntity); // 그룹컨텐츠에 그룹멤버를 조인
+        groupMemberEntity.setGroupContents(groupContentsE);
+        gmr.save(groupMemberEntity);
 
         // 그룹멤버수 1추가 (그룹장)
         groupContentsE.setGroupMemberCount(groupContentsE.getGroupMemberCount() + 1);
 
 
-
         // 내가 클라이언트한테 받은 선택된 카테고리 개수만큼 for 반복
+        List<GroupInCategory> categoryList = new ArrayList<>();
         for (Integer categoryId : groupContentReqDto.getCategoryIds()) {
             // 1) 카테고리 엔티티 조회
             GroupCategoryList categoryEntity = gcr.findById(categoryId)
@@ -166,11 +169,11 @@ public class GroupService {
             GroupInCategory groupInCategory = new GroupInCategory();
             groupInCategory.setCategoryId(categoryEntity);
             groupInCategory.setGroupContents(groupContentsE);
-            groupContentsE.getCategoryIds().add(groupInCategory); // 그룹컨텐츠에 카테고리들을 조인
-        }
 
-        // 그룹엔티티와 연결된 파일엔티티 그리고 그룹멤버를 같이 저장함
-        gconr.save(groupContentsE);
+            categoryList.add(groupInCategory);
+        }
+        gicr.saveAll(categoryList);
+
     }
 
 
@@ -183,7 +186,8 @@ public class GroupService {
         GroupContentResDto groupContentResDto = gm.toGroupContentResDto(groupDetailE);
 
         List<GroupCategoryDto> categoryResult = new ArrayList<>();
-        for (GroupInCategory category : groupDetailE.getCategoryIds()) {
+        List<GroupInCategory> getAllGIC = gicr.findAllByGroupIdWithCategory(id);
+        for (GroupInCategory category : getAllGIC) {
             GroupCategoryDto categoryResDto = gm.toGroupInCategoryResDto(category);
 
             categoryResult.add(categoryResDto);
@@ -218,7 +222,8 @@ public class GroupService {
         groupContentsE.setUserLimit(groupContentReqDto.getUserLimit());
 
 
-        gicr.deleteByGroupContents(groupContentsE); // 이 그룹컨텐츠의 카테고리 전부 삭제 그이후 아래에서 재생성
+        gicr.deleteAllByGroupContents(groupContentsE); // 이 그룹컨텐츠의 카테고리 전부 삭제 그이후 아래에서 재생성
+        List<GroupInCategory> categoryList = new ArrayList<>();
         for (Integer categoryId : groupContentReqDto.getCategoryIds()) {
             // 1) 카테고리 엔티티 조회
             GroupCategoryList categoryEntity = gcr.findById(categoryId)
@@ -227,11 +232,12 @@ public class GroupService {
             GroupInCategory groupInCategory = new GroupInCategory();
             groupInCategory.setCategoryId(categoryEntity);
             groupInCategory.setGroupContents(groupContentsE);
-            groupContentsE.getCategoryIds().add(groupInCategory); // 그룹컨텐츠에 카테고리들을 조인
+            categoryList.add(groupInCategory);
         }
+        gicr.saveAll(categoryList);
 
         if(groupContentReqDto.getGroupImg() != null && !groupContentReqDto.getGroupImg().isEmpty()) {
-            File oldFile = groupContentsE.getFile();
+            S3DeleteEventDto oldFile = new S3DeleteEventDto(groupContentsE.getFile().getOriginalname(), groupContentsE.getFile().getSize(), groupContentsE.getFile().getPath());
             String filePath = null;
             try {
                 filePath = sus.saveFile(groupContentReqDto.getGroupImg());
@@ -244,6 +250,7 @@ public class GroupService {
             groupContentsE.getFile().setSize(groupContentReqDto.getGroupImg().getSize());
             groupContentsE.getFile().setContentType(groupContentReqDto.getGroupImg().getContentType());
 
+
             // *** db 트랙잭셔널의 롤백현상을 감지하고 시작될 예약 클래스 ( s3 디티오를 스프링에게 알림 에러시 s3rollbacklistener 함수에서 스프링에서 이 디티오를 가져다가 사용함 )
             applicationEventPublisher.publishEvent(new S3DeleteEventDto(groupContentsE.getFile().getOriginalname(), groupContentsE.getFile().getSize(), filePath));
 
@@ -255,7 +262,7 @@ public class GroupService {
                 S3FileDeleteFailList s3FileDeleteFailList = sfdfm.toS3FileDeleteFailMapper(oldFile, e);
                 sfdfr.save(s3FileDeleteFailList);
 
-                throw new IllegalStateException("S3 삭제 실패" + e.getMessage());
+                log.warn("기존 파일 삭제 실패 (추후 배치 삭제 요망): {}", oldFile.getPath(), e);
             }
         }
     }
@@ -272,6 +279,10 @@ public class GroupService {
             throw new AccessDeniedException("그룹장이 아닌 그룹원은 삭제 권한이 없습니다.");
         }
 
+        entityManager.detach(getGroupMemberInfo);
+
+        gicr.deleteAllByGroupContents(groupContentE);
+        gmr.deleteAllByGroupId(groupId);
         gconr.delete(groupContentE); // 하나 삭제
 
         try {

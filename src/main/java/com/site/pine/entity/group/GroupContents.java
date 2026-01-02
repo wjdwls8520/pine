@@ -75,21 +75,4 @@ public class GroupContents {
     @JoinColumn(name = "file_id", nullable = false)
     private File file;
 
-    @Comment("그룹에 해당하는 카테고리")
-    @OneToMany(
-            mappedBy = "groupContents",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private List<GroupInCategory> categoryIds = new ArrayList<>();
-
-    @Comment("그룹에 가입된 멤버")
-    @OneToMany(
-            mappedBy = "groupContents",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private List<GroupMember> groupMembers = new ArrayList<>();
 }
