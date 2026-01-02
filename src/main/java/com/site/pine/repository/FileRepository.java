@@ -2,6 +2,7 @@ package com.site.pine.repository;
 
 import com.site.pine.dto.post.PostMainFileDto;
 import com.site.pine.entity.File;
+import com.site.pine.entity.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +24,6 @@ public interface FileRepository extends JpaRepository<File, Long> {
     and f.status = 2
     """)
     List<PostMainFileDto> findFilesByPostIds(@Param("postIds") List<Long> postIds);
+
+    void deleteByPost(Post post);
 }

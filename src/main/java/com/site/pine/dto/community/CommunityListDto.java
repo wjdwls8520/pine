@@ -24,7 +24,8 @@ public class CommunityListDto {
     private String nickname;
     private String profileImg;
 
-    private boolean liked; // 로그인한 사용자가 좋아요 눌렀는지
+    private boolean liked; // 로그인 유저의 좋아요 여부
+    private boolean owner; // 로그인 유저의 글인지 여부
 
     // ✅ Files (여러 개)
     private List<PostMainFileDto> files = new ArrayList<>();
@@ -68,4 +69,6 @@ public class CommunityListDto {
     public void setLiked(boolean liked) {
         this.liked = liked;
     }
+
+    public void setOwner(boolean owner) {this.owner = owner;}
 }
