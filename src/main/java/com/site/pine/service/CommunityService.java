@@ -102,6 +102,9 @@ public class CommunityService {
             fileEntity.setContentType(file.getContentType());
             fileEntity.setSize(file.getSize());
 
+            // 업로드 성공했으니 상태를 '2(완료)'로 설정!
+            fileEntity.setStatus(2);
+
             // 포스트 조인
             fileEntity.setPost(postEntity);
 
@@ -162,11 +165,23 @@ public class CommunityService {
         System.out.println("tags size = " + tags.size());
 
 
-        // 4️⃣ 로그인 유저가 좋아요 눌렀는지 체크
+        // 좋아요 여부 , 내글 체크
         if (mdto != null) { // 로그인 상태일 때만
+
+            Long currentUserId = mdto.getId(); // 현재 로그인한 사람 ID
+
             for (CommunityListDto post : posts) {
+                //좋아요 체크
                 boolean liked = lr.existsByPost_IdAndMember_Id(post.getPostId(), mdto.getId());
                 post.setLiked(liked);
+
+                // 🔥 2. [추가] 내 글인지 체크 (Owner)
+                // 작성자ID와 로그인한ID가 같으면 true
+                if (post.getMemberId().equals(currentUserId)) {
+                    post.setOwner(true);
+                } else {
+                    post.setOwner(false);
+                }
             }
         }
 
@@ -228,4 +243,41 @@ public class CommunityService {
         return dto;
     }
 
+    public void deletePost(Long postId, Long memberId) {
+        // 1. 게시글 조회 (없으면 에러)
+
+        Post post = cr.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        // 2. 주인 확인 (내 글 아니면 에러)
+        if (!post.getMember().getId().equals(memberId)) {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
+
+        // ==========================================
+        // 3. 연관 데이터 삭제 (청소 시작!) 🧹
+        // ==========================================
+
+        // 3-1. 태그 매핑 삭제
+        tmr.deleteByTargetId(postId);
+
+        // 3-2. 좋아요 삭제
+        lr.deleteByPost(post);
+
+        // 3-3. 파일(이미지) DB 데이터 삭제
+        // (실제 S3 파일 삭제는 나중에 구현해도 됩니다. 일단 DB부터!)
+        fr.deleteByPost(post);
+
+        // 3-4. 댓글 삭제 (ReplyRepository가 있다면)
+        // replyRepository.deleteByPost(post);
+
+        // 3-5. CommunityPost(카테고리 연결) 삭제
+        cpr.deleteByPost(post);
+
+
+        // ==========================================
+        // 4. 대망의 게시글 삭제 💣
+        // ==========================================
+        cr.delete(post);
+    }
 }

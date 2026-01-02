@@ -15,6 +15,56 @@
 
 .postSection .postBox .postWrap .postMiddle .postContent {display: inline-block;cursor:pointer;}
 
+/*더보기 모달*/
+.postSection .postWrap .postTop .moreIcon{position: relative;}
+
+.postMoreModal {
+    display: none; /* 평소엔 안 보임 */
+    position: absolute;
+    top: 30px; /* 아이콘 바로 아래 */
+    right: 0;
+    width: 100px; /* 작게 */
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+.postMoreModal.active {
+    display: flex;
+}
+
+/* 2. 메뉴 버튼 스타일 (이중 선택자 적용) */
+.postMoreModal .menuItem {
+    width: 100%;
+    padding: 10px 0;
+    background: #fff;
+    border: none;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.postMoreModal .menuItem:last-child {
+    border-bottom: none;
+}
+
+.postMoreModal .menuItem:hover {
+    background: #f9f9f9;
+}
+
+/* 3. 삭제, 신고 버튼 (빨간색 강조) */
+.postMoreModal .menuItem.danger {
+    color: #ff4d4d;
+    font-weight: 600;
+}
+
+
 
 /*포스트 이미지 슬라이드*/
 .swiper.commuSlide {

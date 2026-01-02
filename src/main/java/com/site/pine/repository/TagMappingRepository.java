@@ -23,4 +23,6 @@ public interface TagMappingRepository extends JpaRepository<TagMapping,Long> {
     List<TagResDto> findTagsByTargetIds(
             @Param("targetIds") List<Long> targetIds
     );
+
+    void deleteByTargetId(Long postId);
 }
