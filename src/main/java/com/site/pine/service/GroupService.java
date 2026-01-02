@@ -272,7 +272,7 @@ public class GroupService {
             throw new AccessDeniedException("그룹장이 아닌 그룹원은 삭제 권한이 없습니다.");
         }
 
-        gconr.delete(groupContentE);
+        gconr.delete(groupContentE); // 하나 삭제
 
         try {
             sus.deleteFile(oldFile.getPath());

@@ -63,25 +63,4 @@ public class Member {
     private Timestamp marketing_agreed_date;
     @Column(nullable = false, columnDefinition = "varchar(45) default '1.0'")
     private String agreed_version;
-
-
-    @Comment("커뮤니티 포스트를 작성한 멤버")
-    @OneToMany(
-            mappedBy = "member",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private List<Post> posts = new ArrayList<>();
-
-
-    @Comment("그룹에 가입된 멤버")
-    @OneToMany(
-            mappedBy = "member",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private List<GroupMember> groupMembers = new ArrayList<>();
-
 }
