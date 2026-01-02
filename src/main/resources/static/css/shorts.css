@@ -32,8 +32,20 @@ body {
 .shortsFeed .cardInner .userPanel .avatar {width: 42px; height: 42px; border-radius: 50%; overflow: hidden;}
 .shortsFeed .cardInner .userPanel .avatar > img {width: 100%; height: 100%; object-fit: cover;}
 
-.shortsFeed .cardInner .videoShell {display: flex; align-items: center;width: 100%; height: 100%; background: #000;}
-.shortsFeed .cardInner .videoShell > video {width: 100%; object-fit: contain;}
+.shortsFeed .cardInner .videoShell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    aspect-ratio: 9 / 16;
+    max-width: 500px;
+    width: auto;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.shortsFeed .cardInner .videoShell > video {width: 100%; height: 100%; object-fit: contain;}
 
 .shortsFeed .cardInner .actionPanel {display: flex; flex-direction: column; justify-content: center; flex-shrink:0; gap: 16px; width: 106px; height: 100%;}
 
@@ -161,3 +173,121 @@ body {
     cursor: pointer;
 }
 
+/* 빈 상태 (Empty State) 스타일 */
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh; /* 화면의 60% 정도 높이 차지 */
+    text-align: center;
+    color: #666;
+}
+
+.emptyState .icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.emptyState h3 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.emptyState p {
+    font-size: 16px;
+    margin-bottom: 30px;
+    color: #888;
+}
+
+.btnUploadEmpty {
+    padding: 12px 30px;
+    background-color: #FF0000;
+    color: white;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btnUploadEmpty:hover {
+    background-color: #cc0000;
+}
+
+/* 비디오 감싸는 틀: UI 위치 기준점 */
+.shortsFeed .cardInner .videoShell {
+    position: relative; /* 자식 요소 절대 위치(absolute) 기준 */
+    cursor: pointer;
+}
+
+/* 재생/일시정지 오버레이 아이콘 (중앙 정렬) */
+.playOverlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0; /* 기본은 숨김 */
+    transition: opacity 0.2s;
+    pointer-events: none; /* 클릭 통과 */
+    z-index: 10;
+}
+
+/* 멈춤 상태일 때 오버레이 보이기 (JS로 클래스 제어) */
+.videoShell.paused .playOverlay {
+    opacity: 1;
+}
+
+.playOverlay::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 18px solid #fff; /* 플레이 아이콘 모양 */
+    margin-left: 4px;
+}
+
+/* 하단 진행바 컨테이너 */
+.progressBarContainer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    z-index: 20;
+}
+
+/* 실제 진행되는 바 (빨간색) */
+.progressBarFill {
+    width: 0%; /* JS로 제어 */
+    height: 100%;
+    background-color: #ff0000;
+    transition: width 0.1s linear;
+}
+
+/* 재생 시간 표시 텍스트 */
+.timeDisplay {
+    position: absolute;
+    bottom: 12px;     /* 진행바보다 조금 위에 위치 */
+    right: 15px;      /* 오른쪽 정렬 */
+    color: #fff;      /* 흰색 텍스트 */
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); /* 글자가 잘 보이게 그림자 추가 */
+    z-index: 20;
+    pointer-events: none; /* 클릭 방해 안 함 */
+}

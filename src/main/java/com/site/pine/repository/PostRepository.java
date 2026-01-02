@@ -54,11 +54,22 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         from ShortsPost sp
         join sp.post p
         left join p.member m
+        where exists (
+            select 1 from File f
+            where f.post = p
+            and f.status = 2
+        )
         order by p.writeDate desc, p.id desc
     """,
             countQuery = """
         select count(sp)
         from ShortsPost sp
+        join sp.post p
+        where exists (
+            select 1 from File f
+            where f.post = p
+            and f.status = 2
+        )
     """
     )
     Page<ShortsMainDto> getAllShortsPostList(Pageable pageable);
