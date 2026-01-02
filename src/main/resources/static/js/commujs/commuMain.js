@@ -97,7 +97,7 @@ window.addEventListener("load", () => {
 
                                     <div class="postBottom">
                                         <div class="icoBox postLike">
-                                            <span class="ico ico_like ${info.liked ? "active" : ""}" onclick="toggleLike(${info.postId}, this)"></span>
+                                            <span class="ico ico_like ${info.liked ? "active" : ""}" onclick="toggleLike('POST', ${info.postId}, this)"></span>
                                             <span id="likeCount_${info.postId}">
                                                 ${info.likeCount}
                                             </span>

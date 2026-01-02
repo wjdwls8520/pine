@@ -13,6 +13,7 @@ import com.site.pine.entity.community.CommunityPost;
 import com.site.pine.entity.post.Post;
 import com.site.pine.repository.*;
 import com.site.pine.repository.community.CommunityPostRepository;
+import com.site.pine.repository.like.PostLikeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,7 @@ public class CommunityService {
     private final PostRepository cr;
     private final S3UploadService sus;
     private final FileRepository fr;
-    private final LikesRepository lr;
+    private final PostLikeRepository lr;
     private final MemberRepository mr;
     private final TagRepository tr;
     private final TagMappingRepository tmr;
@@ -164,9 +165,7 @@ public class CommunityService {
         // 4️⃣ 로그인 유저가 좋아요 눌렀는지 체크
         if (mdto != null) { // 로그인 상태일 때만
             for (CommunityListDto post : posts) {
-                boolean liked = lr.existsByMember_IdAndTargetId(
-                        mdto.getId(), post.getPostId()
-                );
+                boolean liked = lr.existsByPost_IdAndMember_Id(post.getPostId(), mdto.getId());
                 post.setLiked(liked);
             }
         }
@@ -186,7 +185,7 @@ public class CommunityService {
         //좋아요여부확인
         boolean isLiked = false;
         if(memberId != null) {
-            isLiked  = lr.existsByMember_IdAndTargetId(memberId, post.getId());
+            isLiked = lr.existsByPost_IdAndMember_Id(post.getId(), memberId);
         }
 
         // 엔티티 → DTO 변환
@@ -229,28 +228,4 @@ public class CommunityService {
         return dto;
     }
 
-
-    public int toggleLike(Long postId, Long memberId) {
-        Optional<Likes> existingLike = lr.findByMember_IdAndTargetId(memberId, postId);
-
-        Post post = cr.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("포스트가 존재하지 않습니다."));
-
-        if (existingLike.isPresent()) {
-            // 좋아요 취소
-            lr.delete(existingLike.get());
-            post.setLikeCount(post.getLikeCount() - 1);
-        } else {
-            // 좋아요 추가
-            Likes like = new Likes();
-            like.setTargetId(postId);
-            like.setMember(new Member());
-            like.getMember().setId(memberId);
-            lr.save(like);
-            post.setLikeCount(post.getLikeCount() + 1);
-        }
-
-        cr.save(post); // 변경된 likeCount 저장
-        return post.getLikeCount();
-    }
 }

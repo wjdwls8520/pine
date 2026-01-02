@@ -56,5 +56,6 @@
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
 <script src="/js/timeAgo.js"></script>
 <script src="/js/swiper-bundle.min.js"></script>
+<script src="/js/toggleLike.js"></script>
 <script src="/js/commujs/commuMain.js"></script>
 
