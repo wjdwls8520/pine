@@ -4,7 +4,9 @@ import com.site.pine.entity.Member;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupMember;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -19,4 +21,8 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
 
 
     Optional<GroupMember> findByMemberAndGroupContents(Member memberE, GroupContents groupContentE);
+
+    @Modifying
+    @Query("DELETE FROM GroupMember gm WHERE gm.groupContents.id = :groupId")
+    void deleteAllByGroupId(@Param("groupId") Long groupId);
 }

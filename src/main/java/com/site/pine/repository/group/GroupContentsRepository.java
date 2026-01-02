@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 
 public interface GroupContentsRepository extends JpaRepository<GroupContents, Long> {
     @Query(
@@ -88,4 +90,5 @@ public interface GroupContentsRepository extends JpaRepository<GroupContents, Lo
     @Modifying
     @Query("update GroupContents g set g.todayViewCount = g.todayViewCount + 1 where g.id = :id")
     void increaseTodayViewCount(@Param("id") Long groupId);
+
 }
