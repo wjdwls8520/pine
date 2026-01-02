@@ -1,12 +1,10 @@
 package com.site.pine.controller;
 
-import com.site.pine.dto.group.GroupCategoryDto;
-import com.site.pine.dto.group.GroupContentReqDto;
-import com.site.pine.dto.group.GroupContentResDto;
-import com.site.pine.dto.group.GroupMemberResDto;
+import com.site.pine.dto.group.*;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Controller
+@Slf4j
 @RequiredArgsConstructor
 public class GroupController {
 
@@ -182,6 +181,35 @@ public class GroupController {
         }
 
         return "group/gJoinList";
+    }
+
+    @PostMapping("/group/gjoin")
+    @ResponseBody
+    public ResponseEntity<HashMap<String, Object>> gjoin(
+            @AuthenticationPrincipal MemberDto memberdto,
+            @RequestBody GroupJoinRequestDto reqdto
+        ) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        if (memberdto == null) {
+            result.put("msg", "redirect:/errorLogin");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        }
+
+        try {
+            String msg = gs.insertJoinGroupMember(memberdto, reqdto);
+            result.put("msg", msg);
+        } catch (IllegalStateException | AccessDeniedException e) {
+            result.put("msg", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+        } catch (Exception e) {
+            // 예상치 못한 에러 로깅
+            log.error("Group Join Error", e);
+            result.put("msg", "서버 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+        }
+
+        return ResponseEntity.ok(result);
     }
 
 }

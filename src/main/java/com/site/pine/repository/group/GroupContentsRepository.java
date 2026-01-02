@@ -91,4 +91,7 @@ public interface GroupContentsRepository extends JpaRepository<GroupContents, Lo
     @Query("update GroupContents g set g.todayViewCount = g.todayViewCount + 1 where g.id = :id")
     void increaseTodayViewCount(@Param("id") Long groupId);
 
+    @Modifying
+    @Query("update GroupContents g set g.groupMemberCount = g.groupMemberCount + 1 where g.id = :id")
+    void increaseGroupMemberCount(@Param("id") Long groupId);
 }

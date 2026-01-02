@@ -25,4 +25,6 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
     @Modifying
     @Query("DELETE FROM GroupMember gm WHERE gm.groupContents.id = :groupId")
     void deleteAllByGroupId(@Param("groupId") Long groupId);
+
+    Boolean existsByGroupContentsAndMember(GroupContents groupE, Member memberE);
 }

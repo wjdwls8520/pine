@@ -6,15 +6,11 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.S3FileDeleteFailList;
-import com.site.pine.entity.group.GroupCategoryList;
-import com.site.pine.entity.group.GroupContents;
-import com.site.pine.entity.group.GroupInCategory;
-import com.site.pine.entity.group.GroupMember;
+import com.site.pine.entity.group.*;
 import com.site.pine.mapper.GroupMapper;
 import com.site.pine.mapper.S3FileDeleteFailMapper;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.ViewGroupRepository;
 import com.site.pine.repository.group.*;
 
 import jakarta.persistence.EntityManager;
@@ -50,8 +46,7 @@ public class GroupService {
 
     private final MemberRepository mr;
     private final GroupMemberRepository gmr;
-
-    private final ViewGroupRepository vr;
+    private final GroupJoinRequestRepository gjrr;
 
     private final S3UploadService sus;
     private final FileRepository fr;
@@ -329,5 +324,61 @@ public class GroupService {
         result.put("todayViewCount", group.getTodayViewCount()); // 그룹만 오늘 조회수가 있어서 쓰이는 코드
 
         return result;
+    }
+
+    @Transactional
+    public String insertJoinGroupMember(MemberDto memberdto, GroupJoinRequestDto reqdto) {
+
+        Member memberE = mr.findById(memberdto.getId())
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 멤버입니다."));
+
+        GroupContents groupE = gconr.findById(reqdto.getGroupId())
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 그룹입니다."));
+
+        Boolean isGroupMember = gmr.existsByGroupContentsAndMember(groupE, memberE);
+
+        Boolean isGroupJoinRequest = gjrr.existsByGroupContentsAndMemberAndStatus(groupE, memberE, 0);
+
+        // 가입 신청 불가능 옵션일 때
+        if(groupE.getJoinState() == 0) {
+            throw new IllegalStateException("[error] 해당 그룹은 가입신청이 불가능한 상태의 그룹입니다."); // 그룹 설정이 가입 불가능 이라면
+        }
+
+        // 가입 신청 가능 옵션일 때
+        if(isGroupMember) throw new IllegalStateException("[error] 이미 해당 그룹에 가입되어 있으십니다.");  // 이미 그룹멤버라면 불가능.
+        if(isGroupJoinRequest) throw new IllegalStateException("[error] 이미 해당 그룹에 가입신청이 되어 있으십니다.");  // 이미 그룹신청멤버라면 불가능.
+
+
+        if (groupE.getAutoJoin() == 1) {
+            // [자동 승인] 즉시 그룹 멤버로 추가
+            GroupMember newMember = new GroupMember();
+            newMember.setGroupContents(groupE);
+            newMember.setMember(memberE);
+            newMember.setRole(3); // 일반 회원
+            gmr.save(newMember);
+
+            // 멤버 수 증가 및 조회수 갱신 등
+            gconr.increaseGroupMemberCount(groupE.getId());
+
+            // [자동 저장] 그룹신청리스트(승인)로 추가
+            GroupJoinRequest request = GroupJoinRequest.builder()
+                .groupContents(groupE)
+                .member(memberE)
+                .introduction(reqdto.getIntroduction())
+                .status(1)
+                .build();
+            gjrr.save(request);
+            return "그룹 가입이 완료되었습니다.";
+        } else {
+            // [관리자 승인] 그룹신청리스트(대기)로 추가
+            GroupJoinRequest request = GroupJoinRequest.builder()
+                .groupContents(groupE)
+                .member(memberE)
+                .introduction(reqdto.getIntroduction())
+                .status(0)
+                .build();
+            gjrr.save(request);
+            return "그룹 가입신청이 완료되었습니다.";
+        }
     }
 }
