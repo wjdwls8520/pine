@@ -67,13 +67,19 @@
                                     <%-- 비로그인유저 및 비그룹원 --%>
                                     <c:otherwise>
                                         <sec:authorize access="isAuthenticated()">
-                                            <button type="button" class="groupPrimaryBtn" onclick="alert('가입 신청 하시겠습니까?')">그룹 가입</button>
+                                            <c:choose>
+                                                <c:when test="${groupDetail.joinState == 1}">  <%-- 가입 가능 옵션 상태 --%>
+                                                    <button type="button" class="groupPrimaryBtn" onclick="openJoinModal()">그룹 가입</button>
+                                                </c:when>
+                                                <c:otherwise> <%-- 가입 불가능 옵션 상태 --%>
+                                                    <button type="button" class="groupPrimaryBtn notClick">그룹 가입</button>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </sec:authorize>
 
                                         <sec:authorize access="isAnonymous()">
                                             <button type="button" class="groupPrimaryBtn" onclick="alert('로그인 이후 이용하실 수 있습니다.'); return location.href='/login';">그룹 가입</button>
                                         </sec:authorize>
-
                                     </c:otherwise>
                                 </c:choose>
 
@@ -227,6 +233,30 @@
 
     </article>
 </div>
+<%-- ... 기존 HTML 끝 ... --%>
+
+<div id="groupJoinModal" class="groupJoinModal">
+    <div class="groupJoinModalContent">
+        <div class="groupJoinModalHeader">
+            <h3 class="groupJoinModalTitle">그룹 가입 신청</h3>
+            <button type="button" class="groupJoinModalClose" onclick="closeJoinModal()">&times;</button>
+        </div>
+        <div class="groupJoinModalBody">
+            <p class="groupJoinModalDesc">
+                그룹장에게 전송될 간단한 자기소개를 입력해주세요.<br>
+                승인이 완료되면 그룹 활동을 시작할 수 있습니다.
+            </p>
+            <textarea id="joinIntroduction" class="formTextarea" maxlength="200" placeholder="안녕하세요! 이 그룹의 활동에 관심이 있어 신청합니다.">안녕하세요! 이 그룹의 활동에 관심이 있어 신청합니다.</textarea>
+        </div>
+        <div class="groupJoinModalFooter">
+            <button type="button" class="groupJoinBtn groupJoinBtnCancel" onclick="closeJoinModal()">취소</button>
+            <button type="button" class="groupJoinBtn groupJoinBtnSubmit" onclick="submitGroupJoin()">신청하기</button>
+        </div>
+    </div>
+</div>
+
+
+
 <jsp:include page="../include/group_footer.jsp"></jsp:include>
 <script>
     let targetId = Number("${groupDetail.id}");
@@ -263,6 +293,72 @@
             let dataViewCompareResult = document.querySelectorAll(".dataViewCompareResult");
             dataViewCompareResult.forEach((data)=> data.innerText = result.viewCompareResult.percent + '% ' + result.viewCompareResult.status);
         }).catch(err => console.error(err));
+
+
+
+
+
+
+    // 팝업 열기
+    function openJoinModal() {
+        if(confirm("그룹 가입을 신청하시겠습니까?")) {
+            document.getElementById('groupJoinModal').classList.add('active');
+            // 스크롤 방지 (선택사항)
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // 팝업 닫기
+    function closeJoinModal() {
+        document.getElementById('groupJoinModal').classList.remove('active');
+        document.getElementById('joinIntroduction').value = ''; // 입력값 초기화
+        document.body.style.overflow = '';
+    }
+
+    // 팝업 외부 클릭 시 닫기
+    document.getElementById('groupJoinModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeJoinModal();
+        }
+    });
+
+    // 가입 신청 전송 (AJAX)
+    function submitGroupJoin() {
+        const introduction = document.getElementById('joinIntroduction').value;
+
+        // 유효성 검사
+        if (!introduction.trim()) {
+            alert("가입 인사말을 입력해주세요.");
+            return;
+        }
+
+        const joinData = {
+            groupId: targetId, // 상단 스크립트 변수 사용
+            introduction: introduction
+        };
+
+        // TODO: 컨트롤러 URL에 맞게 수정 필요 (/group/join 등)
+        fetch('/group/gjoin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(joinData)
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
+                return response.json(); // 성공하면 JSON 반환
+            })
+            .then((result) => {
+                alert(result.msg);
+                closeJoinModal();
+                location.reload(); // 상태 반영을 위해 새로고침
+            })
+            .catch(err => {
+                console.error(err);
+                alert(err.message);
+            });
+    }
 </script>
 </body>
 </html>

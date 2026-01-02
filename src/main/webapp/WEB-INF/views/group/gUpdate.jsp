@@ -120,22 +120,22 @@
                         <%-- 가입 승인 설정 섹션 --%>
                         <div class="formSection">
                             <div class="formHeader">
-                                <h3 class="formTitle">가입 승인 설정</h3>
-                                <p class="formDescription">그룹 가입 시 승인이 필요한지 설정하세요.</p>
+                                <h3 class="formTitle">가입 여부 설정</h3>
+                                <p class="formDescription">그룹 가입 가능 여부를 설정하세요.</p>
                             </div>
                             <div class="radioGroup">
                                 <label class="radioOption">
                                     <input type="radio" name="joinState" value="1" ${groupDetail.joinState == 1 ? "checked" : null} />
                                     <div class="radioContent">
-                                        <div class="radioTitle">승인 필요</div>
-                                        <div class="radioDescription">그룹 관리자가 가입 요청을 승인해야 합니다</div>
+                                        <div class="radioTitle">승인</div>
+                                        <div class="radioDescription">유저기 그룹에 가입이 가능합니다.</div>
                                     </div>
                                 </label>
                                 <label class="radioOption">
                                     <input type="radio" name="joinState" value="0" ${groupDetail.joinState == 0 ? "checked" : null} />
                                     <div class="radioContent">
-                                        <div class="radioTitle">승인 불필요</div>
-                                        <div class="radioDescription">누구나 자유롭게 가입할 수 있습니다</div>
+                                        <div class="radioTitle">거부</div>
+                                        <div class="radioDescription">유저가 그룹에 가입이 불가능합니다.</div>
                                     </div>
                                 </label>
                             </div>

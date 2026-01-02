@@ -159,6 +159,7 @@
 .groupDetail .groupActivityList span {font-size: 12px; color: rgba(255,255,255,0.65);}
 
 
+
 /* groupJoinList 페이지 */
 .groupJoinListWrap {display: flex; flex-direction: column; gap: 24px; max-width: 900px; margin: 0 auto; padding: 0 20px;}
 .groupJoinListHeader {display: flex; flex-direction: column; gap: 8px;}
@@ -182,6 +183,34 @@
 .groupJoinListBtnApprove:hover {background: #0f3d26;}
 .groupJoinListBtnReject {background: #f3f4f6; color: #6b7280;}
 .groupJoinListBtnReject:hover {background: #e5e7eb; color: #141414;}
+
+
+
+/* 그룹 가입 신청 팝업 (Modal) */
+.groupJoinModal {display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; backdrop-filter: blur(4px); align-items: center; justify-content: center;}
+.groupJoinModal.active {display: flex;}
+
+.groupJoinModalContent {position: relative; width: 90%; max-width: 500px; background: #fff; border-radius: 20px; box-shadow: 0 24px 60px rgba(0,0,0,0.3); overflow: hidden; animation: modalFadeIn 0.3s ease-out;}
+@keyframes modalFadeIn { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+
+.groupJoinModalHeader {display: flex; align-items: center; justify-content: space-between; padding: 24px 28px; border-bottom: 1px solid #f3f4f6;}
+.groupJoinModalTitle {margin: 0; font-size: 20px; font-weight: 700; color: #141414;}
+.groupJoinModalClose {display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; border-radius: 50%; background: #f3f4f6; color: #6b7280; font-size: 18px; cursor: pointer; transition: all 0.2s;}
+.groupJoinModalClose:hover {background: #e5e7eb; color: #141414;}
+
+.groupJoinModalBody {padding: 28px;}
+.groupJoinModalDesc {margin: 0 0 16px 0; font-size: 14px; color: #6b7280; line-height: 1.5;}
+
+/* 기존 groupCreateForm 스타일 재사용 */
+.groupJoinModalBody .formTextarea {padding: 16px; width: 100%; min-height: 120px;  border: 1px solid #e3e6e9; border-radius: 8px; font-size: 15px; color: #141414; resize: none; box-sizing: border-box; font-family: inherit;}
+.groupJoinModalBody .formTextarea:focus {outline: none; border-color: #194f37;}
+
+.groupJoinModalFooter {display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 20px 28px; background: #f9fafb; border-top: 1px solid #f3f4f6;}
+.groupJoinBtn {padding: 12px 24px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;}
+.groupJoinBtnCancel {background: #fff; border: 1px solid #e3e6e9; color: #6b7280;}
+.groupJoinBtnCancel:hover {background: #f3f4f6; color: #141414;}
+.groupJoinBtnSubmit {background: #194f37; border: 1px solid #194f37; color: #fff;}
+.groupJoinBtnSubmit:hover {background: #0f3d26; border-color: #0f3d26;}
 
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
