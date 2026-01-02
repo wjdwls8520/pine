@@ -58,7 +58,7 @@
                             <div class="postBottom">
                                 <div class="icoBox postLike">
                                     <span class="ico ico_like ${post.liked ? "active" : ""}"
-                                          onclick="toggleLike(${post.id}, this)"></span>
+                                          onclick="toggleLike('POST', ${post.id}, this)"></span>
                                     <span id="likeCount_${post.id}">${post.likeCount}</span>
                                 </div>
                                 <div class="icoBox postReply">
@@ -118,6 +118,7 @@
     const POST_ID = ${post.id};
 </script>
 <script src="/js/timeAgo.js"></script>
+<script src="/js/toggleLike.js"></script>
 <script src="/js/commujs/commuDetail.js"></script>
 <script src="/js/swiper-bundle.min.js"></script>
 

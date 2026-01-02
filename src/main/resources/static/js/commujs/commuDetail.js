@@ -61,6 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================
     // 댓글 DOM 생성 (공통)
     // =====================
+    // =====================
+    // 댓글 DOM 생성 (공통)
+    // =====================
     function createReplyBox(reply, isChild) {
         const box = document.createElement("div");
         box.className = isChild ? "replyBox child" : "replyBox";
@@ -101,15 +104,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const contentText = document.createElement("p");
         contentText.className = "replyTxt";
-        contentText.textContent = reply.content; // 🔐 XSS 차단
+        contentText.textContent = reply.content;
 
         contentWrap.appendChild(contentText);
 
         const bottom = document.createElement("div");
         bottom.className = "replyBottom";
 
+        // 🔥 [수정 포인트 1] 좋아요 아이콘 생성 및 설정
         const likeIcon = document.createElement("span");
         likeIcon.className = "ico ico_like replyLike";
+
+        // 1-1. 내가 좋아요 누른 댓글이면 빨간색(active) 표시
+        // (주의: 서버 DTO에서 reply.liked 값을 boolean으로 줘야 함)
+        if (reply.liked) {
+            likeIcon.classList.add("active");
+        }
+
+        // 1-2. 클릭 이벤트 연결 (여기서 'REPLY' 타입 전달!)
+        likeIcon.onclick = function() {
+            toggleLike('REPLY', reply.id, this);
+        };
 
         const likeCount = document.createElement("span");
         likeCount.className = "likeCount";

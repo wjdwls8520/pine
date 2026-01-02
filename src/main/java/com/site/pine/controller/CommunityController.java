@@ -4,6 +4,7 @@ import com.site.pine.dto.community.CommunityCreateReqDto;
 import com.site.pine.dto.community.CommunityDetailResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.CommunityService;
+import com.site.pine.service.LikesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,7 @@ import java.util.List;
 public class CommunityController {
 
     private final CommunityService cs;
+
 
     @GetMapping("/community") //  url
     public String community(){
@@ -64,25 +66,5 @@ public class CommunityController {
         return "community/cDetail"; // JSP에서 ${post.필드} 로 접근
     }
 
-    @PostMapping("/community/likeCount/{postId}")
-    @ResponseBody  // JSON으로 반환
-    public HashMap<String, Object> likeCount(@PathVariable("postId") Long postId,
-                                             @AuthenticationPrincipal MemberDto mdto) {
-
-        HashMap<String, Object> result = new HashMap<>();
-
-        if (mdto == null) { //로그인체크
-            result.put("success", false);
-            result.put("message", "로그인이 필요합니다.");
-            return result;
-        }
-
-        Long memberId = mdto.getId();
-        int likeCount = cs.toggleLike(postId, memberId);
-
-        result.put("success", true);
-        result.put("likeCount", likeCount);
-        return result;
-    }
 
 }
