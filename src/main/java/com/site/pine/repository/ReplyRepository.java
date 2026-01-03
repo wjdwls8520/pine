@@ -1,21 +1,24 @@
 package com.site.pine.repository;
 
 import com.site.pine.entity.Reply;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
-    // 부모 댓글만
     @Query("""
-    select r from Reply r
-    left join fetch r.children
-    where r.targetId = :targetId
-    and r.parent is null
-    order by r.writeDate asc
+        select r 
+        from Reply r 
+        join fetch r.member 
+        where r.post.id = :postId 
+        and r.parent is null 
+        order by r.writeDate asc
     """)
-    List<Reply> findParentReplies(Long targetId);
+    Page<Reply> findParentReplies(@Param("postId") Long postId, Pageable pageable);
 
 }
