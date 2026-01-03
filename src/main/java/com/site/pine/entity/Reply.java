@@ -1,15 +1,17 @@
 package com.site.pine.entity;
 
+import com.site.pine.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,24 +29,26 @@ public class Reply {
     @Column(nullable = false, length = 500)
     private String content;
 
-    @Comment("해당 컨텐츠의 id")
-    @Column(nullable = false)
-    private Long targetId;
+    // targetId 삭제 -> Post 엔티티와 직접 매핑
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
-    @Comment("일반=0,비공개(암호)=1,삭제=2,신고됨=3")
+    @Comment("일반글 = N, 삭제글 = Y")
     @Column(nullable = false)
-    private Integer status = 0;
+    private String deleteYN = "N";
 
     @Comment("작성 날짜")
     @CreationTimestamp
-    private Timestamp writeDate;
+    private LocalDateTime writeDate;
 
     @Comment("수정 날짜")
     @UpdateTimestamp
-    private Timestamp updateDate;
+    private LocalDateTime updateDate;
 
-
-
+    @Comment("좋아요 수, 기본값 0")
+    @Column(nullable = false)
+    private Integer likeCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -55,8 +59,9 @@ public class Reply {
     @JoinColumn(name = "parent_id")
     private Reply parent;
 
-    @Comment("자식댓글들(부모댓삭제해도 남아있음)")
-    @OneToMany(mappedBy = "parent")
+    @Comment("대댓글(자식댓글)")
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
     private List<Reply> children = new ArrayList<>();
 
 

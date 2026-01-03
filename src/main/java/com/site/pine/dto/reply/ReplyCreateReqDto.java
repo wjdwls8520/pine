@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class ReplyCreateReqDto {
 
-    private Long targetId;    //
+    private Long postId;
     private String content;
     private Long parentId;    // null = 댓글, 값 있으면 대댓글
 
