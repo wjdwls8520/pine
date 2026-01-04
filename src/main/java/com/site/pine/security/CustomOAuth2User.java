@@ -43,7 +43,7 @@ public class CustomOAuth2User implements OAuth2User {
         return member != null ? member.getProfileimg() : null;
     }
 
-    // 🔹 OAuth2User 필수 구현
+    //  OAuth2User 필수 구현
     @Override
     public Map<String, Object> getAttributes() {
         return oauth2User.getAttributes();

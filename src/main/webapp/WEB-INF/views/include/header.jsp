@@ -22,7 +22,7 @@
                 </form>
             </sec:authorize>
             <sec:authorize access="hasRole('ROLE_OAUTH')">
-                <a href="#">회원가입을 진행해주세요.</a>
+                <a href="/CheckCours">회원가입을 진행해주세요.</a>
             </sec:authorize>
             <sec:authorize access="hasRole('ROLE_USER')">
                 <a href="/GoMypage">MyPage</a>

@@ -12,14 +12,14 @@ import com.site.pine.repository.MemberRepository;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class MemberService {
@@ -126,53 +126,42 @@ public class MemberService {
         return cr.findPostList();
     }
 
-    @Autowired
-    WebClient webClient;
-    private List<CountryDto> cachedCountries = new ArrayList<>();
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public MemberService(WebClient webClient) {
-        this.webClient = webClient;
-    }
+    @Value("5a177020f5fbeb60757eb1697251438649db35eb6d7383bd9db462ad216af0e2")
+    private String serviceKey;
 
-    @PostConstruct
-    public void loadCountries() {
+    public List<CountryDto> getCountryList() {
 
-        String uri =
-                "/getCountryCodeList3"
-                        + "?serviceKey=" + "5a177020f5fbeb60757eb1697251438649db35eb6d7383bd9db462ad216af0e2"
-                        + "&numOfRows=300"
-                        + "&pageNo=1"
-                        + "&type=json";
+        String url =
+                "https://api.odcloud.kr/api/15091117/v1/uddi:bbcc2939-88e0-4a54-af03-ab819b4130e6"
+                        + "?page=1"
+                        + "&perPage=300"
+                        + "&serviceKey=" + serviceKey;
 
-        JsonNode root = webClient.get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(JsonNode.class)
-                .block();
+        Map response = restTemplate.getForObject(url, Map.class);
 
-        JsonNode items = root.path("response")
-                .path("body")
-                .path("items")
-                .path("item");
+        List<Map<String, Object>> data =
+                (List<Map<String, Object>>) response.get("data");
 
-        for (JsonNode node : items) {
-            CountryDto dto = new CountryDto();
-            dto.setCountry_nm(node.path("country_nm").asText());
-            dto.setCountry_eng_nm(node.path("country_eng_nm").asText());
-            dto.setCountry_iso_alp2(node.path("country_iso_alp2").asText());
-            cachedCountries.add(dto);
+        List<CountryDto> result = new ArrayList<>();
+
+        for (Map<String, Object> row : data) {
+            String kor = Objects.toString(row.get("한글명"), "");
+            String eng = Objects.toString(row.get("영문명"), "");
+            String iso = Objects.toString(row.get("ISO alpha2"), "");
+
+            result.add(new CountryDto(kor, eng, iso));
+
+//            System.out.println(row);
         }
-    }
 
-    public List<CountryDto> searchCountry(String keyword) {
-        String lower = keyword.toLowerCase();
+        if(result.isEmpty()) {
+            System.out.println("뭔가 잘못됨");
+        }else{
+            System.out.println("result:"+result.size());
+        }
 
-        return cachedCountries.stream()
-                .filter(c ->
-                        c.getCountry_nm().contains(keyword) ||
-                                c.getCountry_eng_nm().toLowerCase().contains(lower)
-                )
-                .limit(10)
-                .toList();
+        return result;
     }
 }

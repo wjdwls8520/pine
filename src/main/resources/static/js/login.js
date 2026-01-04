@@ -102,80 +102,19 @@ function beforInsertMember(){
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    searchContry();
-});
 
 document.addEventListener("DOMContentLoaded", () => {
     const country = document.getElementById("country").value;
     handleCountryChange(country);
 });
 
-function searchContry(){
-    let timer;
-
-    const input = document.getElementById("country");
-    const list  = document.getElementById("country_result");
-
-    input.addEventListener("input", e => {
-        clearTimeout(timer);
-        const keyword = e.target.value.trim();
-
-        if (keyword.length < 1) {
-            list.innerHTML = "";
-            list.style.display = "none";
-            return;
-        }
-
-        timer = setTimeout(() => {
-            fetch(`/countrySearch?keyword=${encodeURIComponent(keyword)}`)
-                .then(res => res.json())
-                .then(data => {
-
-                    list.innerHTML = "";
-
-                    if (data.length === 0) {
-                        list.style.display = "none";
-                        return;
-                    }
-
-                    // console.log("data : "+ data.country_nm);
-
-                    data.forEach(c => {
-                        const li = document.createElement("li");
-                        li.textContent = `${c.country_nm} (${c.country_eng_nm})(${c.country_iso_alp2})`;
-
-                        li.onclick = e => {
-                            e.stopPropagation();
-                            input.value = c.country_nm + " " + c.country_eng_nm;
-                            list.innerHTML = "";
-                            list.style.display = "none";
-                        };
-
-                        list.appendChild(li);
-                        handleCountryChange(c.country_nm);
-                    });
-
-                    list.style.display = "block";
-                });
-        }, 400);
-    });
-
-    document.addEventListener("click", e => {
-        if (!e.target.closest(".country_auto_box")) {
-
-            list.innerHTML = "";
-            list.style.display = "none";
-        }
-    });
-}
-
-function handleCountryChange(value) {
+function handleCountryChange() {
+    const countryCode = document.getElementById("countryCode").value;
     const addrBtn = document.getElementById("addrBtn");
     const code = document.getElementById("address_code");
     const addr1 = document.getElementById("address_1");
 
-    if (value === "대한민국") {
+    if (countryCode === "KR") {
         addrBtn.style.display = "block";
         code.readOnly = true;
         addr1.readOnly = true;
@@ -185,6 +124,7 @@ function handleCountryChange(value) {
         addr1.readOnly = false;
     }
 }
+
 
 
 function beforEditMember(){
