@@ -12,8 +12,9 @@ let shortsFeedWrap = document.getElementById("shortsFeed");
 const scrollBox = document.getElementById("shortsFeed");
 
 /**
- *  [핵심] IntersectionObserver (관찰자) 설정
+ *  IntersectionObserver (관찰자) 설정
  * - 스크롤에 따라 요소가 화면에 들어오거나 나갈 때 실행됩니다.
+ * - 쇼츠 카드가 화면 뷰포트에 들어오는지 감시
  * - getData() 함수보다 먼저 정의되어야 에러가 발생하지 않습니다.
  */
 const observer = new IntersectionObserver((entries) => {
@@ -33,7 +34,7 @@ const observer = new IntersectionObserver((entries) => {
             const currentPostId = entry.target.dataset.postId;
             if (currentPostId) {
                 // 예: /shorts/view/15 형태로 주소 변경
-                // 주의: 네 컨트롤러가 이 주소를 받을 수 있어야 함!
+                // 페이지를 새로고침하지 않고 주소(URL)만 살짝 바꾼다.(덮어씌움)
                 history.replaceState(null, null, `/shorts/view/${currentPostId}`);
             }
         } else {
@@ -78,80 +79,16 @@ async function getData(page) {
                 return;
             }
 
-            // [데이터 렌더링] 받아온 리스트를 HTML로 변환하여 추가
+            // [리팩토링] 데이터 렌더링을 renderShortCard 함수에 위임
             data.shortsList.map((info) => {
-                let videoFile = info.files.find(f => f.contentType.includes("video"));
-                let thumbnailFile = info.files.find(f => f.contentType.includes("image"));
-
-                let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(info.writeDate) : info.writeDate;
-
-                let userProfile = info.profileImg ? info.profileImg : '/images/icon_pinedory.png';
-
-                shortsFeedWrap.insertAdjacentHTML("beforeend", `
-                   <div class="shortsCard" data-post-id="${info.postId}" data-title="${info.title}" data-user="${info.nickname}" data-date="${dateStr}">
-                        <div class="cardInner">
-                            <aside class="userPanel">
-                                <div class="userWrap">
-
-                                    <div class="userHeader">
-                                        <div class="avatar">
-                                            <img src="${userProfile}" alt="user">
-                                        </div>
-                                        <div class="userInfo">
-                                            <strong class="nickname">@${info.nickname}</strong>
-                                            <span class="writedate">· ${dateStr}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="userBody">
-                                        <p class="shortsTitle">${info.title}</p>
-                                        <p class="shortsContent">${info.content}</p>
-                                    </div>
-
-                                </div>
-                            </aside>
-
-                            <div class="videoShell" onclick="toggleVideo(this)">
-                                <video autoplay muted loop playsinline
-                                       poster="${thumbnailFile && thumbnailFile.path ? thumbnailFile.path : ''}"
-                                       ontimeupdate="updateProgress(this)">
-                                       <source src="${videoFile && videoFile.path ? videoFile.path : ''}">
-                                </video>
-                                <div class="playOverlay"></div>
-                                <div class="timeDisplay">00:00 / 00:00</div>
-                                <div class="progressBarContainer">
-                                    <div class="progressBarFill"></div>
-                                </div>
-                            </div>
-
-                            <div class="actionPanel">
-                                <button class="actionBtn like"><span>좋아요</span><em>${info.likeCount || 0}</em></button>
-                                <button class="actionBtn share"><span>공유</span><em>128</em></button>
-                                <button class="actionBtn commentToggle"
-                                    onclick="openComment(${info.postId}, '${info.title}', '${info.nickname}', '${dateStr}');">
-                                    <span>댓글</span><em>${info.replyCount || 0}</em>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `);
-
-                const newCard = shortsFeedWrap.lastElementChild;
-                const titleEl = newCard.querySelector('.shortsTitle');
-                const descEl = newCard.querySelector('.shortsContent');
-
-                // 제목 넘침 검사 (2줄 이상인지)
-                if (titleEl.scrollHeight > titleEl.clientHeight) {
-                    titleEl.classList.add('expandable'); // CSS 커서 적용
-                    titleEl.setAttribute('onclick', 'toggleExpand(this)');
+                // 1. [중복 방지] 이미 화면에 있는 ID(공유로 먼저 뜬 영상)라면 건너뜀
+                if (document.querySelector(`.shortsCard[data-post-id="${info.postId}"]`)) {
+                    console.log(`[Skip] 중복 영상 건너뜀: ${info.postId}`);
+                    return;
                 }
 
-                // 내용 넘침 검사 (3줄 이상인지)
-                if (descEl.scrollHeight > descEl.clientHeight) {
-                    descEl.classList.add('expandable');
-                    descEl.setAttribute('onclick', 'toggleExpand(this)');
-                }
-                observer.observe(newCard);
+                // 2. 카드 생성 (뒤에 추가)
+                renderShortCard(info, false); // 없으면 그림
             });
 
         })
@@ -161,6 +98,115 @@ async function getData(page) {
         .finally(() => {
             loading = false; // 로딩 상태 해제
         });
+}
+
+// ==========================================
+//  [추가] 쇼츠 카드 렌더링 및 단건 조회 함수
+// ==========================================
+
+/**
+ * [신규] 단건 쇼츠 조회 (공유 링크용)
+ * - 특정 영상을 가져와서 리스트의 '맨 앞'에 꽂아넣는다.
+ */
+function getOneShort(targetId) {
+    fetch(`/shorts/detail/${targetId}`)
+        .then(res => {
+            if (!res.ok) throw new Error("쇼츠 단건 조회 실패");
+            return res.json();
+        })
+        .then(data => {
+            // 1. 받아온 데이터를 화면에 그린다 (prepend 모드: true)
+            renderShortCard(data, true);
+
+            // 2. 그 다음, 나머지 목록(최신순)을 뒤에 로딩한다.
+            getData(0);
+        })
+        .catch(err => {
+            console.error("단건 조회 중 에러:", err);
+            // 에러 나면 그냥 평소처럼 목록 로딩
+            getData(0);
+        });
+}
+
+/**
+ * [리팩토링] 쇼츠 카드 HTML 생성 및 삽입 함수
+ * @param {Object} info - 쇼츠 데이터 객체
+ * @param {boolean} isPrepend - true면 맨 앞에 추가, false면 뒤에 추가
+ */
+function renderShortCard(info, isPrepend = false) {
+    let videoFile = info.files.find(f => f.contentType.includes("video"));
+    let thumbnailFile = info.files.find(f => f.contentType.includes("image"));
+    let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(info.writeDate) : info.writeDate;
+    let userProfile = info.profileImg ? info.profileImg : '/images/icon_pinedory.png';
+
+    const html = `
+        <div class="shortsCard" data-post-id="${info.postId}" data-title="${info.title}" data-user="${info.nickname}" data-date="${dateStr}">
+            <div class="cardInner">
+                 <aside class="userPanel">
+                    <div class="userWrap">
+                        <div class="userHeader">
+                            <div class="avatar"><img src="${userProfile}" alt="user"></div>
+                            <div class="userInfo">
+                                <strong class="nickname">@${info.nickname}</strong>
+                                <span class="writedate">· ${dateStr}</span>
+                            </div>
+                        </div>
+                        <div class="userBody">
+                            <p class="shortsTitle">${info.title}</p>
+                            <p class="shortsContent">${info.content}</p>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="videoShell" onclick="toggleVideo(this)">
+                    <video autoplay muted loop playsinline
+                           poster="${thumbnailFile ? thumbnailFile.path : ''}"
+                           ontimeupdate="updateProgress(this)">
+                           <source src="${videoFile ? videoFile.path : ''}">
+                    </video>
+                    <div class="playOverlay"></div>
+                    <div class="timeDisplay">00:00 / 00:00</div>
+                    <div class="progressBarContainer"><div class="progressBarFill"></div></div>
+                </div>
+
+                <div class="actionPanel">
+                    <button class="actionBtn like"><span>좋아요</span><em>${info.likeCount || 0}</em></button>
+                    <button class="actionBtn share"><span>공유</span><em>128</em></button>
+                    <button class="actionBtn commentToggle"
+                        onclick="openComment(${info.postId}, '${info.title}', '${info.nickname}', '${dateStr}');">
+                        <span>댓글</span><em>${info.replyCount || 0}</em>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // 1. DOM에 추가
+    if (isPrepend) {
+        shortsFeedWrap.insertAdjacentHTML("afterbegin", html);
+    } else {
+        shortsFeedWrap.insertAdjacentHTML("beforeend", html);
+    }
+
+    // 2. 방금 추가된 요소 선택
+    const newCard = isPrepend ? shortsFeedWrap.firstElementChild : shortsFeedWrap.lastElementChild;
+
+    // 3. 더보기(Expand) 로직 적용 (기존 로직 이관)
+    const titleEl = newCard.querySelector('.shortsTitle');
+    const descEl = newCard.querySelector('.shortsContent');
+
+    if (titleEl && titleEl.scrollHeight > titleEl.clientHeight) {
+        titleEl.classList.add('expandable');
+        titleEl.setAttribute('onclick', 'toggleExpand(this)');
+    }
+
+    if (descEl && descEl.scrollHeight > descEl.clientHeight) {
+        descEl.classList.add('expandable');
+        descEl.setAttribute('onclick', 'toggleExpand(this)');
+    }
+
+    // 4. 관찰자(Observer) 등록
+    observer.observe(newCard);
 }
 
 
@@ -175,11 +221,7 @@ window.addEventListener("load", () => {
     if (targetId) {
         // [CASE A] 특정 쇼츠 지정 접속 (/shorts/view/15)
         console.log(`[DeepLink] 공유된 쇼츠 ID: ${targetId} 로 시작합니다.`);
-
-        // ★ 핵심: 여기서는 나중에 '특정 영상 1개만 가져오는 함수'를 호출해야 함.
-        // 지금은 임시로 그냥 목록을 부르지만, 나중엔 getOneShort(targetId) 같은 걸 써야 함.
-        getData(page);
-
+        getOneShort(targetId);
     } else {
         // [CASE B] 일반 접속 (/shorts)
         getData(page);
@@ -327,25 +369,10 @@ function loadReplies(postId, page) {
             }
 
             // [HTML 조립] 닉네임 + 날짜 / 내용 구조
+            // html 함수 호출
             let html = "";
             replies.forEach(reply => {
-                // 날짜 변환 (timeAgo 사용)
-                let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(reply.writeDate) : reply.writeDate;
-
-                // 삭제된 댓글 처리
-                let contentClass = reply.deleteYN === 'Y' ? 'deleted' : '';
-                let contentText = reply.deleteYN === 'Y' ? '삭제된 댓글입니다.' : reply.content;
-
-                html += `
-                    <li data-id="${reply.id}">
-                        <div class="commentTop">
-                            <b>@${reply.nickname}</b>
-                            <span class="date">${dateStr}</span>
-                        </div>
-
-                        <p class="${contentClass}">${contentText}</p>
-                    </li>
-                `;
+                html += createReplyItemHtml(reply, false);
             });
 
             listUl.insertAdjacentHTML("beforeend", html);
@@ -355,6 +382,125 @@ function loadReplies(postId, page) {
         .finally(() => {
             isReplyLoading = false;
         });
+}
+
+/**
+ * [수정] 댓글 HTML 생성 함수
+ * @param {Object} reply - 댓글 데이터
+ * @param {boolean} isSubReply - 대댓글 여부 (true면 답글 버튼 숨김)
+ */
+function createReplyItemHtml(reply, isSubReply = false) { // [수정 1] 파라미터 추가
+    let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(reply.writeDate) : reply.writeDate;
+
+    // 삭제된 댓글 처리
+    let isDeleted = reply.deleteYN === 'Y';
+    let contentClass = isDeleted ? 'deleted' : '';
+    let contentText = isDeleted ? '삭제된 댓글입니다.' : reply.content;
+    let nickname = isDeleted ? '(알수없음)' : `@${reply.nickname}`;
+
+    // [수정 2] 답글 버튼 표시 조건 강화
+    // 삭제되지 않았고(AND) 대댓글이 아니어야 함(!isSubReply)
+    let replyBtnHtml = (!isDeleted && !isSubReply)
+        ? `<button class="btnReReply" onclick="toggleReReplyForm(${reply.id})">답글달기</button>`
+        : '';
+
+    // 자식 댓글(대댓글) 재귀 생성
+    let childrenHtml = "";
+    if (reply.children && reply.children.length > 0) {
+        childrenHtml += `<ul class="replyList">`;
+        reply.children.forEach(child => {
+            // 여기서 true를 보내면, 위에서 isSubReply로 받아서 버튼을 숨김
+            childrenHtml += createReplyItemHtml(child, true);
+        });
+        childrenHtml += `</ul>`;
+    }
+
+    return `
+        <li class="replyItem" id="reply-${reply.id}" data-id="${reply.id}">
+            <div class="commentTop">
+                <b>${nickname}</b>
+                <span class="date">${dateStr}</span>
+            </div>
+            <p class="${contentClass}">${contentText}</p>
+            
+            <div class="commentAction">
+                ${replyBtnHtml} 
+            </div>
+
+            <div id="reReplyForm-${reply.id}" class="reReplyFormArea"></div>
+
+            ${childrenHtml}
+        </li>
+    `;
+}
+
+/**
+ * [신규] 답글 입력창 토글 (열기/닫기)
+ */
+function toggleReReplyForm(parentId) {
+    const formArea = document.getElementById(`reReplyForm-${parentId}`);
+
+    // 이미 열려있으면 닫기 (비우기)
+    if (formArea.innerHTML !== "") {
+        formArea.innerHTML = "";
+        return;
+    }
+
+    // 다른 열린 창들 다 닫기 (UX 선택사항: 한 번에 하나만 열기)
+    document.querySelectorAll('.reReplyFormArea').forEach(el => el.innerHTML = "");
+
+    // 입력창 HTML 주입
+    formArea.innerHTML = `
+        <div class="reReplyForm">
+            <input type="text" id="input-${parentId}" placeholder="답글을 입력하세요..." onkeydown="if(event.key==='Enter') submitSubReply(${parentId})">
+            <button onclick="submitSubReply(${parentId})">등록</button>
+        </div>
+    `;
+
+    // 포커스 주기
+    setTimeout(() => document.getElementById(`input-${parentId}`).focus(), 100);
+}
+
+/**
+ * [신규] 대댓글 등록 요청
+ */
+function submitSubReply(parentId) {
+    // 1. 로그인 체크 (기존 로직 재활용 권장)
+    const loginCheckInput = document.getElementById("loginCheck");
+    if (!loginCheckInput || loginCheckInput.value !== 'true') {
+        alert("로그인이 필요합니다.");
+        return;
+    }
+
+    const inputEl = document.getElementById(`input-${parentId}`);
+    const content = inputEl.value.trim();
+
+    if (!content) {
+        alert("내용을 입력해주세요.");
+        return;
+    }
+
+    const reqDto = {
+        postId: currentPostIdForReply,
+        content: content,
+        parentId: parentId // ★ 부모 ID 포함!
+    };
+
+    fetch("/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reqDto)
+    })
+        .then(res => res.json())
+        .then(newReply => {
+            // 성공 시 전체 새로고침 (가장 간단한 갱신 방법)
+            // (부분 갱신은 복잡하므로 일단 전체 리로드 추천)
+            replyPage = 0;
+            isReplyLastPage = false;
+            document.getElementById("commentListUl").innerHTML = "";
+            loadReplies(currentPostIdForReply, 0);
+        })
+        .catch(err => console.error("대댓글 등록 실패", err));
 }
 
 // 4. 댓글 등록 (AJAX)
@@ -456,3 +602,24 @@ function refreshCommentPanelIfOpen(cardElement) {
     document.getElementById("replyInput").value = "";
     loadReplies(newPostId, 0);
 }
+
+// 공유 버튼 클릭 이벤트 (이벤트 위임 사용)
+shortsFeedWrap.addEventListener('click', (e) => {
+    // 클릭한 요소가 공유 버튼(.share)인지 확인
+    const shareBtn = e.target.closest('.actionBtn.share');
+
+    if (shareBtn) {
+        // 1. 현재 주소창의 URL 가져오기
+        const currentUrl = window.location.href;
+
+        // 2. 클립보드에 복사
+        navigator.clipboard.writeText(currentUrl)
+            .then(() => {
+                alert(`\n링크가 복사되었습니다!\n\n${currentUrl}\n\n친구에게 공유해보세요!`);
+            })
+            .catch(err => {
+                console.error("복사 실패:", err);
+                prompt("자동 복사에 실패했습니다. 아래 링크를 직접 복사해주세요.", currentUrl);
+            });
+    }
+});

@@ -89,6 +89,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    align-items: center;
 }
 
 .shortsFeed .cardInner .userPanel .nickname {
@@ -101,6 +102,7 @@ body {
 .shortsFeed .cardInner .userPanel .writeDate {
     font-size: 11px;
     color: #94a3b8;
+    margin-left: 5px;
 }
 
 .shortsFeed .cardInner .userPanel .userBody {
@@ -299,7 +301,7 @@ body {
     border-bottom: 1px solid #f1f5f9;
 }
 
-.panelTitle strong { display: block; font-size: 18px; color: #0f172a; }
+.panelTitle strong { display: block; font-size: 18px; color: #0f172a; margin-bottom: 8px;}
 .panelTitle span { font-size: 13px; color: #94a3b8; }
 
 .closeBtn {
@@ -414,3 +416,45 @@ body {
     transition: background-color 0.3s;
 }
 .btnUploadEmpty:hover { background-color: #cc0000; }
+
+/* 대댓글 영역 (들여쓰기 및 배경색 구분) */
+.replyList {
+    margin-top: 10px;
+    margin-left: 40px; /* 들여쓰기 핵심 */
+    padding-left: 10px;
+    border-left: 2px solid #e2e8f0; /* 시각적 가이드라인 */
+}
+
+/* [추가] 답글 작성 폼 */
+.reReplyForm {
+    margin: 10px 0 10px 40px;
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.reReplyForm input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.reReplyForm button {
+    padding: 6px 12px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btnReReply{
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 400;
+}

@@ -108,4 +108,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Integer findLikeCountById(@Param("postId") Long postId);
 
 
+    // 1. 댓글 수 증가(동시성 보장)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Post p SET p.replyCount = p.replyCount + 1 WHERE p.id = :postId")
+    void increaseReplyCount(@Param("postId") Long postId);
+
+    // 2. 댓글 수 감소 (0 이하로 내려가지 않게 방어 로직 포함)(동시성 보장)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Post p SET p.replyCount = (CASE WHEN p.replyCount > 0 THEN p.replyCount - 1 ELSE 0 END) WHERE p.id = :postId")
+    void decreaseReplyCount(@Param("postId") Long postId);
 }

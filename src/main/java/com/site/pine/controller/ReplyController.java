@@ -44,7 +44,7 @@ public class ReplyController {
     @GetMapping("/reply/list")
     public Page<ReplyResDto> list(
             @RequestParam Long postId,
-            @PageableDefault(size = 10, sort = "writeDate", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(size = 10, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return rs.getReplyList(postId, pageable);
     }
