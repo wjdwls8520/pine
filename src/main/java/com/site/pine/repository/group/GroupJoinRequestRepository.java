@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -41,4 +42,8 @@ public interface GroupJoinRequestRepository extends JpaRepository<GroupJoinReque
         """
     )
     Page<GroupJoinResDto> findAllJoinGroupAndMember(Pageable pageable, @Param("groupId") Long groupId);
+
+    @Modifying
+    @Query("DELETE FROM GroupJoinRequest gjr WHERE gjr.groupContents.id = :groupId")
+    void deleteAllByGroupId(@Param("id") Long groupId);
 }

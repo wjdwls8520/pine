@@ -56,8 +56,8 @@ async function getData(page) {
                                     </div>
                                 </div>
                                 <div class="groupJoinListItemActions">
-                                    <button type="button" class="groupJoinListBtn groupJoinListBtnApprove" onclick="groupJoinReq(this, 'APPROVE', ${info.groupId}, ${info.memberId});">승인</button>
-                                    <button type="button" class="groupJoinListBtn groupJoinListBtnReject" onclick="groupJoinReq(this, 'REJECT', ${info.groupId}, ${info.memberId});">거절</button>
+                                    <button type="button" class="groupJoinListBtn groupJoinListBtnApprove" onclick="groupJoinReq(this, 'APPROVE', ${info.id}, ${info.groupId}, ${info.memberId});">승인</button>
+                                    <button type="button" class="groupJoinListBtn groupJoinListBtnReject" onclick="groupJoinReq(this, 'REJECT', ${info.id}, ${info.groupId}, ${info.memberId});">거절</button>
                                 </div>
                             </div>
                         `);

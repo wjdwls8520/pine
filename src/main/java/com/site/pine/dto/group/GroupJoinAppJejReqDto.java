@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 public class GroupJoinAppJejReqDto {
     private String status;
+    private Long joinId;
     private Long groupId;
     private Long memberId;
 }
