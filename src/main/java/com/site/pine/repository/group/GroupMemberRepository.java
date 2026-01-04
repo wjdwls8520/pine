@@ -1,5 +1,6 @@
 package com.site.pine.repository.group;
 
+import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupMember;
@@ -27,4 +28,6 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
     void deleteAllByGroupId(@Param("groupId") Long groupId);
 
     Boolean existsByGroupContentsAndMember(GroupContents groupE, Member memberE);
+
+    Optional<GroupMember> findByGroupContentsIdAndMemberId(Long groupId, Long memberId);
 }
