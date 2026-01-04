@@ -14,20 +14,27 @@ document.addEventListener("DOMContentLoaded", () => {
     loadReplies();
 
     function loadReplies() {
-        fetch(`/reply/list?targetId=${POST_ID}`)
+
+        fetch(`/reply/list?postId=${POST_ID}`)
             .then(res => {
                 if (!res.ok) throw new Error("댓글 조회 실패");
-                return res.json();
+                // 만약 서버에서 응답이 비어있으면(null) 빈 배열로 처리
+                return res.json().catch(() => []);
             })
             .then(data => {
-                if (!Array.isArray(data)) {
+                // 🔥 [핵심 수정] data가 null이면 빈 배열([])로 바꿔줌
+                const replies = data || [];
+
+                if (!Array.isArray(replies)) {
                     throw new Error("댓글 데이터 형식 오류");
                 }
-                renderReplies(data);
+
+                // 렌더링 함수 호출
+                renderReplies(replies);
             })
             .catch(err => {
-                console.error(err);
-                replyList.textContent = "댓글을 불러오지 못했습니다.";
+                console.error("댓글 로딩 에러:", err); // F12 콘솔에서 에러 내용 확인 가능
+                replyList.innerHTML = `<li class="errorMsg">댓글을 불러오지 못했습니다.</li>`;
             });
     }
 
@@ -36,6 +43,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // =====================
     function renderReplies(replies) {
         replyList.innerHTML = "";
+
+        if (replies.length === 0) {
+            replyList.innerHTML = `<li class="emptyReply">등록된 댓글이 없습니다.</li>`;
+            return; // 아래 반복문 실행 안 하고 종료
+        }
 
         replies.forEach(reply => {
             const li = document.createElement("li");
@@ -58,9 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // =====================
-    // 댓글 DOM 생성 (공통)
-    // =====================
     // =====================
     // 댓글 DOM 생성 (공통)
     // =====================

@@ -2,10 +2,8 @@ package com.site.pine.service;
 
 import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
+import com.site.pine.dto.community.*;
 import com.site.pine.dto.post.PostMainFileDto;
-import com.site.pine.dto.community.CommunityListDto;
-import com.site.pine.dto.community.CommunityCreateReqDto;
-import com.site.pine.dto.community.CommunityDetailResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.tag.TagResDto;
 import com.site.pine.entity.*;
@@ -36,7 +34,7 @@ public class CommunityService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CommunityPostRepository cpr;
-    private final PostRepository cr;
+    private final PostRepository pr;
     private final S3UploadService sus;
     private final FileRepository fr;
     private final PostLikeRepository lr;
@@ -53,7 +51,7 @@ public class CommunityService {
         postEntity.setContent(reqDto.getPostBody());
         postEntity.setStatus(reqDto.getStatus());
         postEntity.setMember(memberEntity);
-        cr.save(postEntity);
+        pr.save(postEntity);
 
         //  태그 처리
         if (reqDto.getTags() != null && !reqDto.getTags().isBlank()) {
@@ -123,7 +121,7 @@ public class CommunityService {
 
         Pageable pageable = PageRequest.of(page, 6);
 
-        Page<CommunityListDto> postPages = cr.getAllCommunityPostList(pageable);
+        Page<CommunityListDto> postPages = pr.getAllCommunityPostList(pageable);
         System.out.println();
         List<CommunityListDto> posts = postPages.getContent();
 
@@ -240,13 +238,18 @@ public class CommunityService {
         // DTO에 파일 리스트 넣기
         dto.setFiles(postFilesResult);
 
+        //태그
+        List<TagResDto> tags = tmr.findTagsByTargetIds(List.of(post.getId()));
+        // DTO에 넣기
+        dto.setTags(tags);
+
         return dto;
     }
 
     public void deletePost(Long postId, Long memberId) {
         // 1. 게시글 조회 (없으면 에러)
 
-        Post post = cr.findById(postId)
+        Post post = pr.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
         // 2. 주인 확인 (내 글 아니면 에러)
@@ -278,6 +281,127 @@ public class CommunityService {
         // ==========================================
         // 4. 대망의 게시글 삭제 💣
         // ==========================================
-        cr.delete(post);
+        pr.delete(post);
+    }
+
+    // ... 기존 코드들 ...
+
+    // 1. 수정 페이지 진입 시 기존 데이터 조회
+    public PostDetailDto getPostDetail(Long postId) {
+        // Fetch Join으로 Post까지 한 번에 조회
+        CommunityPost cp = cpr.findByIdWithPost(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        // 태그 조회 (기존에 만들어둔 메서드 활용 or 새로 조회)
+        // 여기선 간단히 TagMappingRepository에서 이름만 가져온다고 가정
+        List<String> tags = tmr.findTagsByTargetIds(List.of(postId))
+                .stream().map(TagResDto::getName).toList();
+
+        return new PostDetailDto(cp, tags);
+    }
+
+    // 2. 게시글 수정 실행
+    // ... 기존 코드들 ...
+
+    // [게시글 수정]
+    public void modifyPost(Long postId, PostModifyDto dto, Long memberId) {
+
+        // 1. 게시글 조회 (CommunityPost + Post + Member 까지 페치 조인 추천)
+        CommunityPost communityPost = cpr.findByIdWithPost(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        Post post = communityPost.getPost();
+
+        // 2. 권한 체크 (내 글인지?)
+        if (!post.getMember().getId().equals(memberId)) {
+            throw new IllegalArgumentException("수정 권한이 없습니다."); // Controller에서 403 처리됨
+        }
+
+        // ==================================================
+        // 3. 기본 정보 수정 (Dirty Checking)
+        // ==================================================
+        post.setContent(dto.getContent());       // 본문 수정
+        post.setStatus(dto.getStatus());         // 공개/비공개 수정
+        communityPost.setCategory(dto.getCategory()); // 카테고리 수정
+
+        // ==================================================
+        // 4. 태그 수정
+        // ==================================================
+        // 기존 태그 매핑을 싹 지우고, 새로 입력된 태그를 다시 등록하는 방식이 제일 깔끔함
+        if (dto.getTags() != null) {
+            // 4-1. 기존 매핑 삭제
+            tmr.deleteByTargetId(postId);
+
+            // 삭제 쿼리를 DB에 즉시 반영 (강제 플러시)
+            // 이걸 안 하면 아래 save() 할 때 "이미 데이터가 있다"며 에러가 남
+            tmr.flush();
+
+            // 4-2. 새 태그 등록 (insertPost 로직 재사용)
+            // 빈 값이 아닐 때만 실행
+            if (!dto.getTags().isBlank()) {
+                List<String> tagNames = Arrays.stream(dto.getTags().split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .distinct()
+                        .toList();
+
+                for (String tagName : tagNames) {
+                    // 태그 테이블에 없으면 저장, 있으면 가져오기
+                    Tag tag = tr.findByName(tagName)
+                            .orElseGet(() -> tr.save(new Tag(null, tagName)));
+
+                    // 매핑 테이블 저장
+                    TagMapping mapping = new TagMapping();
+                    mapping.setTag(tag);
+                    mapping.setTargetId(postId);
+                    tmr.save(mapping);
+                }
+            }
+        }
+
+        // ==================================================
+        // 5. 파일 삭제 (사용자가 삭제 버튼 누른 파일들)
+        // ==================================================
+        if (dto.getDeleteFileIds() != null && !dto.getDeleteFileIds().isEmpty()) {
+            // DB에서 해당 파일들 삭제
+            fr.deleteAllById(dto.getDeleteFileIds());
+
+            // (선택 사항) S3에서도 실제 파일을 지우려면 여기서 S3UploadService 호출
+            // for (Long fileId : dto.getDeleteFileIds()) { ... }
+        }
+
+        // =========================================================
+        // 6.새 파일 업로드 (insertPost 로직 재사용)
+        // =========================================================
+        if (dto.getNewFiles() != null && !dto.getNewFiles().isEmpty()) {
+
+            for (MultipartFile file : dto.getNewFiles()) {
+                if (file.isEmpty()) continue;
+
+                String fileUrl;
+                try {
+                    fileUrl = sus.saveFile(file); // S3 업로드
+                } catch (IOException e) {
+                    log.error("S3 업로드 실패", e);
+                    throw new RuntimeException("파일 업로드 실패");
+                }
+
+                // S3 롤백 이벤트 발행 (필요시)
+                applicationEventPublisher.publishEvent(new S3DeleteEventDto(file.getOriginalFilename(), file.getSize(), fileUrl));
+
+                // 파일 엔티티 저장
+                File fileEntity = new File();
+                fileEntity.setPath(fileUrl);
+                fileEntity.setOriginalname(file.getOriginalFilename());
+                fileEntity.setContentType(file.getContentType());
+                fileEntity.setSize(file.getSize());
+                fileEntity.setStatus(2);
+                fileEntity.setPost(post); // 현재 게시글에 연결
+
+                fr.save(fileEntity);
+            }
+        }
+
+        // 트랜잭션 종료 시 update 쿼리가 자동으로 날아감
     }
 }

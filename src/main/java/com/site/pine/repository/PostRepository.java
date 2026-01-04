@@ -4,9 +4,11 @@ import com.site.pine.dto.community.PostListDto;
 import com.site.pine.dto.community.CommunityListDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.entity.post.Post;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -86,6 +88,24 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         order by p.writeDate desc
     """)
     List<PostListDto> findPostList();
+
+
+    // 포스트 likeCount 공통사용
+    // likeCount 증가
+    // save()된 내용이 먼저 DB에 반영된 후 -> update 쿼리 실행 -> clear
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Post p SET p.likeCount = p.likeCount + 1 WHERE p.id = :postId")
+    void increaseLikeCount(@Param("postId") Long postId);
+
+    // [수정] flushAutomatically = true 추가
+    // delete()된 내용이 먼저 DB에 반영된 후 -> update 쿼리 실행 -> clear
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Post p SET p.likeCount = (CASE WHEN p.likeCount > 0 THEN p.likeCount - 1 ELSE 0 END) WHERE p.id = :postId")
+    void decreaseLikeCount(@Param("postId") Long postId);
+
+    // 업데이트 후 최신 카운트 조회용 (Entity 전체 조회보다 가벼움)
+    @Query("SELECT p.likeCount FROM Post p WHERE p.id = :postId")
+    Integer findLikeCountById(@Param("postId") Long postId);
 
 
 }

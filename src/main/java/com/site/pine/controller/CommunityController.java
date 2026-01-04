@@ -2,6 +2,8 @@ package com.site.pine.controller;
 
 import com.site.pine.dto.community.CommunityCreateReqDto;
 import com.site.pine.dto.community.CommunityDetailResDto;
+import com.site.pine.dto.community.PostDetailDto;
+import com.site.pine.dto.community.PostModifyDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.CommunityService;
 import com.site.pine.service.LikesService;
@@ -89,6 +91,44 @@ public class CommunityController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("삭제 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 1. 수정 페이지로 이동 (기존 데이터 들고 감)
+    @GetMapping("/community/edit/{id}")
+    public String editPage(@PathVariable Long id, Model model) {
+        // 서비스에서 기존 게시글 정보 가져오기
+        PostDetailDto postDto = cs.getPostDetail(id);
+
+        // 모델에 담아서 write.html (또는 edit.html)로 보냄
+        model.addAttribute("post", postDto);
+        model.addAttribute("isEdit", true); // 프론트에서 수정모드인지 구분하려고
+
+        return "community/cCreate";
+    }
+
+    // 2. 실제 수정 처리 (AJAX 요청)
+    @PostMapping("/community/{id}")
+    @ResponseBody
+    public ResponseEntity<String> modifyPost(
+            @PathVariable Long id,
+            @ModelAttribute PostModifyDto dto,
+            @AuthenticationPrincipal MemberDto mdto // 현재 로그인한 사용자
+    ) {
+        if (mdto == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        try {
+            // 서비스 호출 (게시글 번호, 수정 데이터, 작성자 ID)
+            cs.modifyPost(id, dto, mdto.getId());
+            return ResponseEntity.ok("수정 성공");
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(403).body(e.getMessage()); // 권한 없음 등
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("수정 중 오류 발생");
         }
     }
 
