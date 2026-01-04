@@ -12,7 +12,6 @@ import com.site.pine.entity.post.Post;
 import com.site.pine.repository.*;
 import com.site.pine.repository.community.CommunityPostRepository;
 import com.site.pine.repository.like.PostLikeRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 public class CommunityService {
 
@@ -42,6 +41,7 @@ public class CommunityService {
     private final TagRepository tr;
     private final TagMappingRepository tmr;
 
+    @Transactional
     public void insertPost(MemberDto mdto, CommunityCreateReqDto reqDto) {
 
         Member memberEntity = mr.findById(mdto.getId()).orElseThrow(() -> new IllegalStateException("[error] 존재하지 않는 멤버 입니다.")); // 멤버조회 대상이 없을시 강제 에러실행.;
@@ -116,6 +116,7 @@ public class CommunityService {
 
     }
 
+    @Transactional(readOnly = true)
     public HashMap<String, Object> getPostPage(MemberDto mdto, Integer page) {
         HashMap<String, Object> result = new HashMap<>();
 
@@ -189,7 +190,7 @@ public class CommunityService {
         return result;
     }
 
-
+    @Transactional
     public CommunityDetailResDto getDetail(Long memberId, Long id) {
         CommunityPost communityPost = cpr.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다. id=" + id));
@@ -248,6 +249,7 @@ public class CommunityService {
         return dto;
     }
 
+    @Transactional
     public void deletePost(Long postId, Long memberId) {
         // 1. 게시글 조회 (없으면 에러)
 
@@ -286,9 +288,9 @@ public class CommunityService {
         pr.delete(post);
     }
 
-    // ... 기존 코드들 ...
 
-    // 1. 수정 페이지 진입 시 기존 데이터 조회
+    // 수정 페이지 진입 시 기존 데이터 조회
+    @Transactional(readOnly = true)
     public PostDetailDto getPostDetail(Long postId) {
         // Fetch Join으로 Post까지 한 번에 조회
         CommunityPost cp = cpr.findByIdWithPost(postId)
@@ -302,10 +304,8 @@ public class CommunityService {
         return new PostDetailDto(cp, tags);
     }
 
-    // 2. 게시글 수정 실행
-    // ... 기존 코드들 ...
-
-    // [게시글 수정]
+    // 게시글 수정
+    @Transactional
     public void modifyPost(Long postId, PostModifyDto dto, Long memberId) {
 
         // 1. 게시글 조회 (CommunityPost + Post + Member 까지 페치 조인 추천)
@@ -366,9 +366,9 @@ public class CommunityService {
         // ==================================================
         if (dto.getDeleteFileIds() != null && !dto.getDeleteFileIds().isEmpty()) {
             // DB에서 해당 파일들 삭제
-            fr.deleteAllById(dto.getDeleteFileIds());
+            fr.deleteAllById(dto.getDeleteFileIds()); //이거쓰면안됨 수정필요!
 
-            // (선택 사항) S3에서도 실제 파일을 지우려면 여기서 S3UploadService 호출
+            // S3에서도 실제 파일을 지우려면 여기서 S3UploadService 호출
             // for (Long fileId : dto.getDeleteFileIds()) { ... }
         }
 

@@ -9,6 +9,18 @@
     </div>
 </footer>
 
+<%--이미지 원본보기 모달--%>
+<div id="imageModal" class="imageModalOverlay">
+    <span class="closeBtn" onclick="closeImageModal()">&times;</span>
+    <div class="swiper modalSwiper">
+        <div class="swiper-wrapper" id="modalWrapper">
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination modal-pagination"></div>
+    </div>
+</div>
+
 <%-- 로그인 상태 체크 --%>
 <sec:authorize access="isAuthenticated()">
     <script>window.isLogin = true;</script>
