@@ -1,5 +1,6 @@
 package com.site.pine.controller;
 
+import com.google.gson.Gson;
 import com.site.pine.dto.community.PostListDto;
 
 import com.site.pine.dto.member.CountryDto;
@@ -24,19 +25,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.*;
 
 import org.json.JSONObject;
+
+import javax.net.ssl.HttpsURLConnection;
 
 
 @Controller
@@ -236,6 +240,13 @@ public class MemberController {
 
         System.out.println("약관동의 완료됨");
 
+        List<CountryDto> countryList = ms.getCountryList();
+        model.addAttribute("countryList", countryList);
+
+        for(CountryDto country : countryList){
+            System.out.println("country: " + country.getCountryNm());
+        }
+
         // 여기서 insertMember form으로 redirect 혹은 다음 단계로 이동
         return "member/join";
     }
@@ -310,13 +321,23 @@ public class MemberController {
         return "member/editprofile";
     }
 
-
-    @ResponseBody
-    @GetMapping("/countrySearch")
-    public List<CountryDto> goCountrySearch(@RequestParam String keyword){
-        if (keyword.length() < 2) return List.of();
-        return ms.searchCountry(keyword);
+    @GetMapping("/CheckCours")
+    public String checkCours(HttpSession session){
+        if(session.getAttribute("userinfo") == null){
+            return "member/login";
+        }else{
+            return "member/jointerms";
+        }
     }
+
+
+    @Value("${kakao.client_id}")
+    private String client_id;
+    @Value("${kakao.redirect_uri}")
+    private String redirect_uri;
+
+
+
 
 
 }

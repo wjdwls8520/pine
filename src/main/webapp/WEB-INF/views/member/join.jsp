@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -32,12 +33,19 @@
             <div class="form_list">직업</div>
             <input type="text" name="job"  />
             <div class="join_findAd">
-                <div class="form_list">*주소</div>
+                <div class="form_list">주소</div>
             </div>
             <div class="country_auto_box">
                 <div class="form_list">*국적</div>
-                <input type="text" name="country" id="country" autocomplete="off"/>
-                <ul id="country_result" class="country_result_list"></ul>
+                <select name="country" id="country">
+                    <option value="">국적 선택</option>
+
+                    <c:forEach var="c" items="${countryList}">
+                        <option value="${c.isoAlpha2}">
+                                ${c.countryNm} (${c.countryEngNm})
+                        </option>
+                    </c:forEach>
+                </select>
             </div>
             <button class="join_btn" id="addrBtn" type="button" onclick="findPostCode()">주소찾기</button>
             <div class="form_list">*우편번호</div>
