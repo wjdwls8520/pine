@@ -244,11 +244,13 @@ public class GroupController {
     }
 
     // [AJAX] 그룹장이 받은 가입신청에 결정하는 API
-//    @PostMapping("/group/gjoinreq")
-//    @ResponseBody
-//    public void gjoinReq(
-//
-//    ) {
-//
-//    }
+    @PostMapping("/group/gjoinReqAppRej")
+    @ResponseBody
+    public void gjoinReqAppRej(@AuthenticationPrincipal MemberDto memberdto, @RequestBody GroupJoinAppJejReqDto reqdto) {
+        if (memberdto == null) {
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+        gs.gjoinReqAppRej(memberdto, reqdto);
+    }
 }

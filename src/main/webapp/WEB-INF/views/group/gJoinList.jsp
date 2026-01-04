@@ -64,7 +64,7 @@
             if(!confirm("가입신청을 거절 하시겠습니까?")) return;
         }
 
-        fetch(`/group/gjoinreq/`, {method: "POST", body: JSON.stringify({status: status, groupId: groupId, memberId: memberId})})
+        fetch(`/group/gjoinReqAppRej/`, {method: "POST", body: JSON.stringify({status: status, groupId: groupId, memberId: memberId})})
             .then(response => {
                 if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
                 return response.json(); // 성공하면 JSON 반환
