@@ -17,13 +17,13 @@
             <div class="commentsPanel" id="commentsPanel">
                 <div class="panel-header">
                     <div class="panel-title">
-                        <strong class="comment-header-title">한복 입고 서울 야경 즐기기</strong>
-                        <span class="comment-header-user">@pinedory</span>
+                        <strong class="comment-header-title" id="commentPanelTitle">제목</strong>
+                        <span class="comment-header-user" id="commentPanelUser">@작성자</span>
                     </div>
                     <button class="close-btn" onclick="closeComment()">닫기</button>
                 </div>
-                <div class="panel-body">
-                    <ul class="comment-list">
+                <div class="panel-body" id="commentScrollArea">
+                    <ul class="comment-list" id="commentListUl">
                         <li>
                             <b>@pine_member</b>
                             <p>영상미 대박... 다음에도 추천 부탁해요!</p>
@@ -38,8 +38,8 @@
                         </li>
                     </ul>
                     <div class="comment-input">
-                        <input type="text" placeholder="댓글을 남겨보세요">
-                        <button type="button">등록</button>
+                        <input type="text" id="replyInput" placeholder="댓글을 남겨보세요">
+                        <button type="button" id="btnReplyRegist">등록</button>
                     </div>
                 </div>
             </div>
@@ -50,4 +50,5 @@
 
 
 <jsp:include page="../include/shorts_footer.jsp"></jsp:include>
+<script src="/js/timeAgo.js"></script>
 <script src="/js/shortsjs/shorts.js"></script>

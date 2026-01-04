@@ -21,4 +21,7 @@ public class ShortsResDto {
     private Timestamp updateDate;
 
     private List<FileDto> files;
+
+    private String nickname;
+    private String profileImg;
 }
