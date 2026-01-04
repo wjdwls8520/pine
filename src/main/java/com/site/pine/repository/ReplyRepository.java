@@ -17,7 +17,7 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
         join fetch r.member 
         where r.post.id = :postId 
         and r.parent is null 
-        order by r.writeDate asc
+        order by r.writeDate desc
     """)
     Page<Reply> findParentReplies(@Param("postId") Long postId, Pageable pageable);
 

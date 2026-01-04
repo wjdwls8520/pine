@@ -6,14 +6,8 @@
     --accent: #fe7778;
 }
 
-* {
-    box-sizing: border-box;
-}
-
-html, body {
-    height: 100%;
-}
-
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
     margin: 0;
     background: var(--shorts-bg);
@@ -21,17 +15,32 @@ body {
     color: #111827;
 }
 
-.article.shorts {overflow: hidden }
-.shortsFeed {display: flex; flex-direction: column; gap: 0px;
-    width: 100%; overflow-x: hidden; overflow-y: scroll; scroll-snap-type: y mandatory;}
-.shortsFeed .shortsCard {scroll-snap-align: start;}
-.shortsFeed .cardInner {display: flex; justify-content: center; padding: 40px 40px 0; height: calc(100vh - 156px); box-sizing: border-box; gap: 25px;}
+.article.shorts { overflow: hidden; }
 
-.shortsFeed .cardInner .userPanel {display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; width: 180px; height: 100%; }
-.shortsFeed .cardInner .userPanel .userWrap {display: flex; flex-direction: column;  gap: 10px; padding: 15px; border-radius: 20px; box-sizing: border-box; background: #fff; overflow: hidden;}
-.shortsFeed .cardInner .userPanel .avatar {width: 42px; height: 42px; border-radius: 50%; overflow: hidden;}
-.shortsFeed .cardInner .userPanel .avatar > img {width: 100%; height: 100%; object-fit: cover;}
+/* 쇼츠 피드 전체 컨테이너 */
+.shortsFeed {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+}
 
+.shortsFeed .shortsCard { scroll-snap-align: start; }
+
+.shortsFeed .cardInner {
+    display: flex;
+    justify-content: center;
+    padding: 40px 40px 0;
+    height: calc(100vh - 156px);
+    box-sizing: border-box;
+    gap: 25px;
+}
+
+/* ===========================
+   [User Panel] 좌측 유저 정보
+   =========================== */
 .shortsFeed .cardInner .userPanel {
     display: flex;
     flex-direction: column;
@@ -89,7 +98,7 @@ body {
     line-height: 1.2;
 }
 
-.shortsFeed .cardInner .userPanel .writedate {
+.shortsFeed .cardInner .userPanel .writeDate {
     font-size: 11px;
     color: #94a3b8;
 }
@@ -143,8 +152,6 @@ body {
     display: block;
 }
 
-/* "접기" 버튼 스타일 (가상 요소로 만들기) */
-/* 내용이 펼쳐졌을 때만 끝에 [접기] 텍스트 표시 */
 .shortsFeed .cardInner .userPanel .shortsTitle.expanded::after,
 .shortsFeed .cardInner .userPanel .shortsContent.expanded::after {
     content: " [접기]";
@@ -155,6 +162,9 @@ body {
     display: inline-block;
 }
 
+/* ===========================
+   [Video Shell] 비디오 영역
+   =========================== */
 .shortsFeed .cardInner .videoShell {
     display: flex;
     align-items: center;
@@ -167,26 +177,107 @@ body {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+    cursor: pointer;
 }
 
-.shortsFeed .cardInner .videoShell > video {width: 100%; height: 100%; object-fit: contain;}
+.shortsFeed .cardInner .videoShell > video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
 
-.shortsFeed .cardInner .actionPanel {display: flex; flex-direction: column; justify-content: center; flex-shrink:0; gap: 16px; width: 106px; height: 100%;}
+.playOverlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px; height: 60px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 10;
+}
 
-.shortsFeed .cardInner .actionBtn {display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 100%; height: 62px; background: #d9d9d9; border-radius: 20px;}
-.shortsFeed .cardInner .actionBtn.commentToggle {background: #cb4848;}
-.shortsFeed .cardInner .actionBtn > span {font-size: 14px; font-weight: 500; color: #141414;}
-.shortsFeed .cardInner .actionBtn > em {font-size: 16px; font-weight: 500; color: #141414;}
+.videoShell.paused .playOverlay { opacity: 1; }
 
+.playOverlay::after {
+    content: '';
+    display: block;
+    width: 0; height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-left: 18px solid #fff;
+    margin-left: 4px;
+}
 
+.progressBarContainer {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 4px;
+    background-color: rgba(255, 255, 255, 0.3);
+    z-index: 20;
+}
+
+.progressBarFill {
+    width: 0%;
+    height: 100%;
+    background-color: #ff0000;
+    transition: width 0.1s linear;
+}
+
+.timeDisplay {
+    position: absolute;
+    bottom: 12px; right: 15px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* ===========================
+   [Action Panel] 우측 버튼
+   =========================== */
+.shortsFeed .cardInner .actionPanel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 16px;
+    width: 106px;
+    height: 100%;
+}
+
+.shortsFeed .cardInner .actionBtn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 62px;
+    background: #d9d9d9;
+    border-radius: 20px;
+}
+
+.shortsFeed .cardInner .actionBtn.commentToggle { background: #cb4848; }
+.shortsFeed .cardInner .actionBtn > span { font-size: 14px; font-weight: 500; color: #141414; }
+.shortsFeed .cardInner .actionBtn > em { font-size: 16px; font-weight: 500; color: #141414; }
+
+/* ===========================
+   [Comments Panel] 댓글 모달
+   =========================== */
 .commentsPanel {
     display: flex;
     flex-direction: column;
     position: fixed;
     z-index: 400;
-    top: 48px;
-    right: 0;
-    bottom: 48px;
+    top: 48px; right: 0; bottom: 48px;
     padding: 0 24px 24px;
     height: auto;
     width: 420px;
@@ -197,12 +288,9 @@ body {
     transition: transform 0.3s ease;
 }
 
+.commentsPanel.open { transform: translateX(0); }
 
-.commentsPanel.open {
-    transform: translateX(0);
-}
-
-.panel-header {
+.panelHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -211,18 +299,10 @@ body {
     border-bottom: 1px solid #f1f5f9;
 }
 
-.panel-title strong {
-    display: block;
-    font-size: 18px;
-    color: #0f172a;
-}
+.panelTitle strong { display: block; font-size: 18px; color: #0f172a; }
+.panelTitle span { font-size: 13px; color: #94a3b8; }
 
-.panel-title span {
-    font-size: 13px;
-    color: #94a3b8;
-}
-
-.close-btn {
+.closeBtn {
     border: none;
     background: #e2e8f0;
     border-radius: 999px;
@@ -232,15 +312,16 @@ body {
     color: #0f172a;
 }
 
-.panel-body {
+.panelBody {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 24px;
     padding-top: 24px;
+    overflow: hidden; /* 내부 스크롤을 위해 */
 }
 
-.comment-list {
+.commentList {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -250,28 +331,38 @@ body {
     overflow-y: auto;
 }
 
-.comment-list li {
+.commentList li {
     background: #f8fafc;
     border-radius: 16px;
     padding: 14px 16px;
     box-shadow: inset 0 0 0 1px #edf2f7;
 }
 
-.comment-list b {
-    display: block;
-    font-size: 13px;
-    color: #475569;
+.commentList .commentTop {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
     margin-bottom: 6px;
 }
 
-.comment-list p {
-    margin: 0;
-    font-size: 14px;
-    color: #111827;
-    line-height: 1.5;
+.commentList b { display: block; font-size: 14px; color: #475569; font-weight: 700; }
+.commentList .date { font-size: 11px; color: #94a3b8; font-weight: 400; }
+.commentList p { margin: 0; font-size: 14px; color: #111827; line-height: 1.5; }
+.commentList p.deleted { color: #94a3b8; font-style: italic; }
+
+.commentsPanel .panelHeader .panelTitle .commentHeaderUser {
+    color: rgb(15, 23, 42);
+    font-weight: 600;
+    margin-right: 4px;
 }
 
-.comment-input {
+.commentsPanel .panelHeader .panelTitle #commentPanelDate {
+    font-size: 11px;
+    color: rgb(148, 163, 184);
+    font-weight: 400;
+}
+
+.commentInput {
     margin-top: auto;
     border-top: 1px solid #f1f5f9;
     padding-top: 16px;
@@ -279,7 +370,7 @@ body {
     gap: 12px;
 }
 
-.comment-input input {
+.commentInput input {
     flex: 1;
     border: 1px solid #dbeafe;
     border-radius: 12px;
@@ -287,7 +378,7 @@ body {
     font-size: 14px;
 }
 
-.comment-input button {
+.commentInput button {
     border: none;
     background: var(--primary);
     color: #fff;
@@ -297,35 +388,20 @@ body {
     cursor: pointer;
 }
 
-/* 빈 상태 (Empty State) 스타일 */
+/* Empty State */
 .emptyState {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 60vh; /* 화면의 60% 정도 높이 차지 */
+    height: 60vh;
     text-align: center;
     color: #666;
 }
 
-.emptyState .icon {
-    font-size: 80px;
-    margin-bottom: 20px;
-    opacity: 0.5;
-}
-
-.emptyState h3 {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.emptyState p {
-    font-size: 16px;
-    margin-bottom: 30px;
-    color: #888;
-}
+.emptyState .icon { font-size: 80px; margin-bottom: 20px; opacity: 0.5; }
+.emptyState h3 { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333; }
+.emptyState p { font-size: 16px; margin-bottom: 30px; color: #888; }
 
 .btnUploadEmpty {
     padding: 12px 30px;
@@ -337,81 +413,4 @@ body {
     text-decoration: none;
     transition: background-color 0.3s;
 }
-
-.btnUploadEmpty:hover {
-    background-color: #cc0000;
-}
-
-/* 비디오 감싸는 틀: UI 위치 기준점 */
-.shortsFeed .cardInner .videoShell {
-    position: relative; /* 자식 요소 절대 위치(absolute) 기준 */
-    cursor: pointer;
-}
-
-/* 재생/일시정지 오버레이 아이콘 (중앙 정렬) */
-.playOverlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 60px;
-    height: 60px;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0; /* 기본은 숨김 */
-    transition: opacity 0.2s;
-    pointer-events: none; /* 클릭 통과 */
-    z-index: 10;
-}
-
-/* 멈춤 상태일 때 오버레이 보이기 (JS로 클래스 제어) */
-.videoShell.paused .playOverlay {
-    opacity: 1;
-}
-
-.playOverlay::after {
-    content: '';
-    display: block;
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 18px solid #fff; /* 플레이 아이콘 모양 */
-    margin-left: 4px;
-}
-
-/* 하단 진행바 컨테이너 */
-.progressBarContainer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background-color: rgba(255, 255, 255, 0.3);
-    z-index: 20;
-}
-
-/* 실제 진행되는 바 (빨간색) */
-.progressBarFill {
-    width: 0%; /* JS로 제어 */
-    height: 100%;
-    background-color: #ff0000;
-    transition: width 0.1s linear;
-}
-
-/* 재생 시간 표시 텍스트 */
-.timeDisplay {
-    position: absolute;
-    bottom: 12px;     /* 진행바보다 조금 위에 위치 */
-    right: 15px;      /* 오른쪽 정렬 */
-    color: #fff;      /* 흰색 텍스트 */
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); /* 글자가 잘 보이게 그림자 추가 */
-    z-index: 20;
-    pointer-events: none; /* 클릭 방해 안 함 */
-}
+.btnUploadEmpty:hover { background-color: #cc0000; }
