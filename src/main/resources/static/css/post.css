@@ -495,6 +495,106 @@
     width: 700px;
 }
 
+/* =========================================
+   8. 댓글 섹션 (Reply Section) - 업데이트
+   ========================================= */
+
+/* ... (기존 입력창, 리스트 스타일 등은 유지) ... */
+
+/* 1. 댓글이 없을 때 (Empty State) */
+.replyWrap .emptyReplyMsg {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8; /* var(--apple-text-gray) */
+    font-size: 14px;
+}
+
+/* 2. 댓글 더보기 버튼 영역 (Wrapper) */
+.replyWrap .replyMoreBtnWrap {
+    text-align: center;
+    margin-top: 24px;
+    display: none; /* JS에서 제어 */
+}
+
+/* 3. 댓글 더보기 버튼 스타일 */
+.replyWrap .replyMoreBtnWrap .btnMoreReply {
+    padding: 10px 24px;
+    border-radius: 99px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.replyWrap .replyMoreBtnWrap .btnMoreReply:hover {
+    background: #f8fafc;
+    color: #334155;
+    transform: translateY(-1px);
+}
+
+/* 4. 삭제된 댓글 텍스트 */
+.replyWrap .replyBox .replyContent .deletedTxt {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* 5. 삭제 버튼 (빨간색) */
+.replyWrap .replyBox .replyBottom .replyDeleteBtn {
+    color: #ef4444; /* var(--apple-red) */
+    margin-left: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.replyWrap .replyBox .replyBottom .replyDeleteBtn:hover {
+    opacity: 0.7;
+}
+
+/* 6. 대댓글 보기 버튼 래퍼 */
+.replyWrap .replyBox .infoContent .viewChildWrap {
+    margin-top: 12px;
+}
+
+/* 7. 대댓글 보기/숨기기 토글 버튼 */
+.replyWrap .replyBox .infoContent .viewChildWrap .btnViewChild {
+    color: #fa233b; /* var(--apple-red) */
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.replyWrap .replyBox .infoContent .viewChildWrap .btnViewChild:hover {
+    text-decoration: underline;
+}
+
+/* 8. 대댓글 입력 폼 영역 */
+.replyWrap .replyBox .infoContent .subReplyFormArea {
+    margin-top: 16px;
+}
+
+/* 9. 대댓글 목록 (초기엔 숨김) */
+.replyWrap .replyBox .childList {
+    display: none; /* 초기 상태 숨김 */
+    margin-top: 16px;
+}
+
+/* 10. 대댓글 입력창 스타일 (재정의) */
+/* 메인 입력창(.writeBox) 스타일을 상속받지만 마진 등 미세조정 */
+.replyWrap .replyBox .infoContent .subReplyFormArea .writeBox {
+    margin-bottom: 0;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
 
 /* =========================================
    6. 이미지 원본보기 모달 (Lightbox) - JS 기능용
