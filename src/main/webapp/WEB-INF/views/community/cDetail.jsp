@@ -99,12 +99,18 @@
                             <%-- 댓글영역 --%>
                             <div class="replyWrap">
                                 <div class="writeBox">
-                                    <input type="text" class="replyTextBox" placeholder="댓글을 남겨보세요">
-                                    <button class="replyBtn">등록</button>
+                                    <input type="text" id="mainReplyInput" class="replyTextBox" placeholder="댓글을 남겨보세요">
+                                    <button id="btnMainReply" class="replyBtn">등록</button>
                                 </div>
-                                <ul class="replyList">
-                                    <%-- 댓글들 js로 생성 --%>
+
+                                <ul class="replyList" id="replyListArea">
                                 </ul>
+
+                                <div id="replyMoreBtnWrap" class="replyMoreBtnWrap">
+                                    <button class="btnMoreReply" onclick="loadMainReplies()">
+                                        댓글 더보기 +
+                                    </button>
+                                </div>
                             </div>
                             <%-- 댓글영역 끝 --%>
 
