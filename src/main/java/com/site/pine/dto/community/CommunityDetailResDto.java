@@ -24,6 +24,9 @@ public class CommunityDetailResDto {
     private String nickname;
     private String profile_img;
 
+    //작성자 본인 확인용
+    private Long memberId;
+
     // 파일
     private List<FileDto> files;
 

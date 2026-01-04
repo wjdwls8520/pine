@@ -87,8 +87,18 @@
 .postSection .postBox .postWrap .postBottom .icoBox{
     display: flex;
     align-items: center;
-    gap: 8px;}
-.postSection .postBox .postWrap .postBottom .icoBox + .icoBox {margin-left: 30px;}
+    gap: 5px;
+    background: #fff;
+    padding: 10px;
+    border-radius: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.postSection .postBox .postWrap .postBottom .icoBox:hover{
+    background: #eeeeee;
+    padding: 10px;
+    border-radius: 16px;
+}
 
 /*---그룹랭크---*/
 .groupSection {width: 250px;
