@@ -385,11 +385,11 @@ function loadReplies(postId, page) {
 }
 
 /**
- * [수정] 댓글 HTML 생성 함수
+ * 댓글 HTML 생성 함수
  * @param {Object} reply - 댓글 데이터
  * @param {boolean} isSubReply - 대댓글 여부 (true면 답글 버튼 숨김)
  */
-function createReplyItemHtml(reply, isSubReply = false) { // [수정 1] 파라미터 추가
+function createReplyItemHtml(reply, isSubReply = false) {
     let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(reply.writeDate) : reply.writeDate;
 
     // 삭제된 댓글 처리
@@ -398,7 +398,7 @@ function createReplyItemHtml(reply, isSubReply = false) { // [수정 1] 파라�
     let contentText = isDeleted ? '삭제된 댓글입니다.' : reply.content;
     let nickname = isDeleted ? '(알수없음)' : `@${reply.nickname}`;
 
-    // [수정 2] 답글 버튼 표시 조건 강화
+    // 답글 버튼 표시 조건 강화
     // 삭제되지 않았고(AND) 대댓글이 아니어야 함(!isSubReply)
     let replyBtnHtml = (!isDeleted && !isSubReply)
         ? `<button class="btnReReply" onclick="toggleReReplyForm(${reply.id})">답글달기</button>`
@@ -406,13 +406,18 @@ function createReplyItemHtml(reply, isSubReply = false) { // [수정 1] 파라�
 
     // 자식 댓글(대댓글) 재귀 생성
     let childrenHtml = "";
-    if (reply.children && reply.children.length > 0) {
-        childrenHtml += `<ul class="replyList">`;
-        reply.children.forEach(child => {
-            // 여기서 true를 보내면, 위에서 isSubReply로 받아서 버튼을 숨김
-            childrenHtml += createReplyItemHtml(child, true);
-        });
-        childrenHtml += `</ul>`;
+    let viewReplyBtn = "";
+    // 대댓글이 존재하고(childCount > 0), 현재 렌더링 중인게 대댓글이 아닐 경우(!isSubReply)
+    if (!isSubReply && reply.childCount > 0) {
+        // (1) 답글 보기/숨기기 버튼 생성
+        viewReplyBtn = `
+            <button class="btnViewReply" id="btnViewReply-${reply.id}" onclick="loadChildReplies(${reply.id}, ${reply.childCount})">
+                ─── 대댓글 ${reply.childCount}개 보기
+            </button>
+        `;
+
+        // (2) 답글이 들어갈 빈 컨테이너 생성 (초기엔 비어있음)
+        childrenHtml = `<ul class="replyList sub-reply-area" id="subReplyArea-${reply.id}" style="display:none;"></ul>`;
     }
 
     return `
@@ -429,6 +434,7 @@ function createReplyItemHtml(reply, isSubReply = false) { // [수정 1] 파라�
 
             <div id="reReplyForm-${reply.id}" class="reReplyFormArea"></div>
 
+            ${viewReplyBtn}
             ${childrenHtml}
         </li>
     `;
@@ -501,6 +507,51 @@ function submitSubReply(parentId) {
             loadReplies(currentPostIdForReply, 0);
         })
         .catch(err => console.error("대댓글 등록 실패", err));
+}
+
+/**
+ * [신규] 대댓글 목록 가져오기 (Lazy Loading)
+ * - 버튼 클릭 시 호출됨
+ */
+function loadChildReplies(parentId, count) {
+    const listArea = document.getElementById(`subReplyArea-${parentId}`);
+    const btn = document.getElementById(`btnViewReply-${parentId}`);
+
+    // 1. 이미 데이터를 가져온 적이 있다면 -> 토글(보이기/숨기기)만 수행
+    if (listArea.innerHTML.trim() !== "") {
+        if (listArea.style.display === "none") {
+            listArea.style.display = "block";
+            btn.innerHTML = `─── 대댓글 숨기기`;
+        } else {
+            listArea.style.display = "none";
+            btn.innerHTML = `─── 대댓글 ${count}개 보기`;
+        }
+        return;
+    }
+
+    // 2. 데이터가 없으면 -> 서버 요청
+    fetch(`/reply/${parentId}/children`)
+        .then(res => {
+            if (!res.ok) throw new Error("답글 조회 실패");
+            return res.json();
+        })
+        .then(data => { // data는 List<ReplyResDto> 형태
+            let html = "";
+
+            // 가져온 자식 댓글들을 HTML로 변환 (isSubReply = true 전달)
+            data.forEach(child => {
+                html += createReplyItemHtml(child, true);
+            });
+
+            // 화면에 주입 및 버튼 텍스트 변경
+            listArea.innerHTML = html;
+            listArea.style.display = "block"; // 숨겨진 영역 보이기
+            btn.innerHTML = `─── 대댓글 숨기기`;
+        })
+        .catch(err => {
+            console.error(err);
+            alert("답글을 불러오는데 실패했습니다.");
+        });
 }
 
 // 4. 댓글 등록 (AJAX)
