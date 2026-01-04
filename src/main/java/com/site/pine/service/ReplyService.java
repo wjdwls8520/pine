@@ -76,8 +76,23 @@ public class ReplyService {
         // 자식 댓글들은 @BatchSize 설정 덕분에 DTO 변환 시점에 자동으로 효율적으로 가져와짐
         Page<Reply> parentReplies = rr.findParentReplies(postId, pageable);
 
-        // 3. 엔티티 -> DTO 변환 (from 메서드 내부에서 자식 변환 및 삭제 마스킹 처리됨)
-        return parentReplies.map(ReplyResDto::from);
+        // from(entity, false) -> 자식 데이터는 쿼리하지 않고, childCount만 가져감
+        return parentReplies.map(reply -> ReplyResDto.from(reply, false));
+    }
+
+    // 대댓글 더보기 클릭 시 호출될 메서드
+    @Transactional(readOnly = true)
+    public List<ReplyResDto> getChildReplies(Long parentId) {
+        // 부모가 존재하는지 확인
+        Reply parent = rr.findById(parentId).orElseThrow(() -> new IllegalStateException("부모 댓글이 존재하지 않습니다."));
+
+        // 자식들 조회
+        List<Reply> children = rr.findChildReplies(parentId);
+
+        // 자식들을 DTO로 변환
+        return children.stream()
+                .map(reply -> ReplyResDto.from(reply, false))
+                .toList();
     }
 
     @Transactional

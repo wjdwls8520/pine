@@ -425,7 +425,32 @@ body {
     border-left: 2px solid #e2e8f0; /* 시각적 가이드라인 */
 }
 
-/* [추가] 답글 작성 폼 */
+/* 대댓글 보기 버튼 스타일 */
+.btnViewReply {
+    background: none;
+    border: none;
+    color: #888; /* 연한 회색 */
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 5px;
+    margin-left: 10px; /* 살짝 들여쓰기 */
+    padding: 5px 0;
+}
+
+.btnViewReply:hover {
+    color: #333; /* 마우스 올리면 진하게 */
+}
+
+/* 대댓글 영역 들여쓰기 */
+.sub-reply-area {
+    margin-left: 20px;
+    margin-top: 5px;
+    border-left: 2px solid #eee; /* 왼쪽에 줄 그어주기 (선택) */
+    padding-left: 10px;
+}
+
+/* 답글 작성 폼 */
 .reReplyForm {
     margin: 10px 0 10px 40px;
     display: flex;

@@ -10,6 +10,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Formula;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,6 +59,12 @@ public class Reply {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Reply parent;
+
+    // db에 실제 칼럼 없음
+    // 조회시 서브쿼리로 개수만 가져옴
+    @Basic(fetch = FetchType.LAZY)
+    @Formula("(select count(1) from reply r where r.parent_id = id and r.deleteyn = 'N')")
+    private int childCount;
 
     @Comment("대댓글(자식댓글)")
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)

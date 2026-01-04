@@ -49,6 +49,14 @@ public class ReplyController {
         return rs.getReplyList(postId, pageable);
     }
 
+    // 대댓글(자식) 목록 조회 API
+    // 프론트에서 "답글 보기" 버튼 클릭 시 -> /reply/10/children 호출
+    @ResponseBody
+    @GetMapping("/reply/{parentId}/children")
+    public List<ReplyResDto> getChildren(@PathVariable Long parentId) {
+        return rs.getChildReplies(parentId);
+    }
+
     // 삭제
     @ResponseBody // AJAX 요청이니까 필수
     @DeleteMapping("/reply/{replyId}")
@@ -56,19 +64,15 @@ public class ReplyController {
             @PathVariable Long replyId,
             @AuthenticationPrincipal MemberDto mdto
     ){
-        // 1. 로그인 안 함 -> 401 에러 코드 전송
         if(mdto == null){
-            // "redirect:/login" (X) -> 프론트가 알아먹게 상태 코드(401)를 줌
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
 
         try{
             rs.deleteReply(replyId, mdto.getId());
-            // 2. 성공 -> 200 OK
             return ResponseEntity.ok("댓글이 성공적으로 삭제되었습니다.");
         } catch (Exception e){
             log.error("댓글삭제 실패", e);
-            // 3. 실패 -> 400 Bad Request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
