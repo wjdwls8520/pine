@@ -1,6 +1,7 @@
 package com.site.pine.dto.community;
 
 import com.site.pine.dto.FileDto;
+import com.site.pine.dto.tag.TagResDto;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -25,6 +26,9 @@ public class CommunityDetailResDto {
 
     // 파일
     private List<FileDto> files;
+
+    //태그
+    private List<TagResDto> tags;
 
 
 }

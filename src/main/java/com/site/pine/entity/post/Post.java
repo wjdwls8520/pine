@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
@@ -18,6 +19,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@DynamicUpdate // 변경된 컬럼만 update 쿼리를 날리도록 설정 (필수!)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post {

@@ -25,7 +25,7 @@
                                 <div class="postInfo">
                                     <div class="postProfileImgBox">
                                         <img class="profileImg"
-                                             src="${not empty post.profile_img ? post.profile_img : '/images/banner02.png'}" />
+                                             src="${not empty post.profile_img ? post.profile_img : '/images/user.png'}" />
                                     </div>
                                     <div class="userNick">${post.nickname}</div>
                                     <div class="postTime">
@@ -37,6 +37,14 @@
 
                             <div class="postMiddle">
                                 <div class="postContent">${post.content}</div>
+
+                                <c:if test="${not empty post.tags}">
+                                    <div class="tagZone">
+                                        <c:forEach var="tag" items="${post.tags}">
+                                            <span class="tag">#${tag.name}</span>
+                                        </c:forEach>
+                                    </div>
+                                </c:if>
 
                                 <!-- 🔥 수정: Swiper 이미지 리스트 제대로 출력 -->
                                 <c:if test="${not empty post.files}">
