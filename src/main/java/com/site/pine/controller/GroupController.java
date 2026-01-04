@@ -244,13 +244,16 @@ public class GroupController {
     }
 
     // [AJAX] 그룹장이 받은 가입신청에 결정하는 API
-    @PostMapping("/group/gjoinReqAppRej")
+    @PostMapping("/group/gjoinreqapprej")
     @ResponseBody
-    public void gjoinReqAppRej(@AuthenticationPrincipal MemberDto memberdto, @RequestBody GroupJoinAppJejReqDto reqdto) {
+    public ResponseEntity<String> gjoinReqAppRej(@AuthenticationPrincipal MemberDto memberdto, @RequestBody GroupJoinAppJejReqDto reqdto) {
         if (memberdto == null) {
-            throw new IllegalArgumentException("잘못된 요청입니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
 
+        // 서비스 호출 (에러 나면 GlobalExceptionHandler가 잡음)
         gs.gjoinReqAppRej(memberdto, reqdto);
+
+        return ResponseEntity.ok("처리되었습니다.");
     }
 }

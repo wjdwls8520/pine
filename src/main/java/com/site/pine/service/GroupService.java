@@ -6,11 +6,13 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.S3FileDeleteFailList;
+import com.site.pine.entity.ViewGroupHistory;
 import com.site.pine.entity.group.*;
 import com.site.pine.mapper.GroupMapper;
 import com.site.pine.mapper.S3FileDeleteFailMapper;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
+import com.site.pine.repository.ViewGroupRepository;
 import com.site.pine.repository.group.*;
 
 import jakarta.persistence.EntityManager;
@@ -44,6 +46,7 @@ public class GroupService {
     private final GroupCategoryRepository gcr;
     private final GroupContentsRepository gconr;
     private final GroupInCategoryRepository gicr;
+    private final ViewGroupRepository gvr;
 
     private final MemberRepository mr;
     private final GroupMemberRepository gmr;
@@ -277,9 +280,11 @@ public class GroupService {
 
         entityManager.detach(getGroupMemberInfo);
 
-        gicr.deleteAllByGroupContents(groupContentE);
-        gmr.deleteAllByGroupId(groupId);
-        gconr.delete(groupContentE); // 하나 삭제
+        gicr.deleteAllByGroupContents(groupContentE); // 그룹 카테고리 삭제
+        gvr.deleteAllByGroupId(groupId); // 그룹조회수히스토리 삭제 ( Modifying )
+        gjrr.deleteAllByGroupId(groupId); // 그룹신청리스트 삭제 ( Modifying )
+        gmr.deleteAllByGroupId(groupId); // 그룹멤버 삭제 ( Modifying )
+        gconr.delete(groupContentE); // 그룹 하나 삭제
 
         try {
             sus.deleteFile(oldFile.getPath());
@@ -382,8 +387,8 @@ public class GroupService {
         // 2. 프론트엔드에서 length = 0 일 때를 판별하면 끝
 
         // 요청한사람이 해당그룹의 그룹장인지아닌지 판단
-        GroupMember isGoupMember = gmr.findByGroupContentsIdAndMemberId(groupId, memberdto.getId()).orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
-        if(isGoupMember.getRole() != 1) throw new IllegalArgumentException("잘못된 접근입니다.");
+        GroupMember isGroupMember = gmr.findByGroupContentsIdAndMemberId(groupId, memberdto.getId()).orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+        if(isGroupMember.getRole() != 1) throw new IllegalArgumentException("잘못된 접근입니다.");
 
         Pageable pageable = PageRequest.of(page, 6, Sort.by(Sort.Direction.DESC, "requestDate"));
         Page<GroupJoinResDto> groupJoinList = gjrr.findAllJoinGroupAndMember(pageable , groupId);
@@ -394,15 +399,48 @@ public class GroupService {
     public void gjoinReqAppRej(MemberDto memberdto, GroupJoinAppJejReqDto reqdto) {
 
         // 요청한사람이 해당그룹의 그룹장인지아닌지 판단
-        GroupMember isGoupMember = gmr.findByGroupContentsIdAndMemberId(reqdto.getGroupId(), memberdto.getId()).orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
-        if(isGoupMember.getRole() != 1) throw new IllegalArgumentException("잘못된 접근입니다.");
+        GroupMember isGroupMember = gmr.findByGroupContentsIdAndMemberId(reqdto.getGroupId(), memberdto.getId()).orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+        if(isGroupMember.getRole() != 1) throw new IllegalArgumentException("잘못된 접근입니다.");
 
-        if(reqdto.getStatus().equals("APPROVE")) {
+        // 2. [데이터 검증] 처리하려는 가입 신청서(Request) 조회
+        // 단순히 ID로 지우는 게 아니라, 조회해서 검증해야 함
+        GroupJoinRequest requestE = gjrr.findById(reqdto.getJoinId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신청서입니다."));
 
-        } else if(reqdto.getStatus().equals("REJECT")) {
+        // 3. [보안 검증 - IDOR 방어] 신청서가 해당 그룹의 것이 맞는지 확인
+        if(!requestE.getGroupContents().getId().equals(reqdto.getGroupId())) {
+            throw new IllegalArgumentException("잘못된 접근입니다. (그룹 불일치)");
+        }
 
+        if(!requestE.getMember().getId().equals(reqdto.getMemberId())) {
+            throw new IllegalArgumentException("잘못된 접근입니다. (멤버 불일치)");
+        }
+
+        // 4. 승인/거절 로직
+        if("APPROVE".equals(reqdto.getStatus())) {
+
+            // [무결성 검증] 이미 가입된 멤버인지 더블 체크 ★★★
+            boolean alreadyMember = gmr.existsByGroupContentsIdAndMemberId(reqdto.getGroupId(), requestE.getMember().getId());
+            if (alreadyMember) {
+                // 이미 멤버라면 신청서만 지우고 종료하거나 에러 처리
+                gjrr.delete(requestE);
+                return;
+            }
+
+            // 멤버 추가
+            GroupMember newMember = new GroupMember();
+            newMember.setGroupContents(requestE.getGroupContents());
+            newMember.setMember(requestE.getMember());
+            newMember.setRole(3);
+            gmr.save(newMember); // 그룹멤버에 추가
+
+            gconr.increaseGroupMemberCount(reqdto.getGroupId()); // 그룹에 멤버카운트 추가
+
+            gjrr.delete(requestE); // 그룹신청리스트에서 삭제
+        } else if("REJECT".equals(reqdto.getStatus())) {
+            gjrr.delete(requestE);
         } else {
-            throw new IllegalArgumentException("잘못된 접근입니다.");
+            throw new IllegalArgumentException("잘못된 상태값입니다.");
         }
 
     }

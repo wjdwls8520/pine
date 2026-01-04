@@ -56,24 +56,34 @@
     </article>
 </div>
 <script>
-    function groupJoinReq(target, status, groupId, memberId) {
-        console.log(target)
+    function groupJoinReq(target, status, joinId, groupId, memberId) {
         if(status == "APPROVE") {
             if(!confirm("가입신청을 승인 하시겠습니까?")) return;
         } else {
             if(!confirm("가입신청을 거절 하시겠습니까?")) return;
         }
 
-        fetch(`/group/gjoinReqAppRej/`, {method: "POST", body: JSON.stringify({status: status, groupId: groupId, memberId: memberId})})
+        fetch(`/group/gjoinreqapprej`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({status: status, joinId:joinId, groupId: groupId, memberId: memberId})})
             .then(response => {
-                if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
-                return response.json(); // 성공하면 JSON 반환
-            })
-            .then((result) => {
-                alert("정상적으로 처리되었습니다.");
+                if (response.ok) {
+                    alert("처리되었습니다.");
+                    // location.reload(); // 성공 시 새로고침
+                    target.parentElement.parentElement.remove();
+                } else {
+                    // [여기가 핵심] 서버가 에러(400, 500)를 던지면 프론트가 페이지를 이동시킴
+                    console.log(response);
+                    return response.text().then(msg => {
+                        alert(msg); // "잘못된 접근입니다" 메시지 출력
+                        location.href = "/error"; // 에러 페이지로 강제 이동!
+                    });
+                }
             }).catch(err => console.error(err));
     }
 </script>
 <script src="/js/groupjs/groupJoinRequestScroll.js"></script>
-<script src="/js/timeAgo.js"></script>
 <jsp:include page="../include/group_footer.jsp"></jsp:include>

@@ -59,5 +59,4 @@
 
 </div>
 <jsp:include page="../include/group_footer.jsp"></jsp:include>
-<script src="/js/timeAgo.js"></script>
 <script src="/js/groupjs/groupScroll.js"></script>

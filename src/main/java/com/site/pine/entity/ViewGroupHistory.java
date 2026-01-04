@@ -1,5 +1,6 @@
 package com.site.pine.entity;
 
+import com.site.pine.entity.group.GroupContents;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,8 +37,9 @@ public class ViewGroupHistory {
     private Long id;
 
     @Comment("해당 컨텐츠의 id")
-    @Column(name = "target_id", nullable = false)
-    private Long targetId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_id")
+    private GroupContents targetId;
 
     @Comment("조회/방문 날짜 중복판단용")
     @Column(name = "is_view", nullable = false, updatable = false)
@@ -57,7 +59,7 @@ public class ViewGroupHistory {
     private String viewerCookie;
 
     public static ViewGroupHistory create(
-            Long targetId,
+            GroupContents targetId,
             Member viewer,
             String viewerCookie,
             LocalDate today
