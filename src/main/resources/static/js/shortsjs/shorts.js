@@ -37,7 +37,7 @@ const observer = new IntersectionObserver((entries) => {
 
 
 // ==========================================
-// 📡 서버 데이터 요청 함수 (Ajax)
+// 서버 데이터 요청 함수 (Ajax)
 // ==========================================
 async function getData(page) {
     console.log(`[getData] 페이지 요청: ${page}`);
@@ -70,23 +70,34 @@ async function getData(page) {
 
             // [데이터 렌더링] 받아온 리스트를 HTML로 변환하여 추가
             data.shortsList.map((info) => {
-                // 파일 리스트에서 영상과 썸네일 구분
                 let videoFile = info.files.find(f => f.contentType.includes("video"));
                 let thumbnailFile = info.files.find(f => f.contentType.includes("image"));
 
-                // HTML 문자열 생성 (Template Literal)
+                let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(info.writeDate) : info.writeDate;
+
+                let userProfile = info.profileImg ? info.profileImg : '/images/icon_pinedory.png';
+
                 shortsFeedWrap.insertAdjacentHTML("beforeend", `
-                   <div class="shortsCard" data-title="${info.title}" data-user="${info.writer}">
+                   <div class="shortsCard" data-title="${info.title}" data-user="${info.nickname}">
                         <div class="cardInner">
                             <aside class="userPanel">
                                 <div class="userWrap">
-                                    <div class="avatar">
-                                        <img src="/images/icon_pinedory.png" alt="pinedory">
+
+                                    <div class="userHeader">
+                                        <div class="avatar">
+                                            <img src="${userProfile}" alt="user">
+                                        </div>
+                                        <div class="userInfo">
+                                            <strong class="nickname">${info.nickname}</strong>
+                                            <span class="writedate">· ${dateStr}</span>
+                                        </div>
                                     </div>
-                                    <div class="userMeta">
-                                        <strong>${info.title}</strong>
-                                        <p>${info.content}</p>
+
+                                    <div class="userBody">
+                                        <p class="shortsTitle">${info.title}</p>
+                                        <p class="shortsContent">${info.content}</p>
                                     </div>
+
                                 </div>
                             </aside>
 
@@ -96,37 +107,39 @@ async function getData(page) {
                                        ontimeupdate="updateProgress(this)">
                                        <source src="${videoFile && videoFile.path ? videoFile.path : ''}">
                                 </video>
-
                                 <div class="playOverlay"></div>
-
                                 <div class="timeDisplay">00:00 / 00:00</div>
-
                                 <div class="progressBarContainer">
                                     <div class="progressBarFill"></div>
                                 </div>
                             </div>
 
                             <div class="actionPanel">
-                                <button class="actionBtn like">
-                                    <span>좋아요</span>
-                                    <em>2.1K</em>
-                                </button>
-                                <button class="actionBtn share">
-                                    <span>공유</span>
-                                    <em>128</em>
-                                </button>
-                                <button class="actionBtn commentToggle" onclick="openComment();">
-                                    <span>댓글</span>
-                                    <em>356</em>
+                                <button class="actionBtn like"><span>좋아요</span><em>${info.likeCount || 0}</em></button>
+                                <button class="actionBtn share"><span>공유</span><em>128</em></button>
+                                <button class="actionBtn commentToggle" onclick="openComment(${info.postId}, '${info.title}', '${info.nickname}');">
+                                    <span>댓글</span><em>${info.replyCount || 0}</em>
                                 </button>
                             </div>
                         </div>
                     </div>
                 `);
 
-                //  [중요] 방금 추가한 카드를 관찰자에게 등록
-                // 이걸 해야 스크롤할 때 자동 재생 기능이 먹힙니다.
                 const newCard = shortsFeedWrap.lastElementChild;
+                const titleEl = newCard.querySelector('.shortsTitle');
+                const descEl = newCard.querySelector('.shortsContent');
+
+                // 제목 넘침 검사 (2줄 이상인지)
+                if (titleEl.scrollHeight > titleEl.clientHeight) {
+                    titleEl.classList.add('expandable'); // CSS 커서 적용
+                    titleEl.setAttribute('onclick', 'toggleExpand(this)');
+                }
+
+                // 내용 넘침 검사 (3줄 이상인지)
+                if (descEl.scrollHeight > descEl.clientHeight) {
+                    descEl.classList.add('expandable');
+                    descEl.setAttribute('onclick', 'toggleExpand(this)');
+                }
                 observer.observe(newCard);
             });
 
@@ -162,19 +175,11 @@ window.addEventListener("load", () => {
     });
 });
 
-
-// ==========================================
-// ️ 헬퍼 함수들 (기능 구현)
-// ==========================================
-
-// 댓글창 열기/닫기
-function openComment() {
-    let popupComment = document.getElementById("commentsPanel");
-    if(popupComment) popupComment.classList.add("open");
-}
-function closeComment() {
-    let popupComment = document.getElementById("commentsPanel");
-    if(popupComment) popupComment.classList.remove("open");
+/**
+ * 텍스트 더보기/접기 토글 함수
+ */
+function toggleExpand(element) {
+    element.classList.toggle('expanded');
 }
 
 /**
@@ -234,4 +239,14 @@ function formatTime(seconds) {
     const secStr = sec < 10 ? `0${sec}` : sec;
 
     return `${minStr}:${secStr}`;
+}
+
+// 댓글창 열기/닫기
+function openComment(postId, title, writer) {
+    let popupComment = document.getElementById("commentsPanel");
+    if(popupComment) popupComment.classList.add("open");
+}
+function closeComment() {
+    let popupComment = document.getElementById("commentsPanel");
+    if(popupComment) popupComment.classList.remove("open");
 }
