@@ -444,4 +444,9 @@ public class GroupService {
         }
 
     }
+
+    // 가입신청 중인지 확인 api
+    public Boolean isGroupJoinRequest(Long memberId, Long groupId) {
+        return gjrr.existsByGroupContentsIdAndMemberIdAndStatus(groupId, memberId, 0);
+    }
 }

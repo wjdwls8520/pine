@@ -46,4 +46,6 @@ public interface GroupJoinRequestRepository extends JpaRepository<GroupJoinReque
     @Modifying
     @Query("DELETE FROM GroupJoinRequest gjr WHERE gjr.groupContents.id = :groupId")
     void deleteAllByGroupId(@Param("id") Long groupId);
+
+    Boolean existsByGroupContentsIdAndMemberIdAndStatus(Long groupId, Long memberId, int i);
 }
