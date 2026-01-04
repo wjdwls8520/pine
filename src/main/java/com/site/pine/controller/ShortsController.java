@@ -1,10 +1,12 @@
 package com.site.pine.controller;
 
 import com.site.pine.dto.member.MemberDto;
+import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.service.ShortsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -100,6 +102,13 @@ public class ShortsController {
         }
 
         return "redirect:/shorts";
+    }
+
+    @GetMapping("/shorts/detail/{postId}")
+    @ResponseBody
+    public ResponseEntity<ShortsResDto> getShortDetail(@PathVariable Long postId) {
+        ShortsResDto dto = ss.getShortsDetail(postId);
+        return ResponseEntity.ok(dto);
     }
 
 

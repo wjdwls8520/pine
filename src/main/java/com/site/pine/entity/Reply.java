@@ -62,6 +62,7 @@ public class Reply {
     @Comment("대댓글(자식댓글)")
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     @BatchSize(size = 100)
+    @OrderBy("id DESC")
     private List<Reply> children = new ArrayList<>();
 
 

@@ -40,5 +40,4 @@
 
 
 <jsp:include page="../include/shorts_footer.jsp"></jsp:include>
-<script src="/js/timeAgo.js"></script>
 <script src="/js/shortsjs/shorts.js"></script>

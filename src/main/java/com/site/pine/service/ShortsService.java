@@ -3,6 +3,7 @@ package com.site.pine.service;
 import com.site.pine.dto.post.PostMainFileDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
+import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
@@ -181,5 +182,14 @@ public class ShortsService {
         try {
             if (p != null) Files.deleteIfExists(p);
         } catch (Exception ignored) {}
+    }
+
+    @Transactional(readOnly = true)
+    public ShortsResDto getShortsDetail(Long postId) {
+        ShortsPost shortsPost = spr.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 쇼츠가 존재하지 않습니다. id=" + postId));
+        // 조회수 증가 로직 여기에 추가 (viewService.increaseViewCount(postId) )
+
+        return ShortsResDto.from(shortsPost);
     }
 }

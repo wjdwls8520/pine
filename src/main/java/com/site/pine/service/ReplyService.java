@@ -51,10 +51,17 @@ public class ReplyService {
             if (!parent.getPost().getId().equals(post.getId())) {
                 throw new IllegalArgumentException("부모 댓글과 다른 게시글에 대댓글을 달 수 없습니다.");
             }
+            if (parent.getParent() != null) {
+                throw new IllegalArgumentException("대댓글에는 답글을 작성할 수 없습니다.");
+            }
             reply.setParent(parent);
         }
 
         rr.save(reply);
+
+        pr.increaseReplyCount(post.getId()); // DB에 댓글 수 증가 쿼리 실행
+        // 현재 메모리에 있는 post 객체의 카운트도 1 올려줌 (DTO 변환용)
+        post.setReplyCount(post.getReplyCount() + 1);
 
         return ReplyResDto.from(reply);
 
@@ -88,6 +95,7 @@ public class ReplyService {
         if (reply.getChildren().isEmpty()) {
             // 자식이 없으면 -> DB에서 진짜 삭제 (Hard Delete)
             rr.delete(reply);
+            pr.decreaseReplyCount(reply.getPost().getId());
         } else {
             // 자식이 있으면 -> "삭제된 댓글입니다" 상태로 변경 (Soft Delete) -> 대댓글 구조 유지
             reply.setDeleteYN("Y");
