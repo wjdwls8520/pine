@@ -139,6 +139,7 @@
 </div>
 <<div id="commonToast" class="toastMsg"></div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
+
 <script>
     const POST_ID = ${post.id};
 </script>
@@ -149,18 +150,8 @@
 
 <script>
     window.addEventListener("load", () => {
-        const swiperEl = document.querySelector(".commuSlide");
-        if(swiperEl) {
-            new Swiper(swiperEl, {
-                speed: 400,
-                loop: false,
-                slidesPerView: 2.3,
-                spaceBetween: 20,
-                pagination: {
-                    el: swiperEl.querySelector(".swiper-pagination"),
-                },
-            });
-        }
+        // 공통 함수 호출 (이 한 줄이면 끝!)
+        initPostSliders();
     });
 </script>
 </body>

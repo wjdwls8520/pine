@@ -4,102 +4,246 @@ section.section .bigTitle {display: flex; justify-content: space-between; paddin
 section.section .bigTitle > a {display: flex; align-items: flex-end; font-size: 16px; font-weight: 700; color: #141414;}
 section.section .subTitle {margin-top:-32px; padding-bottom: 14px; font-size: 16px; font-weight: 500; color: #cdd8cd;}
 
-
-
-/* ////////////아이콘/////////////////*/
-.ico{
-    width: 21px;
-    height: 21px;
-    display: inline-block;
-    cursor: pointer;
-}
-.ico.replyLike {width: 16px;
-    height: 16px;}
-.ico_like {
-    background: url("../images/ico_like.png") center center no-repeat;
-    background-size: cover;
-}
-.ico_like.active {
-    background: url("../images/ico_like_pull.png") center center no-repeat;
-    background-size: cover;
-}
-.ico_reply {
-    background: url("../images/ico_reply.png") center center no-repeat;
-    background-size: cover;
-
-}
-.ico_link {
-    background: url("../images/ico_link.png") center center no-repeat;
-    background-size: cover;
-}
-.ico_more{
-    background: url("../images/ico_more.png") center center no-repeat;
-    background-size: cover;
-}
-.ico_view{
-    background: url("../images/ico_view.png") center center no-repeat;
-    background-size: cover;
+/* =========================================
+    댓글 섹션 (Reply Section)
+   ========================================= */
+.replyWrap {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #f1f5f9; /* 게시글 본문과 구분선 */
 }
 
-
-
-/*//////////////댓글섹션/////////////////*/
-.replyWrap {margin-top: 20px;}
+/* --- 댓글 작성창 (입력박스) --- */
 .replyWrap .writeBox {
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
     display: flex;
-    align-items: center;}
+    align-items: center;
+    background: #f8fafc;     /* 아주 연한 회색 배경 */
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;      /* 둥근 모양 */
+    padding: 6px 6px 6px 20px; /* 안쪽 여백 */
+    margin-bottom: 30px;
+    transition: all 0.2s;
+}
 
-.replyWrap .writeBox .replyTextBox {width: 100%;box-sizing: border-box;margin-left: 20px;}
+/* 입력창 포커스 시 강조 효과 */
+.replyWrap .writeBox:focus-within {
+    background: #fff;
+    border-color: #94a3b8;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.replyWrap .writeBox .replyTextBox {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    color: #334155;
+    outline: none; /* 기본 테두리 제거 */
+    padding: 8px 0;
+}
+.replyWrap .writeBox .replyTextBox::placeholder {
+    color: #cbd5e1;
+}
+
 .replyWrap .writeBox .replyBtn {
     width: 70px;
-    height: 37px;
-    margin: 6px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+    height: 36px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 20px;
+    background: #0f172a; /* 진한 남색 (Slate 900) */
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
 }
-.replyWrap .replyBox {border: 1px solid #ccc;font-size: 15px;}
+.replyWrap .writeBox .replyBtn:hover {
+    background: #334155;
+}
 
-.replyWrap .replyBox .replyWriterInfo {display: flex;justify-content: space-between;align-items: start;}
-.replyWrap .replyBox .replyWriterInfo .infoLeft {    display: flex;    gap: 24px;
+
+/* --- 댓글 목록 --- */
+.replyList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
-.replyWrap .replyBox .replyWriterInfo .profileImgBox {width: 34px;
-    height: 34px;
+
+/* 개별 댓글 박스 (테두리 제거 -> 여백으로 구분) */
+.replyWrap .replyBox {
+    border: none; /* 기존 테두리 제거 */
+    font-size: 15px;
+    position: relative;
+}
+
+/* 대댓글 (들여쓰기) */
+.replyWrap .replyBox.child {
+    margin-left: 48px; /* 프로필 이미지 크기만큼 들여쓰기 */
+    padding-left: 16px;
+    border-left: 2px solid #f1f5f9; /* 왼쪽에 살짝 줄 표시 */
+    background: #fdfdfd;
+}
+
+/* 작성자 정보 영역 */
+.replyWrap .replyBox .replyWriterInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.replyWrap .replyBox .replyWriterInfo .infoLeft {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+/* 프로필 이미지 */
+.replyWrap .replyBox .replyWriterInfo .profileImgBox {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     overflow: hidden;
-    border: 1px solid #ccc;}
-.replyWrap .replyBox .replyWriterInfo .profileImgBox img{width: 100%;
-    height: 100%;object-fit: cover}
-.replyWrap .replyBox .infoContent {display: flex;
+    border: 1px solid #f1f5f9;
+    flex-shrink: 0; /* 찌그러짐 방지 */
+}
+
+.replyWrap .replyBox .replyWriterInfo .profileImgBox img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 댓글 내용 영역 */
+.replyWrap .replyBox .infoContent {
+    display: flex;
     flex-direction: column;
-    gap: 8px;}
-.replyWrap .replyBox .infoContent .nickNtime{display: flex}
-.replyWrap .replyBox .infoContent .userNick{margin-right: 20px;}
-.replyWrap .replyBox .infoContent .replyTime{    color: #606060;}
+    gap: 6px;
+    width: 100%;
+}
 
-.replyWrap .replyBox .replyBottom{    display: flex;
+/* 닉네임 & 시간 */
+.replyWrap .replyBox .infoContent .nickNtime {
+    display: flex;
     align-items: center;
-    font-size: 14px;}
-.replyWrap .replyBox .replyBottom .likeCount {margin: 0 20px 0 5px;}
+    gap: 8px;
+}
+
+.replyWrap .replyBox .infoContent .userNick {
+    font-weight: 700;
+    font-size: 14px;
+    color: #0f172a;
+}
+
+.replyWrap .replyBox .infoContent .replyTime {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* 댓글 본문 텍스트 */
+.replyWrap .replyBox .replyContent .replyTxt {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #334155;
+    margin: 4px 0 8px;
+    white-space: pre-wrap;
+}
+
+/* --- 댓글 하단 (좋아요/답글 버튼) --- */
+.replyWrap .replyBox .replyBottom {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #64748b;
+    gap: 12px;
+}
+
+/* 좋아요 아이콘 & 숫자 */
+.replyWrap .replyBox .replyBottom .replyLikeBox {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+.replyWrap .replyBox .replyBottom .likeCount {
+    margin: 0; /* 기존 마진 제거 */
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* 답글 버튼 */
+.replyWrap .replyBox .replyBottom .replyBtnChild {
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+.replyWrap .replyBox .replyBottom .replyBtnChild:hover {
+    color: #0f172a;
+    text-decoration: underline;
+}
+
+/* 더보기 버튼 (댓글용) */
+.replyMoreBtn {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 4px;
+}
+.replyMoreBtn:hover {
+    opacity: 1;
+}
 
 
+/* =========================================
+    아이콘 (기존 유지하되 정렬 보완)
+   ========================================= */
+.ico {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    cursor: pointer;
+    background-size: contain !important; /* cover 대신 contain 권장 */
+    vertical-align: middle;
+}
 
-/*토스트 메세지*/
+.ico.replyLike { width: 16px; height: 16px; }
+
+/* 이미지 경로는 유지 */
+.ico_like { background: url("../images/ico_like.png") center center no-repeat; }
+.ico_like.active { background: url("../images/ico_like_pull.png") center center no-repeat; }
+.ico_reply { background: url("../images/ico_reply.png") center center no-repeat; }
+.ico_link { background: url("../images/ico_link.png") center center no-repeat; }
+.ico_more { background: url("../images/ico_more.png") center center no-repeat; }
+
+
+/* =========================================
+    토스트 메시지 (Toast Message) - Modern Pill Style
+   ========================================= */
 .toastMsg {
     position: fixed;
-    bottom: 70px;
+    bottom: 50px;
     left: 50%;
-    transform: translateX(-50%);
-    background: #333;
+    transform: translateX(-50%) translateY(20px); /* 살짝 아래에서 시작 */
+
+    /* 디자인 */
+    background: rgba(15, 23, 42, 0.9); /* 진한 남색 + 투명도 */
+    backdrop-filter: blur(8px);        /* 배경 흐림 효과 (iOS 스타일) */
     color: #fff;
-    padding: 10px 16px;
-    border-radius: 6px;
+    padding: 12px 24px;
+    border-radius: 99px;               /* 완전 둥근 알약 모양 */
     font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); /* 그림자 */
+
+    /* 애니메이션 상태 */
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* 부드러운 움직임 */
+    z-index: 10000;
 }
+
 .toastMsg.show {
     opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0); /* 제자리로 올라옴 */
 }

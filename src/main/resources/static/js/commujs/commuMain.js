@@ -126,12 +126,13 @@ window.addEventListener("load", () => {
                         info.files.forEach(file => {
                             postImg.insertAdjacentHTML("beforeend", `<div class="swiper-slide"><img src="${file.path}" /></div>`);
                         });
-                        new Swiper(postImg.closest(".commuSlide"), {
-                            speed: 400, loop: false, slidesPerView: 2.3, spaceBetween: 20,
-                            pagination: { el: postImg.closest(".commuSlide").querySelector(".swiper-pagination") },
-                        });
+                        // new Swiper(postImg.closest(".commuSlide"), {
+                        //     speed: 400, loop: false, slidesPerView: 2.3, spaceBetween: 20,
+                        //     pagination: { el: postImg.closest(".commuSlide").querySelector(".swiper-pagination") },
+                        // });
                     }
                 });
+                initPostSliders();
             })
             .catch(err => console.error("데이터 로딩 실패:", err))
             .finally(() => loading = false);

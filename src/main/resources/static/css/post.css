@@ -1,136 +1,327 @@
-/*           포스트리스트      */
-.pageTitle {margin:20px 0;}
-.commuSection {display: flex; justify-content: start;gap:20px;}
-.postSection .postBox {width: 700px;border: 1px solid #ccc;}
-.postSection .postBox .postInner {padding:30px;}
+@charset "utf-8";
 
-.postSection .postBox .postWrap .postTop {display:flex;justify-content:space-between;align-items:center;}
-.postSection .postBox .postWrap .postTop .postInfo {display: flex;
-    align-items: center;}
-.postSection .postBox .postWrap .postTop .postProfileImgBox {width:40px;height:40px;border-radius:50%;border: 1px solid #ccc;overflow: hidden;}
-.postSection .postBox .postWrap .postTop .postProfileImgBox .profileImg {width: 100%;height: 40px;object-fit: cover}
-.postSection .postBox .postWrap .postTop .userNick{margin:0 20px 0 10px}
+/* =========================================
+   1. 공통 레이아웃 & 유틸리티
+   ========================================= */
+.pageTitle {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 30px 0 20px;
+    letter-spacing: -0.5px;
+}
 
-.postSection .postBox .postWrap .postMiddle {margin: 20px 0;}
+.commuSection {
+    display: flex;
+    justify-content: flex-start;
+    gap: 24px;
+    align-items: flex-start; /* 높이 달라도 상단 정렬 */
+}
 
-.postSection .postBox .postWrap .postMiddle .postContent {display: inline-block;cursor:pointer;}
+/* =========================================
+   2. 포스트 카드 (메인 & 디테일 공통)
+   ========================================= */
+.postSection .postBox {
+    width: 700px;
+    background: #fff;
+    border: 1px solid #e2e8f0; /* 연한 회색 테두리 */
+    border-radius: 24px;       /* 둥근 모서리 */
+    box-shadow: 0 10px 40px -10px rgba(15, 23, 42, 0.05); /* 부드러운 그림자 */
+    margin-bottom: 30px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-/*더보기 모달*/
-.postSection .postWrap .postTop .moreIcon{position: relative;}
+/* (선택) 메인 리스트에서 마우스 올렸을 때 살짝 뜨는 효과 */
+.postSection .postBox:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.1);
+}
+
+.postSection .postBox .postInner {
+    padding: 32px;
+}
+
+/* --- 포스트 상단 (작성자 정보) --- */
+.postSection .postBox .postWrap .postTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.postSection .postBox .postWrap .postTop .postInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.postSection .postBox .postWrap .postTop .postProfileImgBox {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #fff; /* 프로필 주변 흰 테두리 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.postSection .postBox .postWrap .postTop .postProfileImgBox .profileImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.postSection .postBox .postWrap .postTop .userNick {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.postSection .postBox .postWrap .postTop .postTime {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-left: 8px;
+}
+
+/* --- 포스트 내용 (중단) --- */
+.postSection .postBox .postWrap .postMiddle {
+    margin-bottom: 24px;
+}
+
+.postSection .postBox .postWrap .postMiddle .postContent {
+    display: block;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #334155;
+    margin-bottom: 16px;
+    white-space: pre-wrap; /* 줄바꿈 유지 */
+    cursor: pointer;
+}
+
+/* 태그 스타일 */
+.tagZone {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.tagZone .tag {
+    font-size: 13px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* 이미지 슬라이더 */
+.swiper.commuSlide {
+    width: 100%;
+    height: 400px; /* 높이 약간 증가 */
+    margin: 20px 0;
+    border-radius: 16px; /* 이미지 둥글게 */
+    overflow: hidden;
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+}
+
+.swiper.commuSlide .swiper-wrapper .swiper-slide > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+/* 이미지 호버 시 살짝 확대 */
+.swiper.commuSlide .swiper-wrapper .swiper-slide > img:hover {
+    transform: scale(1.05);
+}
+
+/* --- 포스트 하단 (좋아요/댓글/링크) --- */
+.postSection .postBox .postWrap .postBottom {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px; /* 간격 균일화 */
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9; /* 상단 구분선 연하게 */
+}
+
+.postSection .postBox .postWrap .postBottom .icoBox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 99px; /* 알약 모양 */
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.postSection .postBox .postWrap .postBottom .icoBox:hover {
+    background: #e2e8f0;
+    color: #334155;
+    transform: translateY(-1px);
+}
+
+/* 좋아요 활성화 (하트 빨강) */
+.ico.ico_like.active {
+    color: #ef4444; /* Create페이지의 포인트 컬러 사용 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+}
+
+
+/* =========================================
+   3. 더보기 모달 (Dropdown)
+   ========================================= */
+.postSection .postWrap .postTop .moreIcon {
+    position: relative;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+.postSection .postWrap .postTop .moreIcon:hover {
+    background: #f1f5f9;
+}
 
 .postMoreModal {
-    display: none; /* 평소엔 안 보임 */
+    display: none;
     position: absolute;
-    top: 30px; /* 아이콘 바로 아래 */
+    top: 35px;
     right: 0;
-    width: 100px; /* 작게 */
+    width: 120px;
     background: #fff;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     z-index: 100;
     overflow: hidden;
     flex-direction: column;
+    padding: 4px; /* 내부 여백 */
 }
 
 .postMoreModal.active {
     display: flex;
 }
 
-/* 2. 메뉴 버튼 스타일 (이중 선택자 적용) */
 .postMoreModal .menuItem {
     width: 100%;
-    padding: 10px 0;
-    background: #fff;
+    padding: 10px 12px;
+    background: transparent;
     border: none;
-    border-bottom: 1px solid #f5f5f5;
     font-size: 13px;
-    color: #333;
+    color: #475569;
+    text-align: left;
     cursor: pointer;
-    transition: background 0.2s;
-}
-
-.postMoreModal .menuItem:last-child {
-    border-bottom: none;
+    border-radius: 8px; /* 메뉴 아이템도 둥글게 */
+    transition: background 0.2s, color 0.2s;
+    font-weight: 500;
 }
 
 .postMoreModal .menuItem:hover {
-    background: #f9f9f9;
+    background: #f1f5f9;
+    color: #0f172a;
 }
 
-/* 3. 삭제, 신고 버튼 (빨간색 강조) */
 .postMoreModal .menuItem.danger {
-    color: #ff4d4d;
-    font-weight: 600;
+    color: #ef4444;
+}
+.postMoreModal .menuItem.danger:hover {
+    background: #fef2f2;
+    color: #dc2626;
 }
 
 
-
-/*포스트 이미지 슬라이드*/
-.swiper.commuSlide {
-    width: 100%;
-    height: 380px;
-    margin: 30px 0;
-    overflow: hidden;
-    border: 1px solid #ccc;
+/* =========================================
+   4. 사이드바 (그룹 랭크) - 카드 스타일 적용
+   ========================================= */
+.groupSection {
+    width: 250px;
+    /* 기존 border 제거하고 카드 스타일 적용 */
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    background: #fff;
+    padding: 24px;
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05);
+    height: auto; /* 높이 자동 */
+    min-height: 400px;
 }
 
-.swiper.commuSlide .swiper-wrapper .swiper-slide > img {
-    width: 100%; height: 100%; object-fit: cover;}
+.groupSection .inner {
+    padding: 0;
+}
 
+.groupSection .bestGroupTitle {
+    font-size: 14px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 
+.bestGroupList {
+    list-style: none;
+    padding: 0;
+}
 
-.postSection .postBox .postWrap .postBottom{
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;}
-.postSection .postBox .postWrap .postBottom .icoBox{
+.bestGroupList > li {
+    margin-bottom: 16px;
+}
+
+.bestGroupList > li > a {
     display: flex;
     align-items: center;
-    gap: 5px;
-    background: #fff;
-    padding: 10px;
-    border-radius: 16px;
-    transition: all 0.2s;
-    cursor: pointer;
-}
-.postSection .postBox .postWrap .postBottom .icoBox:hover{
-    background: #eeeeee;
-    padding: 10px;
-    border-radius: 16px;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 12px;
+    transition: background 0.2s;
 }
 
-/*---그룹랭크---*/
-.groupSection {width: 250px;
-    height: 500px;
-    border: 1px solid #ccc;}
+.bestGroupList > li > a:hover {
+    background: #f8fafc;
+}
 
-.groupSection .inner {padding:20px;}
-.groupSection .bestGroupTitle {margin-bottom: 10px;}
+.groupSection .bestGroupList .bGroupImg {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px; /* 원형 대신 둥근 사각형 */
+    overflow: hidden;
+    background: #f1f5f9;
+    flex-shrink: 0;
+}
 
-.bestGroupList > li > a{    display: flex;
-    gap: 10px;}
-.groupSection .bestGroupList .bGroupImg{width: 30px;
-    height: 30px;border-radius: 50%;overflow: hidden;}
-.groupSection .bestGroupList .bGroupImg img{width: 100%;
-    height: 30px; object-fit: cover;}
-.bestGroupList .bGroupInfo{display: flex;flex-direction: column;}
+.groupSection .bestGroupList .bGroupImg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bestGroupList .bGroupInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.bestGroupList .bGroupInfo .bGroupName {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.bestGroupList .bGroupInfo .bGroupCount {
+    font-size: 12px;
+    color: #94a3b8;
+}
 
 
-/*//////////////////////*/
-/*       포스트작성       */
-
-
-
-
-/*//////////////////////*/
-.commuCreate {width:700px;border:1px solid #ccc;}
-.commuCreate .pCategorySelect {border:1px solid #ccc;}
-.commuCreate .pMideaUploadBox {border:1px solid #ccc;}
-.commuCreate .pTxtBox {border:1px solid #ccc;}
-.commuCreate .btnPost {border:1px solid #ccc;}
-
-/* ========= 커뮤니티 작성 페이지 ========= */
+/* =========================================
+   5. 커뮤니티 작성 페이지 (Comm Create) - 기존 유지
+   ========================================= */
 .commuCreatePage {
     width: 100%;
     padding: 40px 48px 80px;
@@ -147,37 +338,13 @@
     color: #fff;
     box-shadow: 0 35px 65px -52px rgba(15, 23, 42, 0.9);
 }
+.createEyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; }
+.createTitle { font-size: 34px; margin-bottom: 10px; font-weight: 700; }
+.createSubtitle { font-size: 16px; color: rgba(255, 255, 255, 0.8); }
+.heroActions { display: flex; gap: 12px; }
 
-.createEyebrow {
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 8px;
-}
-
-.createTitle {
-    font-size: 34px;
-    margin-bottom: 10px;
-}
-
-.createSubtitle {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.heroActions {
-    display: flex;
-    gap: 12px;
-}
-
-.createForm {
-    margin-top: 36px;
-}
-
-.formGrid {
-    width: 900px;
-}
+.createForm { margin-top: 36px; }
+.formGrid { width: 900px; max-width: 100%; }
 
 .formMain {
     border: 1px solid #e2e8f0;
@@ -185,23 +352,11 @@
     background: #fff;
     padding: 32px;
     box-shadow: 0 40px 90px -65px rgba(15, 23, 42, 0.65);
-    display: flex;
-    flex-direction: column;
-    gap: 26px;
+    display: flex; flex-direction: column; gap: 26px;
 }
 
-.fieldGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.fieldLabel {
-    font-size: 14px;
-    font-weight: 600;
-    color: #475569;
-}
-
+.fieldGroup { display: flex; flex-direction: column; gap: 10px; }
+.fieldLabel { font-size: 14px; font-weight: 600; color: #475569; }
 .fieldControl {
     border: 1px solid #e2e8f0;
     border-radius: 16px;
@@ -209,31 +364,21 @@
     font-size: 15px;
     color: #0f172a;
     background: #fff;
+    transition: border-color 0.2s;
 }
+.fieldControl:focus { outline: none; border-color: #3b82f6; }
 
-
+/* 미디어 업로드 영역 스타일 */
 .mediaManager {
     border: 1px solid #e2e8f0;
     border-radius: 24px;
     padding: 24px;
     background: #fff;
     box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
+    display: flex; flex-direction: column; gap: 18px;
 }
-
-.mediaHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-}
-
-.mediaDescription {
-    font-size: 13px;
-    color: #94a3b8;
-}
+.mediaHeader { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.mediaDescription { font-size: 13px; color: #94a3b8; }
 
 .mediaDropzone {
     border: 2px dashed #cbd5f5;
@@ -242,339 +387,178 @@
     text-align: center;
     background: #f8fafc;
     color: #475569;
+    transition: all 0.2s;
 }
-
-.mediaDropzone.isDragOver {
-    border-color: #6366f1;
-    background: #e0e7ff;
-}
-
-.mediaDropzone p {
-    display: inline-block;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
-.mediaDropzone span {
-    font-size: 13px;
-    color: #94a3b8;
-}
-
-.mediaPreviewList {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.mediaPreviewList li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 12px 16px;
-    background: #fefefe;
-}
-
-.mediaPreviewList .mediaInfo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.mediaPreviewList .mediaThumb {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: #f1f5f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 20px;
-}
-
-.mediaPreviewList .mediaMeta {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.mediaPreviewList .mediaName {
-    font-weight: 600;
-    color: #0f172a;
-}
-
-.mediaPreviewList .mediaSize {
-    font-size: 12px;
-    color: #94a3b8;
-}
-
-.mediaPreviewList button {
-    border: none;
-    background: transparent;
-    color: #ef4444;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.mediaEmpty {
-    justify-content: center;
-    color: #94a3b8;
-}
-
-.metaGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-}
-
-.toggleRow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    padding: 12px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    background: #f8fafc;
-}
-
-.toggleItem {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    color: #475569;
-}
-
-.submitRow {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-.primaryButton {
-    padding: 12px 28px;
-    border-radius: 999px;
-    border: none;
-    font-weight: 700;
-    background: linear-gradient(120deg, #f97316, #ef4444);
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 20px 40px -28px rgba(239, 68, 68, 0.8);
-}
-
-.formSidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.guideCard,
-.previewCard {
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    padding: 22px;
-    background: #fff;
-    box-shadow: 0 30px 80px -68px rgba(15, 23, 42, 0.7);
-}
-
-.guideCard h3 {
-    margin-bottom: 12px;
-    font-size: 16px;
-    color: #0f172a;
-}
-
-.guideCard ul {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-size: 14px;
-    color: #475569;
-}
-
-.previewCard {
-    background: #0f172a;
-    color: #fff;
-}
-
-.previewHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-}
-
-.badge {
-    padding: 4px 12px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.15);
-    font-size: 12px;
-}
-
-.previewHint {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 18px;
-}
-
-.previewMeta {
-    display: flex;
-    gap: 14px;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-#mediaDropzone.dragover {
-    border: 2px dashed #007bff;
-    background-color: #f0f8ff;
-}
-
-/* 미디어 슬라이더 영역 */
-#mediaSlider {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding: 10px 0;
-}
-
-/* 드래그 오버 상태 */
-#mediaDropzone.dragover {
-    border-color: #3b82f6;
-    background-color: #e0f2fe;
-}
-
-/* 개별 미디어 아이템 */
-.mediaItem {
-    position: relative;
-    flex: 0 0 auto;
-    width: 120px;
-    height: 120px;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #f1f5f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* 이미지, 비디오 썸네일 */
-.mediaThumb {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-/* 삭제 버튼 */
-.mediaRemoveBtn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    background-color: rgba(0,0,0,0.6);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 2px 6px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.mediaRemoveBtn:hover {
-    background-color: rgba(220,38,38,0.8);
-}
-
-/* Sortable ghost 클래스 (드래그 중인 아이템 스타일) */
-.sortable-ghost {
-    opacity: 0.5;
-    transform: scale(1.05);
-}
+.mediaDropzone.dragover { border-color: #3b82f6; background-color: #eff6ff; }
+.mediaDropzone p { display: inline-block; font-weight: 600; margin-bottom: 20px; }
+.mediaDropzone span { font-size: 13px; color: #94a3b8; }
 
 /* 드래그존 내부 버튼 */
 #dropzoneSelectBtn {
-    padding: 6px 12px;
+    padding: 8px 16px;
     font-size: 14px;
-    border-radius: 6px;
-    border: 1px solid #cccccc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
     cursor: pointer;
     background: #fff;
+    color: #0f172a;
+    font-weight: 600;
     transition: all 0.2s;
-    margin-left: 5px;
+    margin-left: 8px;
 }
+#dropzoneSelectBtn:hover { background: #f1f5f9; border-color: #cbd5e1; }
 
-#dropzoneSelectBtn:hover {
-    border: 1px solid #8c8c8c;
+/* 미디어 슬라이더 */
+#mediaSlider { display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px; }
+.mediaItem {
+    position: relative; flex: 0 0 auto;
+    width: 120px; height: 120px;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
 }
+.mediaThumb { width: 100%; height: 100%; object-fit: cover; }
+.mediaRemoveBtn {
+    position: absolute; top: 6px; right: 6px;
+    background-color: rgba(0,0,0,0.6);
+    color: #fff; border: none; border-radius: 6px;
+    padding: 4px 8px; font-size: 12px; cursor: pointer;
+    transition: background 0.2s;
+}
+.mediaRemoveBtn:hover { background-color: #ef4444; }
 
-/*/////////////////태그존///////////////////*/
-.fieldGroup.tagInputWrapper{
+/* 태그 입력 영역 */
+.fieldGroup.tagInputWrapper {
     border: 1px solid #e2e8f0;
     padding: 20px;
     border-radius: 24px;
-    box-sizing: border-box;
+    background: #fff;
 }
-#tagInput {
-    border: 1px solid #e2e8f0;
-    padding: 17px;
-    box-sizing: border-box;
-    border-radius: 16px;
-}
-.tagList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-top: 5px;
-}
+#tagInput { border: 1px solid #e2e8f0; padding: 14px 16px; border-radius: 16px; width: 100%; outline: none;}
+#tagInput:focus { border-color: #3b82f6; }
 
+.tagList { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .tagItem {
-    background-color: #e9e9e9;
+    background-color: #f1f5f9;
+    color: #475569;
     padding: 8px 14px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    font-size: 0.9rem;
+    border-radius: 99px; /* 알약 모양 */
+    display: flex; align-items: center;
+    font-size: 14px; font-weight: 500;
 }
-
 .tagItem button {
-    margin-left: 5px;
+    margin-left: 8px; border: none; background: #cbd5e1;
+    color: #fff; border-radius: 50%; width: 18px; height: 18px;
+    display: inline-flex; justify-content: center; align-items: center;
+    cursor: pointer; font-size: 10px;
+}
+.tagItem button:hover { background: #ef4444; }
+
+/* 버튼 */
+.submitRow { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;}
+.primaryButton {
+    padding: 14px 32px;
+    border-radius: 999px;
     border: none;
-    background: none;
+    font-weight: 700;
+    font-size: 16px;
+    background: linear-gradient(135deg, #f97316, #ef4444);
+    color: #fff;
     cursor: pointer;
-    font-weight: bold;
+    box-shadow: 0 10px 20px -10px rgba(239, 68, 68, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
+.primaryButton:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(239, 68, 68, 0.7); }
 
+.formSidebar { display: flex; flex-direction: column; gap: 20px; }
+.guideCard, .previewCard {
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 24px;
+    background: #fff;
+    box-shadow: 0 20px 40px -20px rgba(15, 23, 42, 0.1);
+}
+.guideCard h3 { margin-bottom: 16px; font-size: 16px; color: #0f172a; font-weight: 700; }
+.guideCard ul { display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: #64748b; line-height: 1.5; padding-left: 20px;}
+
+/* Empty State */
 .commuSection .emptyPost {
-    padding: 160px 0;
+    padding: 100px 0;
     text-align: center;
-    color: #999;
-    font-size: 15px;
-    border: 1px solid #ccc;
-    width: 450px;
+    color: #94a3b8;
+    font-size: 16px;
+    border: 2px dashed #e2e8f0;
+    border-radius: 24px;
+    background: #f8fafc;
+    width: 700px;
 }
 
-/*--------------------------------------------------*/
 
+/* =========================================
+   6. 이미지 원본보기 모달 (Lightbox) - JS 기능용
+   ========================================= */
+.imageModalOverlay {
+    display: none;
+    position: fixed;
+    z-index: 9999; /* 최상단 */
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(15, 23, 42, 0.95); /* 진한 남색 배경 */
+    backdrop-filter: blur(5px);
+}
+.imageModalOverlay .closeBtn {
+    position: absolute; top: 30px; right: 40px;
+    color: #fff; font-size: 48px; font-weight: 300;
+    cursor: pointer; z-index: 10001;
+    transition: transform 0.2s;
+}
+.imageModalOverlay .closeBtn:hover { transform: rotate(90deg); color: #ef4444; }
+
+.imageModalOverlay .modalSwiper { width: 100%; height: 100%; }
+.imageModalOverlay .modalSlideItem { display: flex; justify-content: center; align-items: center; height: 100%; }
+.imageModalOverlay .modalSlideItem img {
+    max-width: 90%; max-height: 85%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* 페이지네이션 (숫자) 스타일 */
+.imageModalOverlay .swiper-pagination {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    bottom: 30px !important;
+    text-align: center;
+    z-index: 10002;
+    width: 100%;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.imageModalOverlay .swiper-button-next,
+.imageModalOverlay .swiper-button-prev {
+    color: #fff;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.imageModalOverlay .swiper-button-next:hover,
+.imageModalOverlay .swiper-button-prev:hover { opacity: 1; }
+
+
+/* =========================================
+   7. 반응형 (Responsive)
+   ========================================= */
 @media (max-width: 1024px) {
-    .heroActions {
-        flex-wrap: wrap;
-    }
+    .heroActions { flex-wrap: wrap; }
+    .commuSection { flex-direction: column; }
+    .postSection .postBox { width: 100%; }
+    .groupSection { width: 100%; height: auto; min-height: auto; }
 }
 
 @media (max-width: 640px) {
-    .commuCreatePage {
-        padding: 32px 16px 60px;
-    }
-
-    .createHero {
-        flex-direction: column;
-    }
-
-    .submitRow {
-        flex-direction: column;
-    }
-
-    .primaryButton {
-        width: 100%;
-        text-align: center;
-    }
+    .commuCreatePage { padding: 32px 16px 60px; }
+    .createHero { flex-direction: column; }
+    .submitRow { flex-direction: column; }
+    .primaryButton { width: 100%; text-align: center; }
 }
