@@ -381,11 +381,29 @@ public class GroupService {
         // 1. 배열은 조회값이 없으면 [] 가기 때문에 0을 체크해 줄 필요없음.
         // 2. 프론트엔드에서 length = 0 일 때를 판별하면 끝
 
+        // 요청한사람이 해당그룹의 그룹장인지아닌지 판단
         GroupMember isGoupMember = gmr.findByGroupContentsIdAndMemberId(groupId, memberdto.getId()).orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
         if(isGoupMember.getRole() != 1) throw new IllegalArgumentException("잘못된 접근입니다.");
 
         Pageable pageable = PageRequest.of(page, 6, Sort.by(Sort.Direction.DESC, "requestDate"));
         Page<GroupJoinResDto> groupJoinList = gjrr.findAllJoinGroupAndMember(pageable , groupId);
         return groupJoinList;
+    }
+
+    @Transactional
+    public void gjoinReqAppRej(MemberDto memberdto, GroupJoinAppJejReqDto reqdto) {
+
+        // 요청한사람이 해당그룹의 그룹장인지아닌지 판단
+        GroupMember isGoupMember = gmr.findByGroupContentsIdAndMemberId(reqdto.getGroupId(), memberdto.getId()).orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+        if(isGoupMember.getRole() != 1) throw new IllegalArgumentException("잘못된 접근입니다.");
+
+        if(reqdto.getStatus().equals("APPROVE")) {
+
+        } else if(reqdto.getStatus().equals("REJECT")) {
+
+        } else {
+            throw new IllegalArgumentException("잘못된 접근입니다.");
+        }
+
     }
 }
