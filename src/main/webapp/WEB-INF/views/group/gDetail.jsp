@@ -68,6 +68,10 @@
                                     <c:otherwise>
                                         <sec:authorize access="isAuthenticated()">
                                             <c:choose>
+                                                <%-- 그룹 가입 신청 대기중인 유저 일 때, --%>
+                                                <c:when test="${isGroupJoinState}">
+                                                    <button type="button" class="groupPrimaryBtn notClick">가입 신청 대기중</button>
+                                                </c:when>
                                                 <c:when test="${groupDetail.joinState == 1}">  <%-- 가입 가능 옵션 상태 --%>
                                                     <button type="button" class="groupPrimaryBtn" onclick="openJoinModal()">그룹 가입</button>
                                                 </c:when>
@@ -343,7 +347,6 @@
             introduction: introduction
         };
 
-        // TODO: 컨트롤러 URL에 맞게 수정 필요 (/group/join 등)
         fetch('/group/gjoin', {
             method: 'POST',
             headers: {

@@ -92,6 +92,12 @@ public class GroupController {
 
             model.addAttribute("groupDetail", getGroupDetail);
             model.addAttribute("isGroupMember", isGroupMember);
+
+            // 그룹 가입 신청중인지 확인 api
+            if(memberdto != null) {
+                Boolean isGroupJoinState = gs.isGroupJoinRequest(memberdto.getId(), groupId);
+                model.addAttribute("isGroupJoinState", isGroupJoinState);
+            }
             return "group/gDetail";
 
         } catch (IllegalStateException e) {
