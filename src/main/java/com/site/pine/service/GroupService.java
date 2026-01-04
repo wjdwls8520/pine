@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -360,14 +361,7 @@ public class GroupService {
             // 멤버 수 증가 및 조회수 갱신 등
             gconr.increaseGroupMemberCount(groupE.getId());
 
-            // [자동 저장] 그룹신청리스트(승인)로 추가
-            GroupJoinRequest request = GroupJoinRequest.builder()
-                .groupContents(groupE)
-                .member(memberE)
-                .introduction(reqdto.getIntroduction())
-                .status(1)
-                .build();
-            gjrr.save(request);
+            // 그룹신청요청리스트에는 반영안됨
             return "그룹 가입이 완료되었습니다.";
         } else {
             // [관리자 승인] 그룹신청리스트(대기)로 추가
@@ -380,5 +374,18 @@ public class GroupService {
             gjrr.save(request);
             return "그룹 가입신청이 완료되었습니다.";
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Page<GroupJoinResDto> getGroupJoinList(MemberDto memberdto, Long groupId, Integer page) {
+        // 1. 배열은 조회값이 없으면 [] 가기 때문에 0을 체크해 줄 필요없음.
+        // 2. 프론트엔드에서 length = 0 일 때를 판별하면 끝
+
+        GroupMember isGoupMember = gmr.findByGroupContentsIdAndMemberId(groupId, memberdto.getId()).orElseThrow(() -> new IllegalArgumentException("잘못된 접근입니다."));
+        if(isGoupMember.getRole() != 1) throw new IllegalArgumentException("잘못된 접근입니다.");
+
+        Pageable pageable = PageRequest.of(page, 6, Sort.by(Sort.Direction.DESC, "requestDate"));
+        Page<GroupJoinResDto> groupJoinList = gjrr.findAllJoinGroupAndMember(pageable , groupId);
+        return groupJoinList;
     }
 }

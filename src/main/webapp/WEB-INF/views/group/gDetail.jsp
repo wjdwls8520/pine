@@ -83,6 +83,12 @@
                                     </c:otherwise>
                                 </c:choose>
 
+                                <c:choose>
+                                    <%-- 그룹장 --%>
+                                    <c:when test="${not empty isGroupMember and isGroupMember.role == 1}">
+                                        <button type="button" class="groupGhostBtn joinList" onClick="location.href='/group/gdetail/' + ${groupDetail.id} + '/gjoinlist';">가입신청 리스트</button>
+                                    </c:when>
+                                </c:choose>
                                 <button type="button" class="groupGhostBtn share">공유하기</button>
                                 <button type="button" class="groupGhostBtn like">좋아요</button>
                             </div>
@@ -136,7 +142,7 @@
                             현재 그룹 가입 여부
                         </span>
                     </div>
-                    <div class="groupStatCard cursor" onClick="location.href='/group/gdetail/' + ${groupDetail.id} + '/gjoinlist';">
+                    <div class="groupStatCard">
                         <p class="groupStatLabel">가입 방식</p>
                         <strong>
                             <c:choose>

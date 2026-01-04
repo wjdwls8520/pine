@@ -5,6 +5,7 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -174,15 +175,45 @@ public class GroupController {
         return ResponseEntity.ok(result);
     }
 
+    // [Model] 그룹에 가입신청한 유저들의 리스트를 보는 페이지로 이동하는 API
     @GetMapping("/group/gdetail/{groupId}/gjoinlist")
-    public String getJoinList(@PathVariable("groupId") Long groupId, @AuthenticationPrincipal MemberDto memberdto, Model model, RedirectAttributes redirectAttrs) {
+    public String getJoinListPage(@PathVariable("groupId") Long groupId, @AuthenticationPrincipal MemberDto memberdto, Model model, RedirectAttributes redirectAttrs) {
         if (memberdto == null) {
             return "redirect:/errorLogin";
+        }
+
+        try {
+            GroupMemberResDto isGroupMember = gs.getGroupMemberInfo(memberdto, groupId);
+            model.addAttribute("isGroupMember", isGroupMember);
+            model.addAttribute("groupId", groupId);
+        } catch (IllegalStateException e) {
+            redirectAttrs.addFlashAttribute("msg", e.getMessage());
+            return "redirect:/group/gdetail/" + groupId;
         }
 
         return "group/gJoinList";
     }
 
+    // [AJAX] 그룹에 가입신청한 유저들의 리스트를 '무한스크롤'로 조회하는 API
+    // 바로 위 api에서 로그인여부와 그룹멤버 여부를 판단하고 jsp에서 해당 그룹멤버의 롤 여부를 판단함
+    @GetMapping("/group/gdetail/{groupId}/gjoinlist/{page}")
+    @ResponseBody
+    public Page<GroupJoinResDto> getJoinListData(
+            @AuthenticationPrincipal MemberDto memberdto,
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("page") Integer page
+    ) {
+        if (memberdto == null) {
+            throw new IllegalArgumentException("잘못된 요청입니다.");
+        }
+
+
+        Page<GroupJoinResDto> groupJoinList = gs.getGroupJoinList(memberdto, groupId, page);
+
+        return groupJoinList;
+    }
+
+    // [AJAX] 일반 멤버가 해당그룹에 가입하기위해 그룹신청을 요청하는 API
     @PostMapping("/group/gjoin")
     @ResponseBody
     public ResponseEntity<HashMap<String, Object>> gjoin(
@@ -212,4 +243,12 @@ public class GroupController {
         return ResponseEntity.ok(result);
     }
 
+    // [AJAX] 그룹장이 받은 가입신청에 결정하는 API
+//    @PostMapping("/group/gjoinreq")
+//    @ResponseBody
+//    public void gjoinReq(
+//
+//    ) {
+//
+//    }
 }
