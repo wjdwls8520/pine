@@ -536,6 +536,7 @@
     width: 100%;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
+.swiper-pagination-current, .swiper-pagination-total {color: #fff;}
 .imageModalOverlay .swiper-button-next,
 .imageModalOverlay .swiper-button-prev {
     color: #fff;
