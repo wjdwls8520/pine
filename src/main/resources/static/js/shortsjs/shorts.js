@@ -26,6 +26,16 @@ const observer = new IntersectionObserver((entries) => {
             // [CASE 1] 화면에 들어옴 (60% 이상 보임)
             // -> 자동 재생 시작
             video.play().catch(e => console.log("자동 재생 막힘(브라우저 정책):", e));
+            // 댓글 동기화 로직
+            refreshCommentPanelIfOpen(entry.target);
+
+            //  URL 주소 변경 (새로고침 없이 주소창만 바꿈)
+            const currentPostId = entry.target.dataset.postId;
+            if (currentPostId) {
+                // 예: /shorts/view/15 형태로 주소 변경
+                // 주의: 네 컨트롤러가 이 주소를 받을 수 있어야 함!
+                history.replaceState(null, null, `/shorts/view/${currentPostId}`);
+            }
         } else {
             // [CASE 2] 화면에서 나감
             // -> 영상 멈춤 및 시간 초기화 (다시 왔을 때 처음부터 나오게)
@@ -78,7 +88,7 @@ async function getData(page) {
                 let userProfile = info.profileImg ? info.profileImg : '/images/icon_pinedory.png';
 
                 shortsFeedWrap.insertAdjacentHTML("beforeend", `
-                   <div class="shortsCard" data-title="${info.title}" data-user="${info.nickname}">
+                   <div class="shortsCard" data-post-id="${info.postId}" data-title="${info.title}" data-user="${info.nickname}" data-date="${dateStr}">
                         <div class="cardInner">
                             <aside class="userPanel">
                                 <div class="userWrap">
@@ -88,7 +98,7 @@ async function getData(page) {
                                             <img src="${userProfile}" alt="user">
                                         </div>
                                         <div class="userInfo">
-                                            <strong class="nickname">${info.nickname}</strong>
+                                            <strong class="nickname">@${info.nickname}</strong>
                                             <span class="writedate">· ${dateStr}</span>
                                         </div>
                                     </div>
@@ -117,7 +127,8 @@ async function getData(page) {
                             <div class="actionPanel">
                                 <button class="actionBtn like"><span>좋아요</span><em>${info.likeCount || 0}</em></button>
                                 <button class="actionBtn share"><span>공유</span><em>128</em></button>
-                                <button class="actionBtn commentToggle" onclick="openComment(${info.postId}, '${info.title}', '${info.nickname}');">
+                                <button class="actionBtn commentToggle"
+                                    onclick="openComment(${info.postId}, '${info.title}', '${info.nickname}', '${dateStr}');">
                                     <span>댓글</span><em>${info.replyCount || 0}</em>
                                 </button>
                             </div>
@@ -157,8 +168,22 @@ async function getData(page) {
 //  초기 실행 및 이벤트 리스너
 // ==========================================
 window.addEventListener("load", () => {
-    // 1. 페이지 로드 시 첫 번째 데이터 요청
-    getData(page);
+    // 1. 공유 링크 등으로 들어왔는지 확인 (JSP에서 심어둔 ID 값)
+    const targetIdInput = document.getElementById("targetShortsId");
+    const targetId = targetIdInput ? targetIdInput.value : null;
+
+    if (targetId) {
+        // [CASE A] 특정 쇼츠 지정 접속 (/shorts/view/15)
+        console.log(`[DeepLink] 공유된 쇼츠 ID: ${targetId} 로 시작합니다.`);
+
+        // ★ 핵심: 여기서는 나중에 '특정 영상 1개만 가져오는 함수'를 호출해야 함.
+        // 지금은 임시로 그냥 목록을 부르지만, 나중엔 getOneShort(targetId) 같은 걸 써야 함.
+        getData(page);
+
+    } else {
+        // [CASE B] 일반 접속 (/shorts)
+        getData(page);
+    }
 
     // 2. 무한 스크롤 이벤트 감지
     scrollBox.addEventListener("scroll", () => {
@@ -241,12 +266,193 @@ function formatTime(seconds) {
     return `${minStr}:${secStr}`;
 }
 
-// 댓글창 열기/닫기
-function openComment(postId, title, writer) {
-    let popupComment = document.getElementById("commentsPanel");
-    if(popupComment) popupComment.classList.add("open");
+// ==========================================
+//  댓글 관련 변수 및 함수
+// ==========================================
+let currentPostIdForReply = null;
+let replyPage = 0;
+let isReplyLastPage = false;
+let isReplyLoading = false;
+
+// 1. 댓글창 열기 (쇼츠 리스트에서 버튼 클릭 시 호출)
+function openComment(postId, title, writer, date) {
+    const panel = document.getElementById("commentsPanel");
+
+    // 상태 초기화
+    currentPostIdForReply = postId;
+    replyPage = 0;
+    isReplyLastPage = false;
+    isReplyLoading = false;
+
+    // 헤더 정보 세팅
+    document.getElementById("commentPanelTitle").innerText = title;
+    document.getElementById("commentPanelUser").innerText = "@" + writer;
+    document.getElementById("commentPanelDate").innerText = date || "";
+
+    // 리스트 비우기
+    document.getElementById("commentListUl").innerHTML = "";
+    document.getElementById("replyInput").value = "";
+
+    // 창 열기
+    panel.classList.add("open");
+
+    // 첫 페이지 로드
+    loadReplies(postId, 0);
 }
+
+// 2. 창 닫기
 function closeComment() {
-    let popupComment = document.getElementById("commentsPanel");
-    if(popupComment) popupComment.classList.remove("open");
+    document.getElementById("commentsPanel").classList.remove("open");
+}
+
+// 3. 댓글 데이터 불러오기 (AJAX)
+function loadReplies(postId, page) {
+    if (isReplyLoading || isReplyLastPage) return;
+
+    isReplyLoading = true;
+
+    // 백엔드 API 호출
+    fetch(`/reply/list?postId=${postId}&page=${page}`)
+        .then(res => {
+            if (!res.ok) throw new Error("댓글 조회 실패");
+            return res.json();
+        })
+        .then(data => {
+            const replies = data.content; // Page 객체의 content가 리스트
+            const listUl = document.getElementById("commentListUl");
+
+            // 마지막 페이지인지 체크
+            if (data.last === true) {
+                isReplyLastPage = true;
+            }
+
+            // [HTML 조립] 닉네임 + 날짜 / 내용 구조
+            let html = "";
+            replies.forEach(reply => {
+                // 날짜 변환 (timeAgo 사용)
+                let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(reply.writeDate) : reply.writeDate;
+
+                // 삭제된 댓글 처리
+                let contentClass = reply.deleteYN === 'Y' ? 'deleted' : '';
+                let contentText = reply.deleteYN === 'Y' ? '삭제된 댓글입니다.' : reply.content;
+
+                html += `
+                    <li data-id="${reply.id}">
+                        <div class="commentTop">
+                            <b>@${reply.nickname}</b>
+                            <span class="date">${dateStr}</span>
+                        </div>
+
+                        <p class="${contentClass}">${contentText}</p>
+                    </li>
+                `;
+            });
+
+            listUl.insertAdjacentHTML("beforeend", html);
+            replyPage++; // 다음 페이지 준비
+        })
+        .catch(err => console.error(err))
+        .finally(() => {
+            isReplyLoading = false;
+        });
+}
+
+// 4. 댓글 등록 (AJAX)
+document.getElementById("btnReplyRegist").addEventListener("click", () => {
+    const loginCheckInput = document.getElementById("loginCheck");
+    // 문자열 "true"인지 확인 (JSP EL 결과는 문자열로 넘어옴)
+    const isLoggedIn = loginCheckInput && loginCheckInput.value === 'true';
+
+    if (!isLoggedIn) {
+        alert("로그인이 필요한 서비스입니다.");
+
+        // confirm을 써서 선택권을 주는 것이 더 세련된 UX임
+        if(confirm("로그인 페이지로 이동하시겠습니까?")) {
+             location.href = "/login";
+        }
+        return; // 함수 강제 종료 (fetch 실행 안 함)
+    }
+
+    const contentInput = document.getElementById("replyInput");
+    const content = contentInput.value.trim();
+
+    if (!content) {
+        alert("내용을 입력해주세요.");
+        return;
+    }
+
+    // 로그인 체크 등 필요시 추가
+    const reqDto = {
+        postId: currentPostIdForReply,
+        content: content,
+        parentId: null
+    };
+
+    fetch("/reply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reqDto)
+    })
+    .then(res => res.json())
+    .then(newReply => {
+        // 성공 시 리스트 초기화 후 다시 로드 (가장 간단한 방법)
+        replyPage = 0;
+        isReplyLastPage = false;
+        document.getElementById("commentListUl").innerHTML = "";
+        loadReplies(currentPostIdForReply, 0);
+        contentInput.value = "";
+    })
+    .catch(err => console.error("등록 실패", err));
+});
+
+// 5. 댓글 무한 스크롤 이벤트
+const commentScrollArea = document.getElementById("commentScrollArea");
+if (commentScrollArea) {
+    commentScrollArea.addEventListener("scroll", () => {
+        const scrollTop = commentScrollArea.scrollTop;
+        const clientHeight = commentScrollArea.clientHeight;
+        const scrollHeight = commentScrollArea.scrollHeight;
+
+        if (scrollTop + clientHeight >= scrollHeight - 50) {
+            loadReplies(currentPostIdForReply, replyPage);
+        }
+    });
+}
+
+/**
+ * [추가] 스크롤 시 열려있는 댓글창의 내용을 갱신하는 함수
+ * @param {HTMLElement} cardElement - 현재 화면에 보이는 쇼츠 카드 요소
+ */
+function refreshCommentPanelIfOpen(cardElement) {
+    const panel = document.getElementById("commentsPanel");
+
+    // 1. 댓글창이 닫혀있으면 아무것도 안 함 (서버 요청 방지)
+    if (!panel.classList.contains("open")) return;
+
+    // 2. 카드에서 데이터 추출 (dataset 활용)
+    const newPostId = cardElement.dataset.postId;
+    const title = cardElement.dataset.title;
+    const writer = cardElement.dataset.user;
+    const date = cardElement.dataset.date;
+
+    // 3. 같은 게시글이면 굳이 다시 로드 안 함 (중복 방지)
+    // currentPostIdForReply 변수는 기존에 선언된 전역 변수
+    if (currentPostIdForReply == newPostId) return;
+
+    console.log(`[Sync] 댓글창 갱신: 게시글 ID ${newPostId}`);
+
+    // 4. 전역 변수 업데이트
+    currentPostIdForReply = newPostId;
+    replyPage = 0;
+    isReplyLastPage = false;
+
+    // 5. 헤더 UI 업데이트
+    document.getElementById("commentPanelTitle").innerText = title;
+    document.getElementById("commentPanelUser").innerText = "@" + writer;
+    document.getElementById("commentPanelDate").innerText = date || "";
+
+    // 6. 리스트 초기화 및 데이터 로드
+    document.getElementById("commentListUl").innerHTML = "";
+    document.getElementById("replyInput").value = "";
+    loadReplies(newPostId, 0);
 }

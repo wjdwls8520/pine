@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -20,9 +21,12 @@ public class ShortsController {
 
     private final ShortsService ss;
 
-    @GetMapping("/shorts")
-    public String shorts(){
-
+    @GetMapping({"/shorts", "/shorts/view/{postId}"})
+    public String shorts(
+            @PathVariable(required = false) Long postId, Model model){
+        if (postId != null) {
+            model.addAttribute("targetPostId", postId);
+        }
         return "shorts/shorts";
     }
 
