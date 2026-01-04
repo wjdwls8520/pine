@@ -107,11 +107,11 @@ window.addEventListener("load", () => {
                                             <span class="ico ico_like ${info.liked ? "active" : ""}" onclick="toggleLike('POST', ${info.postId}, this)"></span>
                                             <span id="likeCount_${info.postId}">${info.likeCount}</span>
                                         </div>
-                                        <div class="icoBox postReply">
+                                        <div class="icoBox postReply" onclick="location.href='/community/cdetail/${info.postId}'">
                                             <span class="ico ico_reply"></span>
                                             <span>${info.replyCount}</span>
                                         </div>
-                                        <div class="icoBox postlink">
+                                        <div class="icoBox postlink" onclick="copyPostUrl(${info.postId})" style="cursor: pointer;">
                                             <span class="ico ico_link"></span>
                                         </div>
                                     </div>
@@ -137,55 +137,3 @@ window.addEventListener("load", () => {
             .finally(() => loading = false);
     }
 });
-
-// ==========================================
-// [중요] HTML onclick에서 부르려면 window에 붙여야 함!
-// ==========================================
-
-// 1. 더보기 아이콘 클릭 시 모달 토글
-window.toggleMoreModal = function(e, iconDiv) {
-    e.stopPropagation(); // 이벤트 버블링 방지
-    const currentModal = iconDiv.querySelector('.postMoreModal');
-
-    // 다른 열린 모달 닫기
-    document.querySelectorAll('.postMoreModal.active').forEach(modal => {
-        if (modal !== currentModal) modal.classList.remove('active');
-    });
-
-    if (currentModal) currentModal.classList.toggle('active');
-};
-
-// 2. 화면 클릭 시 닫기
-document.addEventListener('click', function() {
-    document.querySelectorAll('.postMoreModal.active').forEach(modal => {
-        modal.classList.remove('active');
-    });
-});
-
-// 기능 함수들
-window.goEdit = function(postId) {
-    location.href = `/community/edit/${postId}`;
-};
-
-window.deletePost = function(postId) {
-    if(!confirm("정말로 삭제하시겠습니까?")) return;
-    fetch(`/community/${postId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" }
-    }).then(res => {
-        if(res.ok) {
-            alert("삭제되었습니다.");
-            location.reload();
-        } else {
-            alert("삭제 실패");
-        }
-    });
-};
-
-window.doReport = function(postId) {
-    alert(`${postId}번 게시글을 신고합니다.`);
-};
-
-window.doSave = function(postId) {
-    alert(`${postId}번 게시글을 보관함에 저장했습니다.`);
-};

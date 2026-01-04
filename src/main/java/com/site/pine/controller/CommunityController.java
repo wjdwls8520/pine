@@ -27,7 +27,7 @@ public class CommunityController {
 
     @GetMapping("/community") //  url
     public String community(){
-        return "community/commu_main"; //   작업폴더/jsp파일이름
+        return "community/cMain"; //   작업폴더/jsp파일이름
     }
 
     @GetMapping("/community/{page}")
@@ -66,6 +66,9 @@ public class CommunityController {
         Long memberId = (mdto != null) ? mdto.getId() : null; // 로그인 안하면 null
         CommunityDetailResDto post = cs.getDetail(memberId, id); // 서비스에서 memberId가 null인 경우 좋아요 체크를 생략하도록
         model.addAttribute("post", post);
+        if (memberId != null) {
+            model.addAttribute("loginUserId", memberId);
+        }
         return "community/cDetail"; // JSP에서 ${post.필드} 로 접근
     }
 

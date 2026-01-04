@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,7 +17,6 @@
 
         <h2 class="pageTitle">community detail</h2>
         <section class="section section01 commuSection">
-            <!-- 왼쪽 포스트 섹션-->
             <div class="postSection" id="postList">
                 <div class="postBox">
                     <div class="postInner">
@@ -32,7 +32,27 @@
                                         <fmt:formatDate value="${post.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
                                     </div>
                                 </div>
-                                <div class="moreIcon"><span class="ico ico_more"></span></div>
+
+                                <div class="moreIcon" onclick="toggleMoreModal(event, this)">
+                                    <span class="ico ico_more"></span>
+
+                                    <div class="postMoreModal">
+                                        <c:choose>
+                                            <%-- loginUserId는 이제 컨트롤러에서 넘어온 값입니다 --%>
+                                            <c:when test="${not empty loginUserId and loginUserId == post.memberId}">
+                                                <%-- 내 글 --%>
+                                                <button class="menuItem" onclick="goEdit(${post.id})">수정</button>
+                                                <button class="menuItem danger" onclick="deletePost(${post.id})">삭제</button>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <%-- 남의 글 --%>
+                                                <button class="menuItem danger" onclick="doReport(${post.id})">신고</button>
+                                                <button class="menuItem" onclick="doSave(${post.id})">저장</button>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="postMiddle">
@@ -46,13 +66,11 @@
                                     </div>
                                 </c:if>
 
-                                <!-- 🔥 수정: Swiper 이미지 리스트 제대로 출력 -->
                                 <c:if test="${not empty post.files}">
                                     <div class="swiper commuSlide">
                                         <div class="swiper-wrapper">
                                             <c:forEach var="file" items="${post.files}">
                                                 <div class="swiper-slide">
-                                                    <!-- 🔥 수정: 실제 파일 경로로 출력 -->
                                                     <img src="${file.path}" alt="image"/>
                                                 </div>
                                             </c:forEach>
@@ -73,29 +91,28 @@
                                     <span class="ico ico_reply"></span>
                                     <span>${post.replyCount}</span>
                                 </div>
-                                <div class="icoBox postlink">
+                                <div class="icoBox postlink" onclick="copyPostUrl(${post.id})" style="cursor: pointer;">
                                     <span class="ico ico_link"></span>
                                 </div>
                             </div>
 
-<%--                            댓글영역--%>
+                            <%-- 댓글영역 --%>
                             <div class="replyWrap">
                                 <div class="writeBox">
                                     <input type="text" class="replyTextBox" placeholder="댓글을 남겨보세요">
                                     <button class="replyBtn">등록</button>
                                 </div>
                                 <ul class="replyList">
-                                    <%-- 댓글들 js로 생성--%>
+                                    <%-- 댓글들 js로 생성 --%>
                                 </ul>
                             </div>
-<%--                            댓글영역 끝--%>
+                            <%-- 댓글영역 끝 --%>
 
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 오른쪽 그룹 랭크 섹션 -->
             <div class="groupSection">
                 <div class="inner">
                     <div class="bestGroupTitle">BEST GROUP</div>
@@ -120,17 +137,16 @@
         </section>
     </article>
 </div>
-<div id="replyToast" class="toastMsg">댓글이 등록되었습니다</div>
+<<div id="commonToast" class="toastMsg"></div>
 <jsp:include page="../include/commu_footer.jsp"></jsp:include>
 <script>
     const POST_ID = ${post.id};
 </script>
-<script src="/js/timeAgo.js"></script>
 <script src="/js/toggleLike.js"></script>
+<script src="/js/commujs/commuCommon.js"></script>
 <script src="/js/commujs/commuDetail.js"></script>
 <script src="/js/swiper-bundle.min.js"></script>
 
-<!-- 🔥 추가: 상세페이지 Swiper 초기화 -->
 <script>
     window.addEventListener("load", () => {
         const swiperEl = document.querySelector(".commuSlide");
@@ -147,5 +163,5 @@
         }
     });
 </script>
-
-
+</body>
+</html>

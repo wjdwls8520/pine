@@ -243,6 +243,8 @@ public class CommunityService {
         // DTO에 넣기
         dto.setTags(tags);
 
+        dto.setMemberId(post.getMember().getId());
+
         return dto;
     }
 

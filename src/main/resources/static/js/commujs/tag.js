@@ -1,86 +1,74 @@
-const tagInput = document.getElementById('tagInput');
-const tagList = document.getElementById('tagList');
-const hiddenTags = document.getElementById('hiddenTags');
+window.addEventListener("load", () => {
+    const tagInput = document.getElementById("tagInput");
+    const tagList = document.getElementById("tagList");
+    const hiddenTags = document.getElementById("hiddenTags");
 
-let tags = [];
+    // 1. 태그를 관리할 Set (중복 방지)
+    let tags = new Set();
 
-// ========================================================
-// 1. [추가] 페이지 로드 시 기존 태그 불러오기 (초기화)
-// ========================================================
-(function initTags() {
-    const initialValue = hiddenTags.value;
-    if (initialValue) {
-        // 콤마로 쪼개서 배열로 만듦 (빈 값 제거)
-        const savedTags = initialValue.split(',').filter(t => t.trim() !== '');
-
-        savedTags.forEach(tag => {
-            tags.push(tag);       // 배열에 담고
-            createTagElement(tag); // 화면에 그림
+    // ============================================================
+    // 🔥 [핵심 수정] 페이지 로드 시, 기존 태그 값을 읽어서 Set에 넣기
+    // ============================================================
+    if (hiddenTags && hiddenTags.value) {
+        const existingTags = hiddenTags.value.split(",");
+        existingTags.forEach(tag => {
+            const trimmedTag = tag.trim();
+            if (trimmedTag !== "") {
+                tags.add(trimmedTag); // Set에 저장
+                addTagElement(trimmedTag); // 화면에 그리기
+            }
         });
     }
-})();
+    // ============================================================
 
+    // 2. 태그 입력 이벤트 (Enter 키)
+    if (tagInput) {
+        tagInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault(); // 폼 제출 방지
+                const value = e.target.value.trim();
 
-// ========================================================
-// 2. 이벤트 리스너 (엔터 입력)
-// ========================================================
-tagInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        e.preventDefault(); // 폼 전송 막기
-        const value = tagInput.value.trim();
+                if (value && !tags.has(value)) {
+                    // 태그 갯수 제한 (선택사항)
+                    if (tags.size >= 5) {
+                        alert("태그는 최대 5개까지 입력 가능합니다.");
+                        return;
+                    }
 
-        // 값이 있고, 중복이 아닐 때만 추가
-        if (value && !tags.includes(value)) {
-            addTag(value);
-            tagInput.value = '';
-        } else if (tags.includes(value)) {
-            alert("이미 등록된 태그입니다.");
-            tagInput.value = '';
-        }
+                    tags.add(value);      // Set에 추가
+                    addTagElement(value); // 화면에 추가
+                    updateHiddenInput();  // Hidden Input 업데이트
+                    e.target.value = "";  // 입력창 초기화
+                } else if (tags.has(value)) {
+                    alert("이미 입력된 태그입니다.");
+                    e.target.value = "";
+                }
+            }
+        });
+    }
+
+    // 3. 태그 화면 생성 함수
+    function addTagElement(text) {
+        const tagItem = document.createElement("div");
+        tagItem.classList.add("tagItem");
+        tagItem.innerHTML = `
+            <span>#${text}</span>
+            <button type="button" class="delBtn">x</button>
+        `;
+
+        // 삭제 버튼 이벤트
+        tagItem.querySelector(".delBtn").addEventListener("click", () => {
+            tags.delete(text);     // Set에서 삭제
+            tagItem.remove();      // 화면에서 삭제
+            updateHiddenInput();   // Hidden Input 업데이트
+        });
+
+        tagList.appendChild(tagItem);
+    }
+
+    // 4. Hidden Input 값 업데이트 (서버 전송용)
+    function updateHiddenInput() {
+        // Set을 배열로 바꾸고 콤마로 합침
+        hiddenTags.value = Array.from(tags).join(",");
     }
 });
-
-
-// ========================================================
-// 3. 기능 함수들
-// ========================================================
-
-// 태그 추가 (데이터 + 화면)
-function addTag(name) {
-    tags.push(name);
-    createTagElement(name);
-    updateHiddenInput();
-}
-
-// 화면에 태그 UI 생성 (initTags와 addTag에서 공통 사용)
-function createTagElement(name) {
-    const tagItem = document.createElement('div');
-    tagItem.className = 'tagItem';
-    // 태그 이름과 삭제 버튼
-    tagItem.innerHTML = `<span>#${name}</span> <button type="button" class="removeBtn">x</button>`;
-
-    // 삭제 버튼에 이벤트 직접 연결 (onclick보다 안전)
-    tagItem.querySelector('.removeBtn').addEventListener('click', function() {
-        removeTag(tagItem, name);
-    });
-
-    tagList.appendChild(tagItem);
-}
-
-// 태그 삭제
-function removeTag(tagElement, name) {
-    // 배열에서 삭제
-    const index = tags.indexOf(name);
-    if (index > -1) {
-        tags.splice(index, 1);
-    }
-    // 화면에서 삭제
-    tagElement.remove();
-    // input 업데이트
-    updateHiddenInput();
-}
-
-// Hidden Input 업데이트 (서버 전송용)
-function updateHiddenInput() {
-    hiddenTags.value = tags.join(',');
-}

@@ -164,19 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =====================
-    // Toast (댓글 등록 알림)
-    // =====================
-    function showReplyToast() {
-        const toast = document.getElementById("replyToast");
-        if (!toast) return;
-
-        toast.classList.add("show");
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 1500);
-    }
-
-    // =====================
     // 댓글 등록
     // =====================
     if (!replyBtn) return;
@@ -207,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(() => {
                 replyInput.value = "";
                 loadReplies();
-                showReplyToast();
+                showToastMsg();
             })
             .catch(err => {
                 console.error(err);
