@@ -51,7 +51,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             p.updateDate,
             m.id,
             m.nickname,
-            m.profile_img
+            m.profile_img,                
+            p.replyCount,
+            p.likeCount,
+            (CASE WHEN EXISTS (
+                SELECT 1 FROM PostLike pl
+                WHERE pl.post = p AND pl.member.id = :loginId
+            ) THEN true ELSE false END)
         )
         from ShortsPost sp
         join sp.post p
@@ -74,7 +80,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         )
     """
     )
-    Page<ShortsMainDto> getAllShortsPostList(Pageable pageable);
+    Page<ShortsMainDto> getAllShortsPostList(@Param("loginId") Long loginId, Pageable pageable);
 
 
 

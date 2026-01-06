@@ -61,7 +61,7 @@ public class Reply {
     private Reply parent;
 
     // db에 실제 칼럼 없음
-    // 조회시 서브쿼리로 개수만 가져옴
+    // 댓글 더보기 카운트
     @Basic(fetch = FetchType.LAZY)
     @Formula("(select count(1) from reply r where r.parent_id = id and r.deleteyn = 'N')")
     private int childCount;

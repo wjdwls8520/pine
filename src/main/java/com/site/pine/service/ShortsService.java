@@ -55,9 +55,11 @@ public class ShortsService {
 
         Pageable pageable = PageRequest.of(page, 2);
 
+        // 로그인 여부 체크하여 ID 또는 null 전달
+        Long loginId = (memberdto != null) ? memberdto.getId() : null;
+
         // 1️ 쇼츠 메인 DTO 조회 (엔티티 x)
-        Page<ShortsMainDto> postPages =
-                pr.getAllShortsPostList(pageable);
+        Page<ShortsMainDto> postPages = pr.getAllShortsPostList(loginId, pageable);
 
         List<ShortsMainDto> posts = postPages.getContent();
 
@@ -81,16 +83,6 @@ public class ShortsService {
                 }
             }
 
-            // 5️ 좋아요 여부 (로그인 유저만)
-//            if (memberdto != null) {
-//                for (ShortsMainDto dto : shortsList) {
-//                    boolean liked = likeRepository.existsByMember_IdAndTargetTypeAndTargetId(
-//                                    memberDto.getId(),
-//                                    dto.getShortsId()
-//                            );
-//                    dto.setLiked(liked);
-//                }
-//            }
         }
 
         result.put("shortsList", posts);
@@ -104,8 +96,8 @@ public class ShortsService {
         MultipartFile video = dto.getVideoFile();
         MultipartFile thumbnail = dto.getThumbnailFile();
 
-        Path tempVideo = null;      // 🔧 수정: catch에서 삭제하기 위해 밖으로 뺌
-        Path tempManualThumb = null; // 🔧 수정: manual 썸네일일 경우 안전하게 파일로 만들어 넘김(선택)
+        Path tempVideo = null;      // catch에서 삭제하기 위해 밖으로 뺌
+        Path tempManualThumb = null; // manual 썸네일일 경우 안전하게 파일로 만들어 넘김(선택)
 
         Member member = mr.findById(memberdto.getId()).orElseThrow(() -> new IllegalStateException("회원 정보가 없습니다."));
 

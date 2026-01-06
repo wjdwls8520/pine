@@ -147,6 +147,23 @@ body {
     opacity: 0.8;
 }
 
+.shortsFeed .cardInner .userPanel .shortsTitle.expandable:not(.expanded)::after,
+.shortsFeed .cardInner .userPanel .shortsContent.expandable:not(.expanded)::after {
+    content: "[더보기]";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(to right, transparent, #fff 30%);
+    padding-left: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+}
+.shortsFeed .cardInner .userPanel .shortsTitle.expandable:not(.expanded):hover::after,
+.shortsFeed .cardInner .userPanel .shortsContent.expandable:not(.expanded):hover::after {
+    color: #474747;
+}
+
 .shortsFeed .cardInner .userPanel .shortsTitle.expanded,
 .shortsFeed .cardInner .userPanel .shortsContent.expanded {
     -webkit-line-clamp: unset;
@@ -162,6 +179,11 @@ body {
     margin-left: 5px;
     font-weight: 400;
     display: inline-block;
+}
+
+.shortsFeed .cardInner .userPanel .shortsTitle.expanded:hover::after,
+.shortsFeed .cardInner .userPanel .shortsContent.expanded:hover::after{
+    color: #474747;
 }
 
 /* ===========================
@@ -257,19 +279,86 @@ body {
 }
 
 .shortsFeed .cardInner .actionBtn {
+    width: 96px;
+    border: none;
+    outline: none;
+    border-radius: 28px;
+    padding: 14px 8px;
+    background: #fff;
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.15);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
     gap: 6px;
-    width: 100%;
-    height: 62px;
-    background: #d9d9d9;
-    border-radius: 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.shortsFeed .cardInner .actionBtn.commentToggle { background: #cb4848; }
-.shortsFeed .cardInner .actionBtn > span { font-size: 14px; font-weight: 500; color: #141414; }
-.shortsFeed .cardInner .actionBtn > em { font-size: 16px; font-weight: 500; color: #141414; }
+.shortsFeed .cardInner .actionBtn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.2);
+}
+
+.shortsFeed .cardInner .actionBtn span {
+    font-weight: 600;
+    font-size: 14px;
+    color: #0f172a;
+}
+
+.shortsFeed .cardInner .actionBtn em {
+    font-style: normal;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.shortsFeed .cardInner .actionBtn.commentToggle {
+    background: #fe7778;
+}
+
+.shortsFeed .cardInner .actionBtn.commentToggle span,
+.shortsFeed .cardInner .actionBtn.commentToggle em {
+    color: #fff;
+}
+
+
+.shortsFeed .cardInner .actionBtn.like {
+    background-color: #ffffff;
+    color: #333333;
+    transition: all 0.3s ease;
+}
+
+.shortsFeed .cardInner .actionBtn.like.on {
+    background-color: #8C8C8C;
+    color: #ffffff;
+    border-color: #8C8C8C;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.shortsFeed .cardInner .actionBtn.like.on span,
+.shortsFeed .cardInner .actionBtn.like.on em {
+    color: #ffffff;
+    transition: color 0.2s ease;
+}
+
+.shortsFeed .cardInner .actionBtn.like.on:hover span,
+.shortsFeed .cardInner .actionBtn.like.on:hover em {
+    color: #ffffff
+}
+
+.shortsFeed .cardInner .actionBtn.like.on:hover {
+    background-color: #707070;
+    border-color: #707070;
+}
+
+.shortsFeed .cardInner .actionBtn.share .ico_link{
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    cursor: pointer;
+    background-size: contain !important;
+    vertical-align: middle;
+    background: url(../images/ico_link.png) center center no-repeat;
+}
 
 /* ===========================
    [Comments Panel] 댓글 모달
