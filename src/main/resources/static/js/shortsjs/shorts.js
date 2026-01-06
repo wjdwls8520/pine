@@ -138,6 +138,7 @@ function renderShortCard(info, isPrepend = false) {
     let thumbnailFile = info.files.find(f => f.contentType.includes("image"));
     let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(info.writeDate) : info.writeDate;
     let userProfile = info.profileImg ? info.profileImg : '/images/icon_pinedory.png';
+    let likeClass = info.liked ? 'on' : '';
 
     const html = `
         <div class="shortsCard" data-post-id="${info.postId}" data-title="${info.title}" data-user="${info.nickname}" data-date="${dateStr}">
@@ -170,11 +171,20 @@ function renderShortCard(info, isPrepend = false) {
                 </div>
 
                 <div class="actionPanel">
-                    <button class="actionBtn like"><span>좋아요</span><em>${info.likeCount || 0}</em></button>
-                    <button class="actionBtn share"><span>공유</span><em>128</em></button>
+                    <button class="actionBtn like ${likeClass}" onclick="toggleLike(${info.postId}, this)">
+                        <span>좋아요</span>
+                        <em id="likeCount-${info.postId}">${info.likeCount}</em>
+                    </button>
+                    
+                    <button class="actionBtn share">
+                        <span>링크공유</span>
+                        <em class="ico_link"></em>
+                    </button>
+                    
                     <button class="actionBtn commentToggle"
                         onclick="openComment(${info.postId}, '${info.title}', '${info.nickname}', '${dateStr}');">
-                        <span>댓글</span><em>${info.replyCount || 0}</em>
+                        <span>댓글</span>
+                        <em>${info.replyCount}</em>
                     </button>
                 </div>
             </div>
@@ -674,3 +684,62 @@ shortsFeedWrap.addEventListener('click', (e) => {
             });
     }
 });
+
+// 좋아요 토글 함수 (Ajax)
+// shorts.js 파일의 toggleLike 함수 수정
+
+function toggleLike(postId, btnElement) {
+    // 1. 로그인 체크
+    const loginCheckInput = document.getElementById("loginCheck");
+    if (!loginCheckInput || loginCheckInput.value !== 'true') {
+        if(confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+            location.href = "/login";
+        }
+        return;
+    }
+
+    // 2. 서버로 보낼 데이터 준비
+    const requestData = {
+        targetType: "POST",  // LikeReqDto의 targetType
+        targetId: postId     // LikeReqDto의 targetId
+    };
+
+    // 3. fetch 요청 보내기
+    fetch(`/like`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json" //  JSON 형식임을 명시
+        },
+        body: JSON.stringify(requestData) //  객체를 JSON 문자열로 변환하여 Body에 탑재
+    })
+        .then(res => {
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert("로그인이 만료되었습니다.");
+                    location.href = "/login";
+                    return;
+                }
+                throw new Error(`통신 실패 상태코드: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            // 4. 응답 데이터 처리
+            // data = { liked: true/false, likeCount: 123 }
+
+            const countEm = btnElement.querySelector('em');
+
+            if (data.liked) {
+                btnElement.classList.add('on'); // 하트 채우기
+            } else {
+                btnElement.classList.remove('on'); // 하트 비우기
+            }
+
+            // 숫자 갱신 (LikeResDto의 likeCount 필드 사용)
+            countEm.innerText = data.likeCount;
+        })
+        .catch(err => {
+            console.error("좋아요 처리 중 오류 발생:", err);
+            alert("좋아요 처리에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        });
+}

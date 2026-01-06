@@ -22,6 +22,8 @@ public class ShortsMainDto {
     private String nickname;
     private String profileImg;
 
+    private int replyCount;
+    private int likeCount;
     private boolean liked;
 
     private List<PostMainFileDto> files = new ArrayList<PostMainFileDto>();
@@ -34,7 +36,10 @@ public class ShortsMainDto {
             Timestamp updateDate,
             Long memberId,
             String nickname,
-            String profileImg
+            String profileImg,
+            int replyCount,
+            int likeCount,
+            boolean liked
     ) {
         this.postId = postId;
         this.title = title;
@@ -44,6 +49,9 @@ public class ShortsMainDto {
         this.memberId = memberId;
         this.nickname = nickname;
         this.profileImg = profileImg;
+        this.replyCount = replyCount;
+        this.likeCount = likeCount;
+        this.liked = liked;
     }
 
     public void addFile(PostMainFileDto file) {
