@@ -46,11 +46,11 @@
                                     <c:otherwise>unknown</c:otherwise>
                                 </c:choose>
                             </p>
-                            <h1 class="groupHeroTitle">${groupDetail.groupName}</h1>
-                            <p class="groupHeroDesc">${groupDetail.groupDescription}</p>
+                            <h1 class="groupHeroTitle"><c:out value="${groupDetail.groupName}" /></h1>
+                            <p class="groupHeroDesc"><c:out value="${groupDetail.groupDescription}" /></p>
                             <div class="groupHeroBadges">
                                 <span>전체 조회수 ${groupDetail.allViewCount}</span>
-                                <span>멤버 수 ${groupDetail.groupMemberCount}</span>
+                                <span class="cursor" onclick="location.href='/group/detail/${groupDetail.id}/gmemberlist';">멤버 수 ${groupDetail.groupMemberCount}</span>
                                 <span>좋아요 ${groupDetail.likeCount}</span>
                                 <span>게시물 ${groupDetail.postCount}</span>
                             </div>
@@ -62,7 +62,7 @@
                                     </c:when>
                                     <%-- 그룹원 --%>
                                     <c:when test="${not empty isGroupMember}">
-                                        <button type="button" class="groupPrimaryBtn">그룹 탈퇴</button>
+                                        <button type="button" class="groupPrimaryBtn" onclick="groupOut();">그룹 탈퇴</button>
                                     </c:when>
                                     <%-- 비로그인유저 및 비그룹원 --%>
                                     <c:otherwise>
@@ -163,7 +163,7 @@
                 <section class="groupLayout">
                     <div class="groupAbout">
                         <h2>그룹 소개</h2>
-                        <p>${groupDetail.groupDescription}</p>
+                        <p><c:out value="${groupDetail.groupDescription}" /></p>
 
                         <div class="groupDetailGrid">
                             <div>
@@ -267,7 +267,6 @@
 
 
 
-<jsp:include page="../include/group_footer.jsp"></jsp:include>
 <script>
     let targetId = Number("${groupDetail.id}");
 
@@ -368,7 +367,37 @@
                 alert(err.message);
             });
     }
+
+    // 그룹탈퇴
+    function groupOut() {
+        if(confirm("정말로 탈퇴 하시겠습니까?")) {
+            fetch(`/group/groupout`, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({groupId: targetId})})
+                .then(response => {
+                    if (response.ok) {
+                        alert("처리되었습니다.");
+                        location.href='/group';
+                    } else {
+                    // [여기가 핵심] 서버가 에러(400, 500)를 던지면 프론트가 페이지를 이동시킴
+                        console.log(response);
+                        return response.text().then(msg => {
+                            alert(msg); // "잘못된 접근입니다" 메시지 출력
+                            location.href = "/error"; // 에러 페이지로 강제 이동!
+                        });
+                    }
+                }).catch(err => {
+                console.error(err);
+                alert(err.message);
+            });
+        }
+    }
 </script>
+
+<jsp:include page="../include/group_footer.jsp"></jsp:include>
 </body>
 </html>
 

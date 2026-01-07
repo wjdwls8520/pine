@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Slf4j
@@ -153,6 +154,7 @@ public class GroupController {
         return "redirect:/group/gdetail/" + groupId;
     }
 
+    // [AJAX] 그룹 자체를 삭제
     @PostMapping("/group/gdelete/{groupId}")
     @ResponseBody
     public ResponseEntity<HashMap<String, Object>> groupDelete(
@@ -179,6 +181,25 @@ public class GroupController {
 
         result.put("msg", "success");
         return ResponseEntity.ok(result);
+    }
+
+    // [단순이동] 그룹멤버리스트 조회 페이지로 이동
+    @GetMapping("/group/detail/{groupId}/gmemberlist")
+    public String moveGroupMemberListPage(@AuthenticationPrincipal MemberDto memberdto, @PathVariable Long groupId, Model model) {
+        GroupMemberResDto isGroupMember = gs.getGroupMemberInfo(memberdto, groupId);
+        model.addAttribute("isGroupMember", isGroupMember);
+        model.addAttribute("groupId", groupId);
+        return "group/gMemberList";
+    }
+    // [AJAX] 그룹멤버리스트 조회 "무한스크롤"
+    @GetMapping("/group/gdetail/{groupId}/gmemberlist/{page}")
+    @ResponseBody
+    public Page<GroupMemberResDto> getGroupMemberList(
+            @PathVariable Long groupId,
+            @PathVariable Integer page
+        ) {
+
+        return gs.getGroupMemberList(groupId, page);
     }
 
     // [Model] 그룹에 가입신청한 유저들의 리스트를 보는 페이지로 이동하는 API
@@ -261,5 +282,23 @@ public class GroupController {
         gs.gjoinReqAppRej(memberdto, reqdto);
 
         return ResponseEntity.ok("처리되었습니다.");
+    }
+
+    // [AJAX] 그룹탈퇴
+    @PostMapping("/group/groupout")
+    @ResponseBody
+    public ResponseEntity<String> groupOut(
+            @AuthenticationPrincipal MemberDto memberdto,
+            @RequestBody Map<String, Long> params
+    ) {
+        if (memberdto == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        Long groupId = params.get("groupId");
+
+        gs.groupOut(memberdto, groupId);
+
+        return ResponseEntity.ok("탈퇴 되었습니다.");
     }
 }
