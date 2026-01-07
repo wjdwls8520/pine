@@ -221,7 +221,7 @@ section.section .subTitle {margin-top:-32px; padding-bottom: 14px; font-size: 16
    ========================================= */
 .toastMsg {
     position: fixed;
-    bottom: 50px;
+    bottom: 58px;
     left: 50%;
     transform: translateX(-50%) translateY(20px); /* 살짝 아래에서 시작 */
 

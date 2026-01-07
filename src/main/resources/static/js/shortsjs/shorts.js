@@ -173,7 +173,10 @@ function renderShortCard(info, isPrepend = false) {
                 <div class="actionPanel">
                     <button class="actionBtn like ${likeClass}" onclick="toggleLike(${info.postId}, this)">
                         <span>좋아요</span>
-                        <em id="likeCount-${info.postId}">${info.likeCount}</em>
+                        <div class="icoBox">
+                            <span class="ico"></span>
+                            <em id="likeCount-${info.postId}">${info.likeCount}</em>
+                        </div>
                     </button>
                     
                     <button class="actionBtn share">
@@ -184,7 +187,10 @@ function renderShortCard(info, isPrepend = false) {
                     <button class="actionBtn commentToggle"
                         onclick="openComment(${info.postId}, '${info.title}', '${info.nickname}', '${dateStr}');">
                         <span>댓글</span>
-                        <em>${info.replyCount}</em>
+                        <div class="icoBox">
+                            <span class="ico"></span>
+                            <em>${info.replyCount}</em>
+                        </div>
                     </button>
                 </div>
             </div>
@@ -478,14 +484,20 @@ function toggleReReplyForm(parentId) {
 }
 
 /**
- * [신규] 대댓글 등록 요청
+ * 대댓글 등록 요청
  */
 function submitSubReply(parentId) {
-    // 1. 로그인 체크 (기존 로직 재활용 권장)
+    // 1. 로그인 체크 (강화된 로직)
     const loginCheckInput = document.getElementById("loginCheck");
-    if (!loginCheckInput || loginCheckInput.value !== 'true') {
-        alert("로그인이 필요합니다.");
-        return;
+    // 문자열 "true"인지 확인 (JSP EL 결과는 문자열로 넘어옵니다)
+    const isLoggedIn = loginCheckInput && loginCheckInput.value === 'true';
+
+    if (!isLoggedIn) {
+        // alert 후 confirm을 하면 팝업이 두 번 뜨므로, confirm 하나로 합치는 것이 UX상 좋습니다.
+        if (confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+            location.href = "/login";
+        }
+        return; // 로그인 안 했으면 함수 강제 종료 (fetch 실행 X)
     }
 
     const inputEl = document.getElementById(`input-${parentId}`);
@@ -499,7 +511,7 @@ function submitSubReply(parentId) {
     const reqDto = {
         postId: currentPostIdForReply,
         content: content,
-        parentId: parentId // ★ 부모 ID 포함!
+        parentId: parentId // 부모 ID 포함!
     };
 
     fetch("/reply", {
@@ -507,20 +519,57 @@ function submitSubReply(parentId) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reqDto)
     })
-        .then(res => res.json())
-        .then(newReply => {
-            // 성공 시 전체 새로고침 (가장 간단한 갱신 방법)
-            // (부분 갱신은 복잡하므로 일단 전체 리로드 추천)
+    .then(res => res.json())
+    .then(newReply => {
+        // [핵심 변경] 전체 리로드(loadReplies)를 하지 않고 DOM에 바로 추가합니다.
+
+        // 1. 입력창 닫기 (폼 비우기)
+        const formArea = document.getElementById(`reReplyForm-${parentId}`);
+        if(formArea) formArea.innerHTML = "";
+
+        // 2. 대댓글 목록 영역 찾기
+        const subReplyArea = document.getElementById(`subReplyArea-${parentId}`);
+        const viewBtn = document.getElementById(`btnViewReply-${parentId}`);
+
+        showToastMsg("대댓글 등록이 완료되었습니다.");
+
+        if (subReplyArea) {
+            // [Case A] 대댓글 목록이 이미 존재하는 경우 (기존 대댓글이 1개 이상)
+
+            // 1) 새 댓글 HTML 생성 (isSubReply = true)
+            // *주의: 작성자 프로필 이미지 등이 newReply에 포함되어 있어야 함
+            const html = createReplyItemHtml(newReply, true);
+
+            // 2) 목록의 맨 끝에 추가
+            subReplyArea.insertAdjacentHTML("beforeend", html);
+
+            // 3) 만약 닫혀있었다면 강제로 열어서 내가 쓴 글 보여주기
+            if (subReplyArea.style.display === "none") {
+                subReplyArea.style.display = "block";
+                if(viewBtn) viewBtn.innerHTML = "─── 대댓글 숨기기";
+            }
+
+            // 4) 긴 글 더보기 버튼 적용
+            // (앞서 추가한 checkCommentOverflow 함수가 있다면 호출)
+            if (typeof checkCommentOverflow === 'function') {
+                checkCommentOverflow();
+            }
+
+        } else {
+            // [Case B] 대댓글이 처음 달리는 경우 (목록 영역이 아예 없음)
+            // 이 경우에는 대댓글 버튼과 영역을 새로 만들어야 하므로, 부득이하게 전체 새로고침을 합니다.
+            // (첫 댓글이라 어차피 열려있는 상태가 아니므로 괜찮습니다.)
             replyPage = 0;
             isReplyLastPage = false;
             document.getElementById("commentListUl").innerHTML = "";
             loadReplies(currentPostIdForReply, 0);
-        })
-        .catch(err => console.error("대댓글 등록 실패", err));
+        }
+    })
+    .catch(err => console.error("대댓글 등록 실패", err));
 }
 
 /**
- * [신규] 대댓글 목록 가져오기 (Lazy Loading)
+ *  대댓글 목록 가져오기 (Lazy Loading)
  * - 버튼 클릭 시 호출됨
  */
 function loadChildReplies(parentId, count) {
@@ -608,6 +657,7 @@ document.getElementById("btnReplyRegist").addEventListener("click", () => {
         document.getElementById("commentListUl").innerHTML = "";
         loadReplies(currentPostIdForReply, 0);
         contentInput.value = "";
+        showToastMsg("댓글 등록이 완료되었습니다");
     })
     .catch(err => console.error("등록 실패", err));
 });
@@ -627,7 +677,7 @@ if (commentScrollArea) {
 }
 
 /**
- * [추가] 스크롤 시 열려있는 댓글창의 내용을 갱신하는 함수
+ * 스크롤 시 열려있는 댓글창의 내용을 갱신하는 함수
  * @param {HTMLElement} cardElement - 현재 화면에 보이는 쇼츠 카드 요소
  */
 function refreshCommentPanelIfOpen(cardElement) {
@@ -642,7 +692,7 @@ function refreshCommentPanelIfOpen(cardElement) {
     const writer = cardElement.dataset.user;
     const date = cardElement.dataset.date;
 
-    // 3. 같은 게시글이면 굳이 다시 로드 안 함 (중복 방지)
+    // 3. 같은 게시글이면 굳이 다시 로드 안  (중복 방지)
     // currentPostIdForReply 변수는 기존에 선언된 전역 변수
     if (currentPostIdForReply == newPostId) return;
 
@@ -676,7 +726,7 @@ shortsFeedWrap.addEventListener('click', (e) => {
         // 2. 클립보드에 복사
         navigator.clipboard.writeText(currentUrl)
             .then(() => {
-                alert(`\n링크가 복사되었습니다!\n\n${currentUrl}\n\n친구에게 공유해보세요!`);
+                showToastMsg("링크가 복사되었습니다!");
             })
             .catch(err => {
                 console.error("복사 실패:", err);
@@ -730,9 +780,11 @@ function toggleLike(postId, btnElement) {
             const countEm = btnElement.querySelector('em');
 
             if (data.liked) {
-                btnElement.classList.add('on'); // 하트 채우기
+                btnElement.classList.add('on');
+                showToastMsg("이 영상을 좋아합니다!");
             } else {
-                btnElement.classList.remove('on'); // 하트 비우기
+                btnElement.classList.remove('on');
+                showToastMsg("좋아요를 취소했습니다.");
             }
 
             // 숫자 갱신 (LikeResDto의 likeCount 필드 사용)
