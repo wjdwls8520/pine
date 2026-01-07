@@ -2,15 +2,15 @@ let page = 0;
 let totalPages = 10;
 let loading = false; // 요청 중인지 확인
 
-const scrollBox = document.querySelector(".article.workspace.groupJoinListWrap");
+const scrollBox = document.querySelector(".article.workspace.groupMemberListWrap");
 
 //  데이터 추가할 섹션
-let groupWrap = document.getElementById("groupJoinListContent");
+let groupWrap = document.getElementById("groupMemberListContent");
 
 // 에이잭스요청
 async function getData(page) {
     loading = true; // 요청 시작
-    fetch(`/group/gdetail/${groupId}/gjoinlist/${page}`, { method: "GET" })
+    fetch(`/group/gdetail/${groupId}/gmemberlist/${page}`, { method: "GET" })
         .then(response => {
                 if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
                 return response.json(); // 성공하면 JSON 반환
@@ -22,7 +22,7 @@ async function getData(page) {
                 // 그룹이 비어있을시
                 if(data.content.length < 1) {
                     return groupWrap.insertAdjacentHTML("beforeend", `
-                        <span>가입신청 요청이 없습니다.</span>
+                        <span>멤버가 없습니다.</span>
                     `);
                 }
 
@@ -30,36 +30,31 @@ async function getData(page) {
                 totalPages = data.totalPages;
 
                 // js로 동적 태그 생성
-                data.content.forEach((info) => {
-                    if (info.status !== 0) return;
+                data.content.forEach(info => {
 
-                    /* ===== wrapper ===== */
                     const item = document.createElement("div");
                     item.className = "groupJoinListItem";
 
-                    /* ===== avatar ===== */
-                    const avatar = document.createElement("div");
-                    avatar.className = "groupJoinListItemAvatar";
+                    /* avatar */
+                    const avatarWrap = document.createElement("div");
+                    avatarWrap.className = "groupJoinListItemAvatar";
 
                     const avatarImgWrap = document.createElement("div");
                     avatarImgWrap.className = "groupJoinListItemAvatarImg";
 
                     if (info.profileImg) {
                         const img = document.createElement("img");
-                        img.src = info.profileImg;               // src는 실행되지 않음
+                        img.src = info.profileImg;   // src는 JS 할당이라 XSS 안전
                         img.alt = "프로필";
-                        img.style.width = "100%";
-                        img.style.height = "100%";
-                        img.style.borderRadius = "50%";
-                        img.style.objectFit = "cover";
+                        img.style.cssText = "width:100%;height:100%;border-radius:50%;object-fit:cover;";
                         avatarImgWrap.appendChild(img);
                     } else {
-                        avatarImgWrap.textContent = info.nickName?.charAt(0) || "?";
+                        avatarImgWrap.textContent = info.nickname?.charAt(0) ?? "";
                     }
 
-                    avatar.appendChild(avatarImgWrap);
+                    avatarWrap.appendChild(avatarImgWrap);
 
-                    /* ===== info ===== */
+                    /* info */
                     const infoWrap = document.createElement("div");
                     infoWrap.className = "groupJoinListItemInfo";
 
@@ -68,68 +63,55 @@ async function getData(page) {
 
                     const name = document.createElement("h3");
                     name.className = "groupJoinListItemName";
-                    name.textContent = info.nickName;   // 🔐 XSS 차단
+                    name.textContent = info.nickname; // 🔐 XSS 차단
 
                     const badge = document.createElement("span");
                     badge.className = "groupJoinListItemBadge";
-                    badge.textContent = "신규 신청";
+                    badge.textContent =
+                        info.role === 1 ? "그룹장" :
+                            info.role === 2 ? "그룹매니저" :
+                                info.role === 3 ? "그룹일반" : "알 수 없음";
 
-                    top.appendChild(name);
-                    top.appendChild(badge);
+                    top.append(name, badge);
 
                     const desc = document.createElement("p");
                     desc.className = "groupJoinListItemDesc";
-                    desc.textContent = info.introduction;  // 🔐 XSS 핵심 차단 포인트
+                    desc.textContent = info.profileMsg; // 🔐 핵심
 
                     const meta = document.createElement("div");
                     meta.className = "groupJoinListItemMeta";
 
                     const date = document.createElement("span");
                     date.className = "groupJoinListItemDate";
-                    date.textContent = timeAgoAjax(info.requestDate);
-
-                    const userId = document.createElement("span");
-                    userId.className = "groupJoinListItemId";
-                    userId.textContent = `@${info.userId}`;
+                    date.textContent = timeAgoAjax(info.joinDate);
 
                     meta.appendChild(date);
-                    meta.appendChild(userId);
+                    infoWrap.append(top, desc, meta);
 
-                    infoWrap.appendChild(top);
-                    infoWrap.appendChild(desc);
-                    infoWrap.appendChild(meta);
+                    if(groupRole === 1) {
+                        /* actions */
+                        const actions = document.createElement("div");
+                        actions.className = "groupJoinListItemActions";
 
-                    /* ===== actions ===== */
-                    const actions = document.createElement("div");
-                    actions.className = "groupJoinListItemActions";
+                        const approveBtn = document.createElement("button");
+                        approveBtn.className = "groupJoinListBtn groupJoinListBtnApprove";
+                        approveBtn.textContent = "등급 변경";
+                        approveBtn.onclick = () =>
+                            gmemberChangeLevel(approveBtn, info.groupId, info.memberId);
 
-                    const approveBtn = document.createElement("button");
-                    approveBtn.type = "button";
-                    approveBtn.className = "groupJoinListBtn groupJoinListBtnApprove";
-                    approveBtn.textContent = "승인";
-                    approveBtn.addEventListener("click", () => {
-                        groupJoinReq(approveBtn, "APPROVE", info.id, info.groupId, info.memberId);
-                    });
-
-                    const rejectBtn = document.createElement("button");
-                    rejectBtn.type = "button";
-                    rejectBtn.className = "groupJoinListBtn groupJoinListBtnReject";
-                    rejectBtn.textContent = "거절";
-                    rejectBtn.addEventListener("click", () => {
-                        groupJoinReq(rejectBtn, "REJECT", info.id, info.groupId, info.memberId);
-                    });
-
-                    actions.appendChild(approveBtn);
-                    actions.appendChild(rejectBtn);
-
-                    /* ===== assemble ===== */
-                    item.appendChild(avatar);
-                    item.appendChild(infoWrap);
-                    item.appendChild(actions);
+                        const rejectBtn = document.createElement("button");
+                        rejectBtn.className = "groupJoinListBtn groupJoinListBtnReject";
+                        rejectBtn.textContent = "그룹 추방";
+                        rejectBtn.onclick = () =>
+                            gmemberOut(rejectBtn, info.groupId, info.memberId);
+                        actions.append(approveBtn, rejectBtn);
+                        item.append(avatarWrap, infoWrap, actions);
+                    } else {
+                        item.append(avatarWrap, infoWrap);
+                    }
 
                     groupWrap.appendChild(item);
                 });
-
         })
         .catch(err => {
             // 실패 시 처리

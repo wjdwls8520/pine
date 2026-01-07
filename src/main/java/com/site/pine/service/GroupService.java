@@ -296,6 +296,14 @@ public class GroupService {
         }
     }
 
+    // 그룹멤버 리스트
+    @Transactional(readOnly = true)
+    public Page<GroupMemberResDto> getGroupMemberList(Long groupId, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "joinTime"));
+        Page<GroupMemberResDto> groupMemberList = gmr.findAllByGroupContents_Id(groupId, pageable);
+        return groupMemberList;
+    }
+
     @Transactional
     public HashMap<String, Object> addViewCount(Long targetId, LocalDate today) {
         GroupContents group = gconr.findById(targetId)
@@ -449,4 +457,15 @@ public class GroupService {
     public Boolean isGroupJoinRequest(Long memberId, Long groupId) {
         return gjrr.existsByGroupContentsIdAndMemberIdAndStatus(groupId, memberId, 0);
     }
+
+    // 그룹 탈퇴 api
+    @Transactional
+    public void groupOut(MemberDto memberdto, Long groupId) {
+        GroupMember targetMember = gmr.findByGroupContentsIdAndMemberId(groupId, memberdto.getId()).orElseThrow(()-> new IllegalArgumentException("잘못된 접근입니다."));
+        gmr.delete(targetMember);
+
+        gconr.decreaseGroupMemberCount(groupId);
+    }
+
+
 }

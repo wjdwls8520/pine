@@ -1,14 +1,18 @@
 package com.site.pine.repository.group;
 
+import com.site.pine.dto.group.GroupMemberResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupMember;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
@@ -32,4 +36,28 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
     Optional<GroupMember> findByGroupContentsIdAndMemberId(Long groupId, Long memberId);
 
     boolean existsByGroupContentsIdAndMemberId(Long groupId, Long id);
+
+
+    @Query(value = """
+        select new com.site.pine.dto.group.GroupMemberResDto(
+            gm.id,
+            m.id,
+            m.nickname,
+            m.profile_img,
+            m.profile_msg,
+            gc.id,
+            gm.joinTime,
+            gm.role
+        )
+        from GroupMember gm
+        join gm.member m
+        join gm.groupContents gc
+        where gc.id = :groupId
+    """,
+    countQuery = """
+        select count(gjr)
+        from GroupJoinRequest gjr
+        where gjr.groupContents.id = :groupId
+    """)
+    Page<GroupMemberResDto> findAllByGroupContents_Id(@Param("groupId") Long groupId, Pageable pageable);
 }
