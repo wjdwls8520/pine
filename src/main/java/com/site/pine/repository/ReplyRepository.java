@@ -29,7 +29,7 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
         from Reply r 
         join fetch r.member 
         where r.parent.id = :parentId 
-        order by r.id desc
+        order by r.id asc
     """)
     List<Reply> findChildReplies(@Param("parentId") Long parentId);
 }

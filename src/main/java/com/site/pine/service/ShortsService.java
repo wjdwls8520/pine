@@ -151,7 +151,7 @@ public class ShortsService {
                             thumbFile.getId(),
                             tempVideo.toString(),
                             thumbType,
-                            tempManualThumbPath // 🔧 수정: manual일 때만 값 존재, auto면 null
+                            tempManualThumbPath // manual일 때만 값 존재, auto면 null
                     )
             );
 
