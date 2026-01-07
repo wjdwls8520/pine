@@ -392,6 +392,7 @@ function loadReplies(postId, page) {
             });
 
             listUl.insertAdjacentHTML("beforeend", html);
+            checkCommentOverflow();
             replyPage++; // 다음 페이지 준비
         })
         .catch(err => console.error(err))
@@ -420,6 +421,18 @@ function createReplyItemHtml(reply, isSubReply = false) {
         ? `<button class="btnReReply" onclick="toggleReReplyForm(${reply.id})">답글달기</button>`
         : '';
 
+    // 좋아요 버튼 HTML 생성
+    let likeClass = reply.liked ? 'on' : '';
+    let likeCount = reply.likeCount != null ? reply.likeCount : 0;
+
+    // 삭제된 댓글이 아닐 때만 좋아요 버튼 표시
+    let likeBtnHtml = !isDeleted ? `
+        <button class="btnCommentLike ${likeClass}" onclick="toggleCommentLike(${reply.id}, this)">
+            <span class="ico"></span>
+            <em>${likeCount}</em>
+        </button>
+    ` : '';
+
     // 자식 댓글(대댓글) 재귀 생성
     let childrenHtml = "";
     let viewReplyBtn = "";
@@ -445,7 +458,8 @@ function createReplyItemHtml(reply, isSubReply = false) {
             <p class="${contentClass}">${contentText}</p>
             
             <div class="commentAction">
-                ${replyBtnHtml} 
+                ${likeBtnHtml}
+                ${replyBtnHtml}
             </div>
 
             <div id="reReplyForm-${reply.id}" class="reReplyFormArea"></div>
@@ -457,7 +471,7 @@ function createReplyItemHtml(reply, isSubReply = false) {
 }
 
 /**
- * [신규] 답글 입력창 토글 (열기/닫기)
+ * 답글 입력창 토글 (열기/닫기)
  */
 function toggleReReplyForm(parentId) {
     const formArea = document.getElementById(`reReplyForm-${parentId}`);
@@ -580,6 +594,7 @@ function loadChildReplies(parentId, count) {
     if (listArea.innerHTML.trim() !== "") {
         if (listArea.style.display === "none") {
             listArea.style.display = "block";
+            checkCommentOverflow();
             btn.innerHTML = `─── 대댓글 숨기기`;
         } else {
             listArea.style.display = "none";
@@ -606,6 +621,7 @@ function loadChildReplies(parentId, count) {
             listArea.innerHTML = html;
             listArea.style.display = "block"; // 숨겨진 영역 보이기
             btn.innerHTML = `─── 대댓글 숨기기`;
+            checkCommentOverflow();
         })
         .catch(err => {
             console.error(err);
@@ -762,36 +778,97 @@ function toggleLike(postId, btnElement) {
         },
         body: JSON.stringify(requestData) //  객체를 JSON 문자열로 변환하여 Body에 탑재
     })
-        .then(res => {
-            if (!res.ok) {
-                if (res.status === 401) {
-                    alert("로그인이 만료되었습니다.");
-                    location.href = "/login";
-                    return;
-                }
-                throw new Error(`통신 실패 상태코드: ${res.status}`);
+    .then(res => {
+        if (!res.ok) {
+            if (res.status === 401) {
+                alert("로그인이 만료되었습니다.");
+                location.href = "/login";
+                return;
             }
-            return res.json();
-        })
-        .then(data => {
-            // 4. 응답 데이터 처리
-            // data = { liked: true/false, likeCount: 123 }
+            throw new Error(`통신 실패 상태코드: ${res.status}`);
+        }
+        return res.json();
+    })
+    .then(data => {
+        // 4. 응답 데이터 처리
+        // data = { liked: true/false, likeCount: 123 }
 
-            const countEm = btnElement.querySelector('em');
+        const countEm = btnElement.querySelector('em');
 
-            if (data.liked) {
-                btnElement.classList.add('on');
-                showToastMsg("이 영상을 좋아합니다!");
-            } else {
-                btnElement.classList.remove('on');
-                showToastMsg("좋아요를 취소했습니다.");
-            }
+        if (data.liked) {
+            btnElement.classList.add('on');
+            showToastMsg("이 영상을 좋아합니다!");
+        } else {
+            btnElement.classList.remove('on');
+            showToastMsg("좋아요를 취소했습니다.");
+        }
 
-            // 숫자 갱신 (LikeResDto의 likeCount 필드 사용)
-            countEm.innerText = data.likeCount;
-        })
-        .catch(err => {
-            console.error("좋아요 처리 중 오류 발생:", err);
-            alert("좋아요 처리에 실패했습니다. 잠시 후 다시 시도해주세요.");
-        });
+        // 숫자 갱신 (LikeResDto의 likeCount 필드 사용)
+        countEm.innerText = data.likeCount;
+    })
+    .catch(err => {
+        console.error("좋아요 처리 중 오류 발생:", err);
+        alert("좋아요 처리에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    });
+}
+
+// 댓글 좋아요 토글 함수
+function toggleCommentLike(replyId, btnElement) {
+    // 1. 로그인 체크
+    const loginCheckInput = document.getElementById("loginCheck");
+    // (loginCheckInput이 없으면 false 처리, 있으면 값 확인)
+    const isLoggedIn = loginCheckInput && loginCheckInput.value === 'true';
+
+    if (!isLoggedIn) {
+        if(confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+            location.href = "/login";
+        }
+        return;
+    }
+
+    // 2. 서버 요청 데이터 (targetType을 'REPLY'로 가정)
+    const requestData = {
+        targetType: "REPLY",
+        targetId: replyId
+    };
+
+    fetch(`/like`, { // 기존 좋아요 API 재사용 (백엔드에서 타입 분기 처리 필요)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestData)
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("좋아요 처리 실패");
+        return res.json();
+    })
+    .then(data => {
+        // data = { liked: true/false, likeCount: 123 }
+        const em = btnElement.querySelector('em');
+
+        if (data.liked) {
+            btnElement.classList.add('on');
+        } else {
+            btnElement.classList.remove('on');
+        }
+        em.innerText = data.likeCount;
+    })
+    .catch(err => {
+        console.error(err);
+        // alert("오류가 발생했습니다.");
+    });
+}
+
+// 댓글/대댓글 더보기 감지 함수
+function checkCommentOverflow() {
+    // .commentList 내부의 모든 p 태그 중, 아직 검사 안 된(.expandable 없는) 항목 선택
+    // 대댓글도 .commentList 안에 포함되므로 한 번에 처리 가능합니다.
+    const comments = document.querySelectorAll('.commentList p:not(.expandable)');
+
+    comments.forEach(p => {
+        // scrollHeight(실제 높이)가 clientHeight(화면에 보이는 높이)보다 크면 넘친 것임
+        if (p.scrollHeight > p.clientHeight) {
+            p.classList.add('expandable');
+            p.setAttribute('onclick', 'toggleExpand(this)'); // 기존 토글 함수 재사용
+        }
+    });
 }
