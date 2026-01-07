@@ -44,17 +44,23 @@ public class ReplyController {
     @GetMapping("/reply/list")
     public Page<ReplyResDto> list(
             @RequestParam Long postId,
-            @PageableDefault(size = 10, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal MemberDto mdto
     ) {
-        return rs.getReplyList(postId, pageable);
+        Long memberId = (mdto != null) ? mdto.getId() : null;
+        return rs.getReplyList(postId, pageable, memberId);
     }
 
     // 대댓글(자식) 목록 조회 API
     // 프론트에서 "답글 보기" 버튼 클릭 시 -> /reply/10/children 호출
     @ResponseBody
     @GetMapping("/reply/{parentId}/children")
-    public List<ReplyResDto> getChildren(@PathVariable Long parentId) {
-        return rs.getChildReplies(parentId);
+    public List<ReplyResDto> getChildren(
+            @PathVariable Long parentId,
+            @AuthenticationPrincipal MemberDto mdto
+    ) {
+        Long memberId = (mdto != null) ? mdto.getId() : null;
+        return rs.getChildReplies(parentId, memberId);
     }
 
     // 삭제

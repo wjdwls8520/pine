@@ -475,7 +475,90 @@ body {
 
 .commentList b { display: block; font-size: 14px; color: #475569; font-weight: 700; }
 .commentList .date { font-size: 11px; color: #94a3b8; font-weight: 400; }
-.commentList p { margin: 0; font-size: 14px; color: #111827; line-height: 1.5; }
+.commentList p {
+    margin: 0;
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.5;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    position: relative;
+    word-break: break-all;
+    transition: max-height 0.3s ease;
+}
+
+.commentList p.expandable {
+    cursor: pointer;
+}
+
+.commentList p.expandable:hover {
+    opacity: 0.8;
+}
+
+/* [더보기] 버튼 (접혀있을 때만 보임) */
+.commentList p.expandable:not(.expanded)::after {
+    content: "[더보기]";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(to right, rgba(248,250,252,0) 0%, #f8fafc 30%, #f8fafc 100%);
+    padding-left: 20px;
+    height: 1.5em;
+    line-height: 1.5;
+    font-size: 11px;
+    font-weight: 400;
+    color: #94a3b8;
+    text-align: right;
+}
+
+/* 마우스 올렸을 때 */
+.commentList p.expandable:not(.expanded):hover::after {
+    content: "[더보기]";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(to right, rgba(248,250,252,0) 0%, #f8fafc 40%, #f8fafc 100%);
+    padding-left: 30px;
+    height: 1.6em;
+    line-height: 1.6;
+    font-size: 11px;
+    font-weight: 400;
+    color: rgb(148, 163, 184);
+    text-align: right;
+}
+
+.commentList p.expandable:not(.expanded):hover::after {
+    color: #474747;
+    text-decoration: none;
+}
+
+/* [펼쳐진 상태] 스타일 */
+.commentList p.expanded {
+    -webkit-line-clamp: unset;
+    display: block;
+    overflow: visible;
+}
+
+/*  버튼 (펼쳐졌을 때 보임) */
+.commentList p.expanded::after {
+    content: " [접기]";
+    color: #94a3b8;
+    font-size: 11px;
+    margin-left: 5px;
+    font-weight: 400;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.commentList p.expanded:hover::after {
+    color: #474747;
+}
+
 .commentList p.deleted { color: #94a3b8; font-style: italic; }
 
 .commentsPanel .panelHeader .panelTitle .commentHeaderUser {
@@ -546,33 +629,33 @@ body {
 /* 대댓글 영역 (들여쓰기 및 배경색 구분) */
 .replyList {
     margin-top: 10px;
-    margin-left: 40px; /* 들여쓰기 핵심 */
+    margin-left: 40px;
     padding-left: 10px;
-    border-left: 2px solid #e2e8f0; /* 시각적 가이드라인 */
+    border-left: 2px solid #e2e8f0;
 }
 
 /* 대댓글 보기 버튼 스타일 */
 .btnViewReply {
     background: none;
     border: none;
-    color: #888; /* 연한 회색 */
+    color: #888;
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
     margin-top: 5px;
-    margin-left: 10px; /* 살짝 들여쓰기 */
+    margin-left: 10px;
     padding: 5px 0;
 }
 
 .btnViewReply:hover {
-    color: #333; /* 마우스 올리면 진하게 */
+    color: #333;
 }
 
 /* 대댓글 영역 들여쓰기 */
 .sub-reply-area {
     margin-left: 20px;
     margin-top: 5px;
-    border-left: 2px solid #eee; /* 왼쪽에 줄 그어주기 (선택) */
+    border-left: 2px solid #eee;
     padding-left: 10px;
 }
 
@@ -608,4 +691,59 @@ body {
     font-size: 11px;
     color: #94a3b8;
     font-weight: 400;
+    margin-left: 10px;
+}
+
+/* =========================================
+   댓글 좋아요 버튼 (쇼츠 메인 아이콘 재사용)
+   ========================================= */
+.commentAction {
+    display: flex;
+    margin-top: 4px;
+}
+
+.btnCommentLike {
+    background: none;
+    border: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;        /* 아이콘과 숫자 사이 간격 */
+    cursor: pointer;
+    margin-left: 4px;
+}
+
+/* 1. 기본 아이콘 (빈 하트) */
+.btnCommentLike .ico {
+    display: block;
+    width: 14px;     /* 댓글창에 맞게 크기 조절 (메인은 보통 더 큼) */
+    height: 14px;
+
+    /*쇼츠 메인과 동일한 이미지 경로 사용 */
+    background-image: url('../images/ico_like.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    opacity: 0.6;    /* 댓글이니까 너무 진하지 않게 (선택사항) */
+    transition: transform 0.2s ease;
+}
+
+/* 2. 좋아요 활성화 (ON) 상태 - 빨간 하트 */
+.btnCommentLike.on .ico {
+    /* 쇼츠 메인과 동일한 꽉 찬 하트(SVG) 사용 */
+    /*
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
+    */
+    background-image: url('../images/ico_like_pull.png');
+    opacity: 1;
+    transform: scale(1.1); /* 눌렀을 때 살짝 커짐 */
+}
+
+/* 숫자 스타일 */
+.btnCommentLike em {
+    font-style: normal;
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1;
 }

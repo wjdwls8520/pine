@@ -4,6 +4,7 @@ import com.site.pine.entity.Reply;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -32,4 +33,20 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
         order by r.id asc
     """)
     List<Reply> findChildReplies(@Param("parentId") Long parentId);
+
+    // 1. 좋아요 개수 증가 (+1)
+    // flushAutomatically = true: 쿼리 실행 전, 쌓여있는 insert/delete를 먼저 DB에 보냄
+    // clearAutomatically = true: 쿼리 실행 후, 영속성 컨텍스트 비움 (데이터 싱크 맞춤)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Reply r set r.likeCount = r.likeCount + 1 where r.id = :id")
+    void increaseLikeCount(@Param("id") Long id);
+
+    // 2. 좋아요 개수 감소 (-1)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Reply r set r.likeCount = r.likeCount - 1 where r.id = :id")
+    void decreaseLikeCount(@Param("id") Long id);
+
+    // 3. 현재 좋아요 개수 조회
+    @Query("select r.likeCount from Reply r where r.id = :id")
+    Integer findLikeCountById(@Param("id") Long id);
 }

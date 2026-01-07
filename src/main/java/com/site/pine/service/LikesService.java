@@ -72,9 +72,26 @@ public class LikesService {
             currentCount = postRepository.findLikeCountById(post.getId());
 
         } else if ("REPLY".equalsIgnoreCase(reqDto.getTargetType())) {
-            // 댓글 로직 (생략, 위와 동일한 패턴 적용 권장)
-            currentCount = 0;
-            isLiked = false;
+            // 댓글 조회
+            Reply reply = replyRepository.findById(reqDto.getTargetId()).orElseThrow(() -> new IllegalArgumentException("댓글 없음"));
+
+            // 좋아요 상태 확인
+            Optional<ReplyLike> existingLike = replyLikeRepository.findByReplyAndMember(reply, member);
+
+            if (existingLike.isPresent()) {
+                // 좋아요 삭제 -> 카운트 감소
+                replyLikeRepository.delete(existingLike.get());
+                replyRepository.decreaseLikeCount(reply.getId());
+                isLiked = false;
+            } else {
+                // 좋아요 저장 -> 카운트 증가
+                replyLikeRepository.save(new ReplyLike(reply, member));
+                replyRepository.increaseLikeCount(reply.getId());
+                isLiked = true;
+            }
+
+            // 좋아요 갯수 db에서 조회
+            currentCount = replyRepository.findLikeCountById(reply.getId());
         } else {
             throw new IllegalArgumentException("잘못된 대상");
         }
