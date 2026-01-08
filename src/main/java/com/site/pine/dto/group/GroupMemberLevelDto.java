@@ -9,3 +9,4 @@ public class GroupMemberLevelDto {
     private Integer role;
     private String answer;
 }
+

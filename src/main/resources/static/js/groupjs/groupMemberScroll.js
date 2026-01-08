@@ -103,7 +103,7 @@ async function getData(page) {
                         rejectBtn.className = "groupJoinListBtn groupJoinListBtnReject";
                         rejectBtn.textContent = "그룹 추방";
                         rejectBtn.onclick = () =>
-                            gmemberOut(rejectBtn, info.groupId, info.memberId);
+                            gmemberGetOut(rejectBtn, info.groupId, info.memberId);
                         actions.append(approveBtn, rejectBtn);
                         item.append(avatarWrap, infoWrap, actions);
                     } else {

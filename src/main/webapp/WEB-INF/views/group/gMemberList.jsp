@@ -74,10 +74,10 @@
 </div>
 
 <script>
-    function gmemberOut(target, groupId, memberId) {
+    function gmemberGetOut(target, groupId, memberId) {
         if(!confirm("해당 그룹멤버를 추방하시겠습니까?")) return;
 
-        fetch(`/group/gjoinreqapprej`, {
+        fetch(`/group/groupgetout`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -86,8 +86,7 @@
             .then(response => {
                 if (response.ok) {
                     alert("처리되었습니다.");
-                    // location.reload(); // 성공 시 새로고침
-                    target.parentElement.parentElement.remove();
+                    location.reload(); // 성공 시 새로고침
                 } else {
                     // [여기가 핵심] 서버가 에러(400, 500)를 던지면 프론트가 페이지를 이동시킴
                     console.log(response);
