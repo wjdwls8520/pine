@@ -94,11 +94,19 @@ public class GroupController {
             model.addAttribute("groupDetail", getGroupDetail);
             model.addAttribute("isGroupMember", isGroupMember);
 
-            // 그룹 가입 신청중인지 확인 api
             if(memberdto != null) {
+                // 그룹 가입 신청중인지 확인 api
                 Boolean isGroupJoinState = gs.isGroupJoinRequest(memberdto.getId(), groupId);
                 model.addAttribute("isGroupJoinState", isGroupJoinState);
+
+                // 로그인 유저가 좋아요눌렀는지 체크
+                Boolean isLike = gs.getIsLike(memberdto, groupId);
+                model.addAttribute("isLike", isLike);
+            } else {
+                model.addAttribute("isLike", false);
             }
+
+
             return "group/gDetail";
 
         } catch (IllegalStateException e) {

@@ -4,12 +4,16 @@ import com.site.pine.dto.like.LikeReqDto;
 import com.site.pine.dto.like.LikeResDto;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.Reply;
+import com.site.pine.entity.group.GroupContents;
+import com.site.pine.entity.like.GroupLike;
 import com.site.pine.entity.like.PostLike;
 import com.site.pine.entity.like.ReplyLike;
 import com.site.pine.entity.post.Post;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.PostRepository;
 import com.site.pine.repository.ReplyRepository;
+import com.site.pine.repository.group.GroupContentsRepository;
+import com.site.pine.repository.like.GroupLikeRepository;
 import com.site.pine.repository.like.PostLikeRepository;
 import com.site.pine.repository.like.ReplyLikeRepository;
 import jakarta.transaction.Transactional;
@@ -30,6 +34,9 @@ public class LikesService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final ReplyRepository replyRepository;
+
+    private final GroupLikeRepository groupLikeRepository;
+    private final GroupContentsRepository groupContentsRepository;
 
     public LikeResDto toggleLike(LikeReqDto reqDto, Long memberId) {
 
@@ -92,6 +99,27 @@ public class LikesService {
 
             // 좋아요 갯수 db에서 조회
             currentCount = replyRepository.findLikeCountById(reply.getId());
+        } else if ("GROUP".equalsIgnoreCase(reqDto.getTargetType())) {
+            // 그룹 조회
+            GroupContents groupContents = groupContentsRepository.findById(reqDto.getTargetId()).orElseThrow(() -> new IllegalArgumentException("그룹 없음"));
+
+            // 좋아요 상태 확인
+            Optional<GroupLike> existingLike = groupLikeRepository.findByGroupContentsAndMember(groupContents, member);
+
+            if (existingLike.isPresent()) {
+                // 좋아요 삭제 -> 카운트 감소
+                groupLikeRepository.delete(existingLike.get());
+                groupContentsRepository.decreaseLikeCount(groupContents.getId());
+                isLiked = false;
+            } else {
+                // 좋아요 저장 -> 카운트 증가
+                groupLikeRepository.save(new GroupLike(groupContents, member));
+                groupContentsRepository.increaseLikeCount(groupContents.getId());
+                isLiked = true;
+            }
+
+            // 좋아요 갯수 db에서 조회
+            currentCount = groupContentsRepository.findLikeCountById(groupContents.getId());
         } else {
             throw new IllegalArgumentException("잘못된 대상");
         }

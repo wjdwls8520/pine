@@ -16,6 +16,14 @@
     <article class="article workspace group">
 
         <script>
+            <sec:authorize access="isAuthenticated()">
+                window.isLogin = true;
+            </sec:authorize>
+
+            <sec:authorize access="isAnonymous()">
+                window.isLogin = false;
+            </sec:authorize>
+
             window.groupRole = ${empty isGroupMember ? 0 : isGroupMember.role};
         </script>
 
@@ -50,9 +58,9 @@
                             <p class="groupHeroDesc"><c:out value="${groupDetail.groupDescription}" /></p>
                             <div class="groupHeroBadges">
                                 <span>전체 조회수 ${groupDetail.allViewCount}</span>
-                                <span class="cursor" onclick="location.href='/group/detail/${groupDetail.id}/gmemberlist';">멤버 수 ${groupDetail.groupMemberCount}</span>
-                                <span>좋아요 ${groupDetail.likeCount}</span>
-                                <span>게시물 ${groupDetail.postCount}</span>
+                                <span class="groupMember">멤버 수 ${groupDetail.groupMemberCount}</span>
+                                <span class="like">좋아요 ${groupDetail.likeCount}</span>
+                                <span class="post">게시물 ${groupDetail.postCount}</span>
                             </div>
                             <div class="groupHeroActions">
                                 <c:choose>
@@ -94,8 +102,10 @@
                                     </c:when>
                                 </c:choose>
                                 <button type="button" class="groupGhostBtn share">공유하기</button>
-                                <button type="button" class="groupGhostBtn like">좋아요</button>
+                                <button type="button" class="groupGhostBtn groupMember" onclick="location.href='/group/detail/${groupDetail.id}/gmemberlist';">멤버 리스트</button>
+                                <button type="button" class="groupGhostBtn like ${isLike ? "active" : ""}" onclick="toggleLike('GROUP', ${groupDetail.id}, this)">좋아요</button>
                             </div>
+
                         </div>
                     </div>
                 </section>
@@ -104,17 +114,17 @@
                     <div class="groupStatCard">
                         <p class="groupStatLabel">TODAY</p>
                         <strong class="todayViewCount">${groupDetail.todayViewCount}</strong>
-                        <span class="groupStatHint">전체 조회수 <span class="groupStatHint dataAllViewCount">${groupDetail.allViewCount}<span></span>
+                        <span class="groupStatHint">전체 조회수 <span class="groupStatHint dataAllViewCount">${groupDetail.allViewCount}</span></span>
                     </div>
                     <div class="groupStatCard">
                         <p class="groupStatLabel">좋아요</p>
-                        <strong>${groupDetail.likeCount}</strong>
-                        <span class="groupStatHint">계속 증가 중</span>
+                        <strong class="like">${groupDetail.likeCount}</strong>
+                        <span class="groupStatHint">인기를 모아봐요!</span>
                     </div>
                     <div class="groupStatCard">
                         <p class="groupStatLabel">게시물</p>
                         <strong>${groupDetail.postCount}</strong>
-                        <span class="groupStatHint">활성 커뮤니티</span>
+                        <span class="groupStatHint">게시글로 소통해요!</span>
                     </div>
                     <div class="groupStatCard">
                         <p class="groupStatLabel">등급</p>
@@ -304,10 +314,6 @@
         }).catch(err => console.error(err));
 
 
-
-
-
-
     // 팝업 열기
     function openJoinModal() {
         if(confirm("그룹 가입을 신청하시겠습니까?")) {
@@ -398,6 +404,42 @@
                 alert(err.message);
             });
         }
+    }
+
+    function toggleLike(targetType, targetId, elTag) {
+        if(!isLogin) {
+            alert("로그인이 필요한 기능입니다");
+            return;
+        }
+
+        fetch("/like", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                targetType: targetType,
+                targetId: targetId
+            })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("서버 통신 실패");
+                return res.json();
+            })
+            .then(data => {
+                // 🕵️‍♂️ [디버깅] 여기서 서버가 무슨 값을 주는지 콘솔(F12)에서 꼭 확인하세요!
+                console.log("서버가 보낸 최신 좋아요 수:", data);
+                let isLike = data.liked;
+                if(isLike) {
+                    elTag.classList.add("active");
+                } else {
+                    elTag.classList.remove("active");
+                }
+                document.querySelector(".groupStatCard .like").textContent = data.likeCount;
+                document.querySelector(".groupHeroBadges .like").textContent = "좋아요 " + data.likeCount;
+            })
+            .catch((err) => {
+                console.error("좋아요 에러 발생:", err);
+                alert("처리에 실패했습니다.");
+            });
     }
 </script>
 

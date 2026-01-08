@@ -1,7 +1,10 @@
 package com.site.pine.repository.group;
 
 import com.site.pine.dto.group.GroupContentsJpqlResDto;
+import com.site.pine.entity.Member;
 import com.site.pine.entity.group.GroupContents;
+import com.site.pine.entity.like.GroupLike;
+import com.site.pine.entity.like.ReplyLike;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -98,4 +101,15 @@ public interface GroupContentsRepository extends JpaRepository<GroupContents, Lo
     @Modifying
     @Query("update GroupContents g set g.groupMemberCount = g.groupMemberCount - 1 where g.id = :id")
     void decreaseGroupMemberCount(@Param("id") Long groupId);
+
+    @Modifying
+    @Query("update GroupContents g set g.likeCount = g.likeCount + 1 where g.id = :id")
+    void increaseLikeCount(Long id);
+
+    @Modifying
+    @Query("update GroupContents g set g.likeCount = g.likeCount - 1 where g.id = :id")
+    void decreaseLikeCount(Long id);
+
+    @Query("select gc.likeCount from GroupContents gc where gc.id = :id")
+    Integer findLikeCountById(@Param("id") Long id);
 }

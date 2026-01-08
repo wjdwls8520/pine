@@ -1,6 +1,7 @@
 package com.site.pine.service;
 
 import com.site.pine.dto.S3DeleteEventDto;
+import com.site.pine.dto.community.CommunityListDto;
 import com.site.pine.dto.group.*;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
@@ -14,6 +15,7 @@ import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.ViewGroupRepository;
 import com.site.pine.repository.group.*;
 
+import com.site.pine.repository.like.GroupLikeRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,7 @@ public class GroupService {
     private final GroupContentsRepository gconr;
     private final GroupInCategoryRepository gicr;
     private final ViewGroupRepository gvr;
+    private final GroupLikeRepository glr;
 
     private final MemberRepository mr;
     private final GroupMemberRepository gmr;
@@ -496,4 +499,8 @@ public class GroupService {
         gconr.decreaseGroupMemberCount(groupId);
     }
 
+    // 그룹 좋아요 했는지 여부 api
+    public Boolean getIsLike(MemberDto memberdto, Long groupId) {
+        return glr.existsByMemberIdAndGroupContentsId(memberdto.getId(), groupId);
+    }
 }
