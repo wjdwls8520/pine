@@ -475,7 +475,7 @@ body {
     overflow-y: auto;
 }
 
-.commentList li {
+.commentList > li {
     background: #f8fafc;
     border-radius: 16px;
     padding: 14px 10px;
@@ -709,6 +709,161 @@ body {
     margin-left: 8px;
 }
 
+/* ===========================
+   드롭다운메뉴
+   =========================== */
+
+.commentOption {
+    position: relative;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.moreBtn {
+    background: transparent;
+    border: none;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.moreBtn:hover {
+    background: #f1f5f9;
+}
+
+.moreBtn img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    opacity: 0.6;
+}
+
+.dropdownMenu {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    width: 120px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+    overflow: hidden;
+    flex-direction: column;
+    padding: 4px;
+    list-style: none;
+    margin: 0;
+}
+
+.dropdownMenu.active {
+    display: flex;
+}
+
+.dropdownItem {
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    font-size: 13px;
+    color: #475569;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+    font-weight: 500;
+    display: block;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+.dropdownItem:hover {
+    background: #f1f5f9;    /* 연한 회색 배경 */
+    color: #0f172a;         /* 진한 글자색 */
+}
+
+.dropdownItem.danger {
+    color: #ef4444;
+}
+
+.dropdownItem.danger:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* ===========================
+   포스트 드롭다운메뉴
+   =========================== */
+
+/* 1. 비디오 영역 내에서의 메뉴 위치 잡기 */
+.videoShell .commentOption {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* 2. 비디오 영역에 마우스 올리면(Hover) 버튼 보이기 */
+/* 드롭다운 메뉴가 열려있을 때(.active)도 계속 보여야 함 */
+.videoShell:hover .commentOption,
+.videoShell .commentOption:hover,
+.videoShell .dropdownMenu.active {
+    opacity: 1 !important;
+}
+
+/* 3. 더보기 버튼 디자인 */
+.videoShell .moreBtn {
+    background-color: rgba(100, 100, 100, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    backdrop-filter: blur(2px);
+    transition: background-color 0.2s;
+}
+
+/* 마우스 올렸을 때 조금 더 진하게 */
+.videoShell .moreBtn:hover {
+    background-color: rgba(110, 110, 110, 0.7);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* 4. 아이콘 색상 하얗게 변경 */
+/* 기존 이미지가 검은색이라면 흰색으로 반전시켜야 잘 보임 */
+.videoShell .moreBtn img {
+    filter: invert(100%);
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    opacity: 1;
+}
+
+/* 5. 드롭다운 메뉴 위치 */
+.videoShell .dropdownMenu {
+    top: 45px;
+    right: 0;
+    width: 120px;
+    transform-origin: top right;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
 /* =========================================
    댓글 좋아요 버튼 (쇼츠 메인 아이콘 재사용)
    ========================================= */
@@ -723,24 +878,22 @@ body {
     padding: 0;
     display: flex;
     align-items: center;
-    gap: 4px;        /* 아이콘과 숫자 사이 간격 */
+    gap: 4px;
     cursor: pointer;
     margin-left: 4px;
 }
 
-/* 1. 기본 아이콘 (빈 하트) */
+/* 기본 아이콘 (빈 하트) */
 .btnCommentLike .ico {
     display: block;
-    width: 14px;     /* 댓글창에 맞게 크기 조절 (메인은 보통 더 큼) */
+    width: 14px;
     height: 14px;
-
-    /*쇼츠 메인과 동일한 이미지 경로 사용 */
     background-image: url('../images/ico_like.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 
-    opacity: 0.6;    /* 댓글이니까 너무 진하지 않게 (선택사항) */
+    opacity: 0.6;    /
     transition: transform 0.2s ease;
 }
 
@@ -750,7 +903,7 @@ body {
     */
     background-image: url('../images/ico_like_pull.png');
     opacity: 1;
-    transform: scale(1.1); /* 눌렀을 때 살짝 커짐 */
+    transform: scale(1.1);
 }
 
 /* 숫자 스타일 */
@@ -799,12 +952,25 @@ body {
     min-width: 0;
 }
 
-/* 기존 스타일 미세 조정 */
-.commentTop {
+.commentList {
+    list-style: none;
+    padding: 0;
+    padding-bottom: 100px;
+
+    margin: 0;
     display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 2px;
+    flex-direction: column;
+    gap: 18px;
+    overflow-y: auto;
+}
+
+.commentList > li {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 14px 10px;
+    box-shadow: inset 0 0 0 1px #edf2f7;
+    overflow: visible
+    position: relative;
 }
 
 .commentTop b {
