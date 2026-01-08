@@ -324,6 +324,14 @@ public class GroupService {
         }
     }
 
+    // 그룹장 -> 그룹멤버 추방 로직
+    @Transactional
+    public void groupGetOut(GroupMemberLevelDto groupMemberLevelReqDto) {
+        GroupMember groupMember = gmr.findByMemberIdAndGroupId(groupMemberLevelReqDto.getMemberId(), groupMemberLevelReqDto.getGroupId()).orElseThrow(()-> new IllegalArgumentException("존재하지 않는 그룹멤버입니다."));
+        gmr.delete(groupMember);
+        gconr.decreaseGroupMemberCount(groupMemberLevelReqDto.getGroupId());
+    }
+
     @Transactional
     public HashMap<String, Object> addViewCount(Long targetId, LocalDate today) {
         GroupContents group = gconr.findById(targetId)
@@ -474,6 +482,7 @@ public class GroupService {
     }
 
     // 가입신청 중인지 확인 api
+    @Transactional(readOnly = true)
     public Boolean isGroupJoinRequest(Long memberId, Long groupId) {
         return gjrr.existsByGroupContentsIdAndMemberIdAndStatus(groupId, memberId, 0);
     }
@@ -486,6 +495,5 @@ public class GroupService {
 
         gconr.decreaseGroupMemberCount(groupId);
     }
-
 
 }

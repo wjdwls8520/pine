@@ -218,6 +218,34 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
     }
 
+    // [AJAX] 그룹장 -> 그룹원 추방
+    @PostMapping("/group/groupgetout")
+    @ResponseBody
+    public ResponseEntity<String> groupGetOut(
+            @AuthenticationPrincipal MemberDto memberdto,
+            @RequestBody GroupMemberLevelDto groupMemberLevelReqDto
+    ) {
+
+        System.out.println(groupMemberLevelReqDto.getMemberId());
+        if (memberdto == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        if(groupMemberLevelReqDto.getGroupId() == null && groupMemberLevelReqDto.getMemberId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("그룹 또는 멤버 정보가 없습니다.");
+        }
+
+        GroupMemberResDto isGroupMember = gs.getGroupMemberInfo(memberdto, groupMemberLevelReqDto.getGroupId());
+        if(isGroupMember.getRole() == 1 && !(memberdto.getId().equals(groupMemberLevelReqDto.getMemberId()))) {
+            // 요청한 사람이 그룹장이면서 추방시킬 대상은 그룹장이면 안됨.
+            gs.groupGetOut(groupMemberLevelReqDto);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("그룹장은 그룹탈퇴가 불가능 합니다. 다른 멤버에게 그룹장을 위임하거나, 그룹을 삭제해주세요.");
+        }
+
+        return ResponseEntity.ok("해당 그룹멤버가 추방 되었습니다.");
+    }
+
     // [Model] 그룹에 가입신청한 유저들의 리스트를 보는 페이지로 이동하는 API
     @GetMapping("/group/gdetail/{groupId}/gjoinlist")
     public String getJoinListPage(@PathVariable("groupId") Long groupId, @AuthenticationPrincipal MemberDto memberdto, Model model, RedirectAttributes redirectAttrs) {
