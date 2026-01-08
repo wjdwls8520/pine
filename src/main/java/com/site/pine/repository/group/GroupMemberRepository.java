@@ -60,4 +60,6 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
         where gjr.groupContents.id = :groupId
     """)
     Page<GroupMemberResDto> findAllByGroupContents_Id(@Param("groupId") Long groupId, Pageable pageable);
+
+    GroupMember findByMemberId(Long id);
 }

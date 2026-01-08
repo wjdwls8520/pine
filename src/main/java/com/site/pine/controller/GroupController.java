@@ -202,6 +202,22 @@ public class GroupController {
         return gs.getGroupMemberList(groupId, page);
     }
 
+    // [AJAX]
+    @PostMapping("/group/glevelchange")
+    @ResponseBody
+    public ResponseEntity<String> groupMemberLevelChange(
+            @AuthenticationPrincipal MemberDto memberdto,
+            @RequestBody GroupMemberLevelDto groupMemberLevelReqDto
+        ) {
+        GroupMemberResDto isGroupMember = gs.getGroupMemberInfo(memberdto, groupMemberLevelReqDto.getMemberId());
+        if(isGroupMember.getRole() == 1) {
+            gs.groupMemberLevelChange(groupMemberLevelReqDto, memberdto);
+            return ResponseEntity.ok("그룹멤버 등급이 변경 되었습니다..");
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+    }
+
     // [Model] 그룹에 가입신청한 유저들의 리스트를 보는 페이지로 이동하는 API
     @GetMapping("/group/gdetail/{groupId}/gjoinlist")
     public String getJoinListPage(@PathVariable("groupId") Long groupId, @AuthenticationPrincipal MemberDto memberdto, Model model, RedirectAttributes redirectAttrs) {
@@ -297,6 +313,10 @@ public class GroupController {
 
         Long groupId = params.get("groupId");
 
+        GroupMemberResDto isGroupMember = gs.getGroupMemberInfo(memberdto, groupId);
+        if(isGroupMember.getRole() == 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("그룹장은 그룹탈퇴가 불가능 합니다. 다른 멤버에게 그룹장을 위임하거나, 그룹을 삭제해주세요.");
+        }
         gs.groupOut(memberdto, groupId);
 
         return ResponseEntity.ok("탈퇴 되었습니다.");

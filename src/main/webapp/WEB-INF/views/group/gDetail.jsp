@@ -370,6 +370,10 @@
 
     // 그룹탈퇴
     function groupOut() {
+        if(groupRole === 1) {
+            alert("그룹장은 그룹탈퇴가 불가능 합니다. 다른 멤버에게 그룹장을 위임하거나, 그룹을 삭제해주세요.");
+            return;
+        }
         if(confirm("정말로 탈퇴 하시겠습니까?")) {
             fetch(`/group/groupout`, {
                 method: "POST",

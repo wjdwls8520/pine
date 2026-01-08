@@ -88,7 +88,7 @@ async function getData(page) {
                     meta.appendChild(date);
                     infoWrap.append(top, desc, meta);
 
-                    if(groupRole === 1) {
+                    if(groupRole === 1 && info.role !== 1) {
                         /* actions */
                         const actions = document.createElement("div");
                         actions.className = "groupJoinListItemActions";
