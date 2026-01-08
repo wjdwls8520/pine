@@ -101,7 +101,7 @@
                                         <button type="button" class="groupGhostBtn joinList" onClick="location.href='/group/gdetail/' + ${groupDetail.id} + '/gjoinlist';">가입신청 리스트</button>
                                     </c:when>
                                 </c:choose>
-                                <button type="button" class="groupGhostBtn share">공유하기</button>
+                                <button type="button" class="groupGhostBtn share" onclick="copyCurrentPostUrl()">공유하기</button>
                                 <button type="button" class="groupGhostBtn groupMember" onclick="location.href='/group/detail/${groupDetail.id}/gmemberlist';">멤버 리스트</button>
                                 <button type="button" class="groupGhostBtn like ${isLike ? "active" : ""}" onclick="toggleLike('GROUP', ${groupDetail.id}, this)">좋아요</button>
                             </div>
@@ -274,9 +274,9 @@
         </div>
     </div>
 </div>
+<div id="commonToast" class="toastMsg"></div>
 
-
-
+<script src="js/common.js"></script>
 <script>
     let targetId = Number("${groupDetail.id}");
 
@@ -406,6 +406,7 @@
         }
     }
 
+    // 좋아요
     function toggleLike(targetType, targetId, elTag) {
         if(!isLogin) {
             alert("로그인이 필요한 기능입니다");
