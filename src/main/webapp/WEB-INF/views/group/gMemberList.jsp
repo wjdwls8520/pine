@@ -99,17 +99,12 @@
             }).catch(err => console.error(err));
     }
 
-
-
-
     // 전역 변수로 선택된 타겟 정보 저장
     let targetElement = null;
     let targetGroupId = null;
     let targetMemberId = null;
 
-    /* * 1. 등급 변경 버튼 클릭 시 모달 오픈
-     * 기존 함수명 유지 (JSP/JS 연결 호환성 위함)
-     */
+    /* * 1. 등급 변경 버튼 클릭 시 모달 오픈 * 기존 함수명 유지 (JSP/JS 연결 호환성 위함) */
     function gmemberChangeLevel(target, groupId, memberId) {
         // 타겟 정보 저장
         targetElement = target;
@@ -124,8 +119,7 @@
         document.getElementById('levelChangeModal').classList.add('active');
     }
 
-    /* * 2. 모달 닫기
-     */
+    /* * 2. 모달 닫기 */
     function closeLevelModal() {
         document.getElementById('levelChangeModal').classList.remove('active');
 
@@ -135,8 +129,7 @@
         targetMemberId = null;
     }
 
-    /* * 3. 변경사항 서버 전송 (AJAX)
-     */
+    /* * 3. 변경사항 서버 전송 (AJAX) */
     function confirmLevelChange() {
         const selectedLevel = document.getElementById('modalLevelSelect').value;
 
@@ -146,7 +139,20 @@
             return;
         }
 
-        fetch(`/group/gjoinreqapprej`, {
+        let answer = "notOk";
+        if(Number(selectedLevel) === 1) {
+            if(confirm("그룹장으로의 변경은 나의 그룹장 권한을 위임하게 됩니다. 정말로 위임하시겠습니까?")) {
+                answer = prompt(" 그룹장 위임을 원할시 'ok'를 입력해주세요.");
+                if (answer !== "ok") {
+                    alert("그룹장 위임이 취소되었습니다.");
+                    return location.reload();
+                }
+            } else {
+                return;
+            }
+        }
+
+        fetch(`/group/glevelchange`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -154,7 +160,8 @@
             body: JSON.stringify({
                 groupId: targetGroupId,
                 memberId: targetMemberId,
-                role: selectedLevel // DTO 필드명에 맞춰 수정 (role 또는 level)
+                role: selectedLevel, // DTO 필드명에 맞춰 수정 (role 또는 level)
+                answer: answer
             })
         })
             .then(response => {

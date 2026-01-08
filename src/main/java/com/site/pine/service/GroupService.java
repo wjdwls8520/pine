@@ -6,7 +6,6 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.S3FileDeleteFailList;
-import com.site.pine.entity.ViewGroupHistory;
 import com.site.pine.entity.group.*;
 import com.site.pine.mapper.GroupMapper;
 import com.site.pine.mapper.S3FileDeleteFailMapper;
@@ -302,6 +301,27 @@ public class GroupService {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "joinTime"));
         Page<GroupMemberResDto> groupMemberList = gmr.findAllByGroupContents_Id(groupId, pageable);
         return groupMemberList;
+    }
+
+    // 그룹멤버 리스트 등급 변경
+    @Transactional
+    public void groupMemberLevelChange(GroupMemberLevelDto dto, MemberDto memberdto) {
+        // 1. 가독성을 위해 매직 넘버(1)를 상수로 정의
+        final int ADMIN_ROLE = 1;
+
+        // 2. 유효성 검사 로직 (조건을 하나로 합쳐서 간결하게 표현 가능)
+        // "Role이 1이면서 answer가 ok가 아니면" -> 예외 발생
+        if (dto.getRole() == ADMIN_ROLE && !"ok".equals(dto.getAnswer())) {
+            throw new IllegalArgumentException("잘못된 접근입니다.");
+        }
+        GroupMember groupMember = gmr.findByMemberIdAndGroupId(dto.getMemberId(), dto.getGroupId()).orElseThrow(()-> new IllegalArgumentException("해당 멤버가 없습니다."));
+        groupMember.setRole(dto.getRole());
+
+        // 그룹장 위임시 기존 그룹장은 일반그룹원으로
+        if(dto.getRole() == ADMIN_ROLE) {
+            GroupMember oldGroupAdmin = gmr.findByMemberIdAndGroupId(memberdto.getId(), dto.getGroupId()).orElseThrow(()-> new IllegalArgumentException("해당 멤버가 없습니다."));
+            oldGroupAdmin.setRole(3);
+        }
     }
 
     @Transactional
