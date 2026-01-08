@@ -415,6 +415,11 @@ function createReplyItemHtml(reply, isSubReply = false) {
     let contentText = isDeleted ? '삭제된 댓글입니다.' : reply.content;
     let nickname = isDeleted ? '(알수없음)' : `@${reply.nickname}`;
 
+    // 1. 프로필 이미지 경로 처리 (DB값이 있으면 사용, 없으면 기본 이미지)
+    // DTO에 profileImg 필드가 있어야 함. 없으면 기본 이미지 사용
+    let defaultImg = '/images/icon_pinedory.png';
+    let profileSrc = (reply.profileImg && !isDeleted) ? reply.profileImg : defaultImg;
+
     // 답글 버튼 표시 조건 강화
     // 삭제되지 않았고(AND) 대댓글이 아니어야 함(!isSubReply)
     let replyBtnHtml = (!isDeleted && !isSubReply)
@@ -451,21 +456,26 @@ function createReplyItemHtml(reply, isSubReply = false) {
 
     return `
         <li class="replyItem" id="reply-${reply.id}" data-id="${reply.id}">
-            <div class="commentTop">
-                <b>${nickname}</b>
-                <span class="date">${dateStr}</span>
+            <div class="replyProfileBox">
+                <img src="${profileSrc}" alt="프로필" onerror="this.src='${defaultImg}'">
             </div>
-            <p class="${contentClass}">${contentText}</p>
-            
-            <div class="commentAction">
-                ${likeBtnHtml}
-                ${replyBtnHtml}
+            <div class="replyContentBox">
+                <div class="commentTop">
+                    <b>${nickname}</b>
+                    <span class="date">${dateStr}</span>
+                </div>
+                <p class="${contentClass}">${contentText}</p>
+
+                <div class="commentAction">
+                    ${likeBtnHtml}
+                    ${replyBtnHtml}
+                </div>
+
+                <div id="reReplyForm-${reply.id}" class="reReplyFormArea"></div>
+
+                ${viewReplyBtn}
+                ${childrenHtml}
             </div>
-
-            <div id="reReplyForm-${reply.id}" class="reReplyFormArea"></div>
-
-            ${viewReplyBtn}
-            ${childrenHtml}
         </li>
     `;
 }
@@ -847,8 +857,10 @@ function toggleCommentLike(replyId, btnElement) {
 
         if (data.liked) {
             btnElement.classList.add('on');
+            showToastMsg("좋아요가 완료되었습니다");
         } else {
             btnElement.classList.remove('on');
+            showToastMsg("좋아요가 취소되었습니다");
         }
         em.innerText = data.likeCount;
     })
