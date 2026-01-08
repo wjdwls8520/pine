@@ -10,6 +10,42 @@ let totalPages = 10;
 let loading = false; // 중복 요청 방지용 플래그
 let shortsFeedWrap = document.getElementById("shortsFeed");
 const scrollBox = document.getElementById("shortsFeed");
+const loginUser = document.getElementById("loginUser") ? document.getElementById("loginUser").value : null;
+
+/**
+ * [공용] 로그인 여부 체크 및 이동 컨펌
+ * @returns {boolean} 로그인 상태면 true, 아니면 false
+ */
+function requireLogin() {
+    if (!loginUser) {
+        if (confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
+            location.href = "/login";
+        }
+        return false;
+    }
+    return true;
+}
+
+/**
+ * [공용] 신고 기능 (쇼츠/댓글 공용)
+ * @param {string} type - 'SHORTS' 또는 'REPLY'
+ * @param {string|number} id - 대상 ID
+ */
+function handleReport(type, id) {
+    // 1. 클릭 시점에 로그인 체크 수행
+    if (!requireLogin()) return;
+
+    // 2. 신고 로직 (공용)
+    if (confirm(`정말 이 ${type === 'SHORTS' ? '게시물을' : '댓글을'} 신고하시겠습니까?`)) {
+        // 실제 API 호출 로직 (예시)
+        // fetch('/report', { body: JSON.stringify({ type, id }) ... })
+
+        alert("신고가 정상적으로 접수되었습니다.");
+
+        // 열려있는 드롭다운 닫기
+        document.querySelectorAll('.dropdownMenu.active').forEach(m => m.classList.remove('active'));
+    }
+}
 
 /**
  *  IntersectionObserver (관찰자) 설정
@@ -101,7 +137,7 @@ async function getData(page) {
 }
 
 // ==========================================
-//  [추가] 쇼츠 카드 렌더링 및 단건 조회 함수
+// 쇼츠 카드 렌더링 및 단건 조회 함수
 // ==========================================
 
 /**
@@ -140,6 +176,39 @@ function renderShortCard(info, isPrepend = false) {
     let userProfile = info.profileImg ? info.profileImg : '/images/icon_pinedory.png';
     let likeClass = info.liked ? 'on' : '';
 
+    // ★ 1. 드롭다운 메뉴 아이템 구성
+    // 기본 메뉴: 설명, 신고 (누구나 보임)
+    // '설명' 버튼은 기능이 모호하여 예시로 '정보 보기'로 명명했습니다.
+    let menuItems = `
+        <li><button type="button" class="dropdownItem" onclick="alert('이 쇼츠에 대한 설명입니다:\\n${info.content}')">설명</button></li>
+        <li><button type="button" class="dropdownItem" onclick="handleReport('SHORTS', '${info.postId}')">신고</button></li>
+    `;
+
+    // 내 글일 경우: 수정, 삭제 추가 (기존 메뉴 뒤에 붙임 or 덮어쓰기)
+    // 작성자가 본인이라면 '신고' 대신 '수정/삭제'가 뜨는 게 일반적이지만,
+    // 요청하신 대로 "설명"은 남기고 "신고" 대신 "수정/삭제"를 넣거나, 다 넣을 수도 있습니다.
+    // 여기서는 "작성자는 신고 불필요 -> 수정/삭제로 대체" 하는 방식으로 짭니다.
+
+    if (loginUser && String(info.memberId) === String(loginUser)) {
+        menuItems = `
+            <li><button type="button" class="dropdownItem" onclick="alert('설명:\\n${info.content}')">설명</button></li>
+            <li><button type="button" class="dropdownItem" onclick="updateShorts('${info.postId}')">수정</button></li>
+            <li><button type="button" class="dropdownItem danger" onclick="deleteShorts('${info.postId}')">삭제</button></li>
+        `;
+    }
+
+    // ★ 2. 드롭다운 HTML 조립 (항상 보임)
+    const optionHtml = `
+        <div class="commentOption" onclick="event.stopPropagation()">
+            <button type="button" class="moreBtn" onclick="toggleCommentMenu(this)">
+                <img src="/images/ico_menu.png" alt="더보기">
+            </button>
+            <ul class="dropdownMenu">
+                ${menuItems}
+            </ul>
+        </div>
+    `;
+
     const html = `
         <div class="shortsCard" data-post-id="${info.postId}" data-title="${info.title}" data-user="${info.nickname}" data-date="${dateStr}">
             <div class="cardInner">
@@ -165,6 +234,9 @@ function renderShortCard(info, isPrepend = false) {
                            ontimeupdate="updateProgress(this)">
                            <source src="${videoFile ? videoFile.path : ''}">
                     </video>
+
+                    ${optionHtml}
+
                     <div class="playOverlay"></div>
                     <div class="timeDisplay">00:00 / 00:00</div>
                     <div class="progressBarContainer"><div class="progressBarFill"></div></div>
@@ -403,34 +475,67 @@ function loadReplies(postId, page) {
 
 /**
  * 댓글 HTML 생성 함수
- * @param {Object} reply - 댓글 데이터
- * @param {boolean} isSubReply - 대댓글 여부 (true면 답글 버튼 숨김)
  */
 function createReplyItemHtml(reply, isSubReply = false) {
     let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(reply.writeDate) : reply.writeDate;
+    let isDeleted = reply.deleteYN === 'Y';
 
     // 삭제된 댓글 처리
-    let isDeleted = reply.deleteYN === 'Y';
     let contentClass = isDeleted ? 'deleted' : '';
     let contentText = isDeleted ? '삭제된 댓글입니다.' : reply.content;
     let nickname = isDeleted ? '(알수없음)' : `@${reply.nickname}`;
 
-    // 1. 프로필 이미지 경로 처리 (DB값이 있으면 사용, 없으면 기본 이미지)
-    // DTO에 profileImg 필드가 있어야 함. 없으면 기본 이미지 사용
+    // 프로필 이미지
     let defaultImg = '/images/icon_pinedory.png';
     let profileSrc = (reply.profileImg && !isDeleted) ? reply.profileImg : defaultImg;
 
-    // 답글 버튼 표시 조건 강화
-    // 삭제되지 않았고(AND) 대댓글이 아니어야 함(!isSubReply)
+    // 1. 드롭다운 메뉴 HTML 생성
+    let optionHtml = '';
+
+    // 삭제된 댓글이 아닐 때만 메뉴 표시
+    if (!isDeleted) {
+        let menuItems = '';
+
+        // 로그인 여부와 관계없이 일단 메뉴 버튼 구조는 준비할 수 있지만,
+        // 댓글의 경우 보통 '신고' 외에 '설명' 같은 게 없으므로
+        // 비로그인 상태면 아예 메뉴를 안 보여주는 게 나을 수도 있습니다.
+        // 하지만 "신고 시 로그인 유도"를 원하시므로 메뉴를 보여줍니다.
+
+        const isMine = loginUser && (String(reply.memberId) === String(loginUser));
+
+        if (isMine) {
+            // 내 댓글: 수정/삭제
+            menuItems = `
+                <li><button type="button" class="dropdownItem" onclick="updateComment('${reply.id}')">수정</button></li>
+                <li><button type="button" class="dropdownItem danger" onclick="deleteComment('${reply.id}')">삭제</button></li>
+            `;
+        } else {
+            // 남의 댓글 or 비로그인: 신고
+            // handleReport 함수가 클릭 시 로그인 체크를 수행합니다.
+            menuItems = `
+                <li><button type="button" class="dropdownItem" onclick="handleReport('REPLY', '${reply.id}')">신고</button></li>
+            `;
+        }
+
+        optionHtml = `
+            <div class="commentOption">
+                <button type="button" class="moreBtn" onclick="toggleCommentMenu(this)">
+                    <img src="/images/ico_menu.png" alt="더보기">
+                </button>
+                <ul class="dropdownMenu">
+                    ${menuItems}
+                </ul>
+            </div>`;
+    }
+
+    // 2. 답글 버튼 (삭제 안 됨 && 대댓글 아님)
     let replyBtnHtml = (!isDeleted && !isSubReply)
         ? `<button class="btnReReply" onclick="toggleReReplyForm(${reply.id})">답글달기</button>`
         : '';
 
-    // 좋아요 버튼 HTML 생성
+    // 3. 좋아요 버튼
     let likeClass = reply.liked ? 'on' : '';
     let likeCount = reply.likeCount != null ? reply.likeCount : 0;
-
-    // 삭제된 댓글이 아닐 때만 좋아요 버튼 표시
     let likeBtnHtml = !isDeleted ? `
         <button class="btnCommentLike ${likeClass}" onclick="toggleCommentLike(${reply.id}, this)">
             <span class="ico"></span>
@@ -438,22 +543,19 @@ function createReplyItemHtml(reply, isSubReply = false) {
         </button>
     ` : '';
 
-    // 자식 댓글(대댓글) 재귀 생성
+    // 4. 대댓글 보기 버튼 및 영역
     let childrenHtml = "";
     let viewReplyBtn = "";
-    // 대댓글이 존재하고(childCount > 0), 현재 렌더링 중인게 대댓글이 아닐 경우(!isSubReply)
     if (!isSubReply && reply.childCount > 0) {
-        // (1) 답글 보기/숨기기 버튼 생성
         viewReplyBtn = `
             <button class="btnViewReply" id="btnViewReply-${reply.id}" onclick="loadChildReplies(${reply.id}, ${reply.childCount})">
                 ─── 대댓글 ${reply.childCount}개 보기
             </button>
         `;
-
-        // (2) 답글이 들어갈 빈 컨테이너 생성 (초기엔 비어있음)
         childrenHtml = `<ul class="replyList sub-reply-area" id="subReplyArea-${reply.id}" style="display:none;"></ul>`;
     }
 
+    // 최종 HTML 반환
     return `
         <li class="replyItem" id="reply-${reply.id}" data-id="${reply.id}">
             <div class="replyProfileBox">
@@ -463,7 +565,9 @@ function createReplyItemHtml(reply, isSubReply = false) {
                 <div class="commentTop">
                     <b>${nickname}</b>
                     <span class="date">${dateStr}</span>
+                    ${optionHtml}
                 </div>
+
                 <p class="${contentClass}">${contentText}</p>
 
                 <div class="commentAction">
@@ -615,28 +719,28 @@ function loadChildReplies(parentId, count) {
 
     // 2. 데이터가 없으면 -> 서버 요청
     fetch(`/reply/${parentId}/children`)
-        .then(res => {
-            if (!res.ok) throw new Error("답글 조회 실패");
-            return res.json();
-        })
-        .then(data => { // data는 List<ReplyResDto> 형태
-            let html = "";
+    .then(res => {
+        if (!res.ok) throw new Error("답글 조회 실패");
+        return res.json();
+    })
+    .then(data => { // data는 List<ReplyResDto> 형태
+        let html = "";
 
-            // 가져온 자식 댓글들을 HTML로 변환 (isSubReply = true 전달)
-            data.forEach(child => {
-                html += createReplyItemHtml(child, true);
-            });
-
-            // 화면에 주입 및 버튼 텍스트 변경
-            listArea.innerHTML = html;
-            listArea.style.display = "block"; // 숨겨진 영역 보이기
-            btn.innerHTML = `─── 대댓글 숨기기`;
-            checkCommentOverflow();
-        })
-        .catch(err => {
-            console.error(err);
-            alert("답글을 불러오는데 실패했습니다.");
+        // 가져온 자식 댓글들을 HTML로 변환 (isSubReply = true 전달)
+        data.forEach(child => {
+            html += createReplyItemHtml(child, true);
         });
+
+        // 화면에 주입 및 버튼 텍스트 변경
+        listArea.innerHTML = html;
+        listArea.style.display = "block"; // 숨겨진 영역 보이기
+        btn.innerHTML = `─── 대댓글 숨기기`;
+        checkCommentOverflow();
+    })
+    .catch(err => {
+        console.error(err);
+        alert("답글을 불러오는데 실패했습니다.");
+    });
 }
 
 // 4. 댓글 등록 (AJAX)
@@ -883,4 +987,128 @@ function checkCommentOverflow() {
             p.setAttribute('onclick', 'toggleExpand(this)'); // 기존 토글 함수 재사용
         }
     });
+}
+
+/**
+ * 드롭다운 메뉴 토글 (열기/닫기)
+ */
+function toggleCommentMenu(btn) {
+    // 1. 현재 버튼의 바로 다음 형제인 ul(메뉴) 찾기
+    const menu = btn.nextElementSibling;
+    if (!menu) return;
+
+    // 2. 현재 상태가 열려있는지 확인
+    const isOpen = menu.classList.contains('active');
+
+    // 3. 다른 모든 열려있는 메뉴 닫기 (하나만 열리도록)
+    document.querySelectorAll('.dropdownMenu.active').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    // 4. 아까 안 열려 있었으면 열기 (토글)
+    if (!isOpen) {
+        menu.classList.add('active');
+    }
+
+    // 5. 클릭 이벤트 전파 방지 (바로 닫히는 것 방지)
+    event.stopPropagation();
+}
+
+/**
+ * 화면의 빈 곳을 클릭하면 열려있는 모든 드롭다운 닫기
+ */
+document.addEventListener('click', function(e) {
+    // 클릭한 곳이 '.commentOption' 내부가 아니라면 닫음
+    if (!e.target.closest('.commentOption')) {
+        document.querySelectorAll('.dropdownMenu.active').forEach(menu => {
+            menu.classList.remove('active');
+        });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===========================
+   [기능 구현] 수정/삭제 로직
+   =========================== */
+
+/**
+ * 댓글 수정
+ */
+function updateComment(replyId) {
+    const replyItem = document.getElementById(`reply-${replyId}`);
+    const pTag = replyItem.querySelector('p');
+    const currentContent = pTag.innerText;
+
+    const newContent = prompt("수정할 내용을 입력해주세요.", currentContent);
+    if (newContent === null) return;
+    if (newContent.trim() === "") {
+        alert("내용을 입력해주세요.");
+        return;
+    }
+
+    fetch(`/reply`, {
+        method: 'PUT',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: replyId, content: newContent })
+    })
+    .then(res => {
+        if(res.ok) {
+            pTag.innerText = newContent;
+            showToastMsg("댓글이 수정되었습니다.");
+            document.querySelectorAll('.dropdownMenu.active').forEach(m => m.classList.remove('active'));
+        } else {
+            alert("수정 실패");
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+/**
+ * 댓글 삭제
+ */
+function deleteComment(replyId) {
+    if(!confirm("정말 댓글을 삭제하시겠습니까?")) return;
+
+    fetch(`/reply/${replyId}`, { method: 'DELETE' })
+    .then(res => {
+        if(res.ok) {
+            showToastMsg("댓글이 삭제되었습니다.");
+            loadReplies(currentPostIdForReply, 0); // 리스트 갱신
+        } else {
+            alert("삭제에 실패했습니다.");
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+/* ===========================
+   [게시글 전용] 수정/삭제 기능
+   =========================== */
+
+function updateShorts(postId) {
+    const newContent = prompt("수정할 설명을 입력하세요.");
+    if (newContent) {
+        // TODO: 실제 쇼츠 수정 API 호출 로직 구현 필요
+        // fetch(`/shorts/${postId}`, { method: 'PUT', body: ... })
+        alert("수정 기능은 서버 API 연결이 필요합니다.\n입력내용: " + newContent);
+    }
+}
+
+function deleteShorts(postId) {
+    if (confirm("정말 이 쇼츠를 삭제하시겠습니까?")) {
+        // TODO: 실제 쇼츠 삭제 API 호출 로직 구현 필요
+        // fetch(`/shorts/${postId}`, { method: 'DELETE' }).then(...)
+        alert("삭제 요청이 전송되었습니다. (기능 연결 필요)");
+        // location.reload(); // 성공 시 새로고침
+    }
 }

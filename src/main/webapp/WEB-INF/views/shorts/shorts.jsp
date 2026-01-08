@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page isELIgnored="false" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="loginUser" />
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
@@ -13,14 +15,26 @@
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
     <div id="shortsFeed" class="shortsFeed">
-        <input type="hidden" id="loginCheck" value="${not empty pageContext.request.userPrincipal}">
+        <sec:authorize access="isAuthenticated()">
+            <input type="hidden" id="loginCheck" value="true">
+        </sec:authorize>
+        <sec:authorize access="isAnonymous()">
+            <input type="hidden" id="loginCheck" value="false">
+        </sec:authorize>
         <input type="hidden" id="targetShortsId" value="${targetPostId}">
+
+        <sec:authorize access="isAuthenticated()">
+            <input type="hidden" id="loginUser" value="${loginUser.id}">
+        </sec:authorize>
+
         <div class="commentsPanel" id="commentsPanel">
             <div class="panelHeader">
                 <div class="panelTitle">
                     <strong class="commentHeaderTitle" id="commentPanelTitle">제목</strong>
-                    <span class="commentHeaderUser" id="commentPanelUser">@작성자</span>
-                    <span id="commentPanelDate">날짜</span>
+                    <div>
+                        <span class="commentHeaderUser" id="commentPanelUser">@작성자</span>
+                        <span id="commentPanelDate">날짜</span>
+                    </div>
                 </div>
                 <button class="closeBtn" onclick="closeComment()">닫기</button>
             </div>
