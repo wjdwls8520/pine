@@ -25,6 +25,17 @@ public class ReplyController {
 
     private final ReplyService rs;
 
+    //조회
+    @ResponseBody
+    @GetMapping("/reply/list")
+    public Page<ReplyResDto> list(
+            @RequestParam Long postId,
+            @PageableDefault(size = 10, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal MemberDto mdto
+    ) {
+        Long memberId = (mdto != null) ? mdto.getId() : null;
+        return rs.getReplyList(postId, pageable, memberId);
+    }
 
     //입력
     @ResponseBody
@@ -39,17 +50,6 @@ public class ReplyController {
         return rs.createReply(mdto, reqDto);
     }
 
-    //조회
-    @ResponseBody
-    @GetMapping("/reply/list")
-    public Page<ReplyResDto> list(
-            @RequestParam Long postId,
-            @PageableDefault(size = 10, sort = "writeDate", direction = Sort.Direction.DESC) Pageable pageable,
-            @AuthenticationPrincipal MemberDto mdto
-    ) {
-        Long memberId = (mdto != null) ? mdto.getId() : null;
-        return rs.getReplyList(postId, pageable, memberId);
-    }
 
     // 대댓글(자식) 목록 조회 API
     // 프론트에서 "답글 보기" 버튼 클릭 시 -> /reply/10/children 호출
@@ -63,9 +63,22 @@ public class ReplyController {
         return rs.getChildReplies(parentId, memberId);
     }
 
+//    @ResponseBody
+//    @PostMapping("/reply/updateComment/{replyId")
+//    public String update(
+//            @PathVariable Long replyId,
+//            @AuthenticationPrincipal MemberDto mdto
+//    ){
+//        if (mdto == null){
+//            throw new IllegalStateException("로그인이 필요한 서비스입니다.");
+//        }
+//        return "";
+//    }
+
+
     // 삭제
     @ResponseBody // AJAX 요청이니까 필수
-    @DeleteMapping("/reply/{replyId}")
+    @DeleteMapping("/reply/deleteComment/{replyId}")
     public ResponseEntity<String> delete(
             @PathVariable Long replyId,
             @AuthenticationPrincipal MemberDto mdto

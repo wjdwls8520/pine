@@ -612,6 +612,27 @@ function toggleReReplyForm(parentId) {
 }
 
 /**
+ *  댓글 패널 외부 클릭 시 닫기
+ * - 패널이 열려있을 때, 패널 밖이나 여는 버튼이 아닌 곳을 누르면 닫습니다.
+ */
+document.addEventListener('click', function(e) {
+    const panel = document.getElementById("commentsPanel");
+
+    // 1. 패널이 없거나 닫혀있으면 로직 수행 안 함
+    if (!panel || !panel.classList.contains('open')) return;
+
+    // 2. 클릭한 요소가 '패널 내부'라면 닫지 않음
+    if (panel.contains(e.target)) return;
+
+    // 3. 클릭한 요소가 '댓글 열기 버튼(.commentToggle)'이라면 닫지 않음
+    // (버튼을 누르면 openComment 함수가 실행되어야 하는데, 여기서 닫아버리면 충돌남)
+    if (e.target.closest('.commentToggle')) return;
+
+    // 4. 그 외 영역(영상, 빈 공간 등)을 클릭했다면 패널 닫기
+    closeComment();
+});
+
+/**
  * 대댓글 등록 요청
  */
 function submitSubReply(parentId) {
@@ -639,7 +660,7 @@ function submitSubReply(parentId) {
     const reqDto = {
         postId: currentPostIdForReply,
         content: content,
-        parentId: parentId // 부모 ID 포함!
+        parentId: parentId
     };
 
     fetch("/reply", {
@@ -665,7 +686,6 @@ function submitSubReply(parentId) {
             // [Case A] 대댓글 목록이 이미 존재하는 경우 (기존 대댓글이 1개 이상)
 
             // 1) 새 댓글 HTML 생성 (isSubReply = true)
-            // *주의: 작성자 프로필 이미지 등이 newReply에 포함되어 있어야 함
             const html = createReplyItemHtml(newReply, true);
 
             // 2) 목록의 맨 끝에 추가
@@ -678,7 +698,6 @@ function submitSubReply(parentId) {
             }
 
             // 4) 긴 글 더보기 버튼 적용
-            // (앞서 추가한 checkCommentOverflow 함수가 있다면 호출)
             if (typeof checkCommentOverflow === 'function') {
                 checkCommentOverflow();
             }
@@ -686,7 +705,6 @@ function submitSubReply(parentId) {
         } else {
             // [Case B] 대댓글이 처음 달리는 경우 (목록 영역이 아예 없음)
             // 이 경우에는 대댓글 버튼과 영역을 새로 만들어야 하므로, 부득이하게 전체 새로고침을 합니다.
-            // (첫 댓글이라 어차피 열려있는 상태가 아니므로 괜찮습니다.)
             replyPage = 0;
             isReplyLastPage = false;
             document.getElementById("commentListUl").innerHTML = "";
@@ -733,7 +751,7 @@ function loadChildReplies(parentId, count) {
 
         // 화면에 주입 및 버튼 텍스트 변경
         listArea.innerHTML = html;
-        listArea.style.display = "block"; // 숨겨진 영역 보이기
+        listArea.style.display = "block";
         btn.innerHTML = `─── 대댓글 숨기기`;
         checkCommentOverflow();
     })
@@ -756,7 +774,7 @@ document.getElementById("btnReplyRegist").addEventListener("click", () => {
         if(confirm("로그인 페이지로 이동하시겠습니까?")) {
              location.href = "/login";
         }
-        return; // 함수 강제 종료 (fetch 실행 안 함)
+        return;
     }
 
     const contentInput = document.getElementById("replyInput");
@@ -781,7 +799,7 @@ document.getElementById("btnReplyRegist").addEventListener("click", () => {
     })
     .then(res => res.json())
     .then(newReply => {
-        // 성공 시 리스트 초기화 후 다시 로드 (가장 간단한 방법)
+        // 성공 시 리스트 초기화 후 다시 로드
         replyPage = 0;
         isReplyLastPage = false;
         document.getElementById("commentListUl").innerHTML = "";
@@ -888,7 +906,7 @@ function toggleLike(postId, btnElement) {
     fetch(`/like`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json" //  JSON 형식임을 명시
+            "Content-Type": "application/json" //
         },
         body: JSON.stringify(requestData) //  객체를 JSON 문자열로 변환하여 Body에 탑재
     })
