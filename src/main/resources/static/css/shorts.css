@@ -223,7 +223,9 @@ body {
     object-fit: contain;
 }
 
-.playOverlay {
+/* 재생/일시정지 아이콘 */
+/* 1. 오버레이 컨테이너 (위치 및 배경) */
+.shortsFeed .cardInner .videoShell .playOverlay {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
@@ -234,20 +236,51 @@ body {
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
+    transition: opacity 0.2s ease;
+    pointer-events: none; /* 클릭은 뒤의 videoShell이 받음 */
     z-index: 10;
+    backdrop-filter: blur(2px);
 }
 
-.videoShell.paused .playOverlay { opacity: 1; }
+/* 2. 오버레이가 보이는 조건 */
+/* A. 영상이 멈췄을 때 (.paused) */
+/* B. 영상 위로 마우스를 올렸을 때 (:hover) */
+.shortsFeed .cardInner .videoShell.paused .playOverlay,
+.shortsFeed .cardInner .videoShell:hover .playOverlay {
+    opacity: 1;
+}
 
-.playOverlay::after {
+/* 3. 아이콘 공통 설정 (::after) */
+.shortsFeed .cardInner .videoShell .playOverlay::after {
     content: '';
     display: block;
-    width: 0; height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 18px solid #fff;
+    box-sizing: border-box;
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* 4. [상태별 아이콘 모양 정의] */
+/* [CASE A: 일시정지 아이콘 (❚❚)] */
+/* 조건: 멈추지 않았는데(:not(.paused)) + 마우스가 올라갔을 때(:hover) */
+.shortsFeed .cardInner .videoShell:not(.paused) .playOverlay::after {
+    width: 20px;
+    height: 24px;
+    border-style: solid;
+    border-width: 0 7px;
+    border-color: #fff;
+    border-top: 0;
+    border-bottom: 0;
+    margin-left: 0;
+}
+
+/* [CASE B: 재생 아이콘 (▶)] */
+/* 조건: 멈춰있을 때 (.paused) */
+.shortsFeed .cardInner .videoShell.paused .playOverlay::after {
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 20px solid #fff;
+    border-right: 0;
     margin-left: 4px;
 }
 
@@ -278,7 +311,7 @@ body {
 }
 
 /* ===========================
-   [Action Panel] 우측 버튼
+    Action Panel버튼
    =========================== */
 .shortsFeed .cardInner .actionPanel {
     display: flex;
@@ -297,7 +330,7 @@ body {
     border-radius: 28px;
     padding: 14px 8px;
     background: #fff;
-    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.15);
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.08);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -312,11 +345,6 @@ body {
     justify-content: center;
     gap: 4px;
     margin-top: 2px;
-}
-
-.shortsFeed .cardInner .actionBtn:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 28px rgba(15, 23, 42, 0.2);
 }
 
 .shortsFeed .cardInner .actionBtn span {
