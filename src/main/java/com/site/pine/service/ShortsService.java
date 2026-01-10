@@ -48,6 +48,7 @@ public class ShortsService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ShortsAsyncService sas;
+    private final TagService ts;
 
     @Transactional(readOnly = true)
     public HashMap<String, Object> getAllShorts(MemberDto memberdto, int page) {
@@ -97,7 +98,7 @@ public class ShortsService {
         MultipartFile thumbnail = dto.getThumbnailFile();
 
         Path tempVideo = null;      // catch에서 삭제하기 위해 밖으로 뺌
-        Path tempManualThumb = null; // manual 썸네일일 경우 안전하게 파일로 만들어 넘김(선택)
+        Path tempManualThumb = null; // manual 썸네일일 경우 안전하게 파일로 만들어 넘김
 
         Member member = mr.findById(memberdto.getId()).orElseThrow(() -> new IllegalStateException("회원 정보가 없습니다."));
 
@@ -107,6 +108,11 @@ public class ShortsService {
             post.setContent(dto.getContent());
             post.setMember(member);
             pr.save(post);
+
+            // 태그 저장 로직 추가
+            if (dto.getTags() != null) {
+                ts.updateTags(post.getId(), dto.getTags());
+            }
 
             // 2) VIDEO File row 생성 (WAIT)
             File videoFile = new File();
@@ -128,11 +134,11 @@ public class ShortsService {
             thumbFile.setPost(post);
             fr.save(thumbFile);
 
-            // 4) 요청 스레드에서 MultipartFile -> "내가 만든" 임시 파일로 복사 (핵심)
+            // 4) 요청 스레드에서 MultipartFile -> "내가 만든" 임시 파일로 복사
             tempVideo = Files.createTempFile("upload-video-", ".mp4");
             video.transferTo(tempVideo.toFile());
 
-            // 🔧 수정(선택): manual일 때도 MultipartFile을 비동기로 넘기지 않기 위해
+            // manual일 때도 MultipartFile을 비동기로 넘기지 않기 위해
             // 임시 썸네일 파일을 만들어 경로만 넘길 수 있음
             String thumbType = dto.getThumbnailType();
             String tempManualThumbPath = null;
@@ -161,7 +167,7 @@ public class ShortsService {
             spr.save(shortsPost);
 
         } catch (Exception e) {
-            // 🔧 수정: insert 단계에서 실패하면 임시파일 정리
+            // insert 단계에서 실패하면 임시파일 정리
             safeDelete(tempVideo);
             safeDelete(tempManualThumb);
 
@@ -180,8 +186,9 @@ public class ShortsService {
     public ShortsResDto getShortsDetail(Long postId) {
         ShortsPost shortsPost = spr.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 쇼츠가 존재하지 않습니다. id=" + postId));
-        // 조회수 증가 로직 여기에 추가 (viewService.increaseViewCount(postId) )
+        // 태그 리스트 조회해서 DTO에 넣기
+        List<String> tags = ts.getTags(postId);
 
-        return ShortsResDto.from(shortsPost);
+        return ShortsResDto.from(shortsPost, tags);
     }
 }

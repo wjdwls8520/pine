@@ -24,10 +24,11 @@ public class ShortsResDto {
     private int likeCount;
     private int replyCount;
 
+    private List<String> tags;
     private List<FileDto> files;
 
     // 엔티티를 DTO로 변환하는 팩토리 메서드
-    public static ShortsResDto from(ShortsPost entity) {
+    public static ShortsResDto from(ShortsPost entity, List<String> tags) {
         ShortsResDto dto = new ShortsResDto();
 
         // 1. ShortsPost 정보 매핑
@@ -45,6 +46,9 @@ public class ShortsResDto {
             dto.setNickname(entity.getPost().getMember().getNickname());
             dto.setProfileImg(entity.getPost().getMember().getProfile_img());
         }
+
+        // 태그주입
+        dto.setTags(tags);
 
         // 4. 파일 정보 매핑 (File -> FileDto)
         List<FileDto> fileDtos = new ArrayList<>();

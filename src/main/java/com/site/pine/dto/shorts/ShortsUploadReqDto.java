@@ -19,4 +19,6 @@ public class ShortsUploadReqDto {
     private MultipartFile videoFile;      // 영상
     private MultipartFile thumbnailFile;  // 썸네일
 
+    private String tags;
+
 }

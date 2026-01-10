@@ -74,15 +74,15 @@
                     </div>
                 </div>
 
-<%--                <div class="field-group">--%>
-<%--                    <label for="tagInput" class="field-label">태그</label>--%>
-<%--                    <div class="tag-input-container">--%>
-<%--                        <input type="text" id="tagInput" class="field-control" placeholder="태그를 입력하고 Enter를 누르세요 (예: #한국 #여행 #브이로그)">--%>
-<%--                        <div class="tag-hint">최대 10개까지 추가 가능합니다</div>--%>
-<%--                        <div class="tag-list" id="tagList"></div>--%>
-<%--                        <input type="hidden" id="tags" name="tags" value="">--%>
-<%--                    </div>--%>
-<%--                </div>--%>
+                <div class="field-group">
+                    <label for="tagInput" class="field-label">태그</label>
+                    <div class="tag-input-container">
+                        <input type="text" id="tagInput" class="field-control" placeholder="태그를 입력하고 Enter를 누르세요 (예: #한국 #여행 #브이로그)">
+                        <div class="tag-hint">최대 10개까지 추가 가능합니다</div>
+                        <div class="tag-list" id="tagList"></div>
+                        <input type="hidden" id="tags" name="tags" value="">
+                    </div>
+                </div>
 
                 <div class="button-group">
                     <button type="button" class="btn btn-cancel" onclick="history.back()">취소</button>
