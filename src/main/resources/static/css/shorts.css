@@ -359,6 +359,7 @@ body {
     color: #6b7280;
     line-height: 1;
     font-weight: 500;
+    margin-top: 1px;
 }
 
 .shortsFeed .cardInner .actionBtn .ico,
@@ -512,7 +513,7 @@ body {
 
 .commentList .commentTop {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 8px;
 }
 
@@ -640,6 +641,57 @@ body {
     padding: 12px 18px;
     font-weight: 600;
     cursor: pointer;
+}
+
+/* 수정 입력 폼 영역 */
+.edit-form-container {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.edit-textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    resize: none;
+    font-family: inherit;
+    margin-bottom: 5px;
+}
+
+.edit-btn-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.edit-btn-group button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-save {
+    background-color: #3ea6ff; /* 유튜브 파란색 느낌 */
+    color: white;
+}
+
+.btn-cancel {
+    background-color: transparent;
+    color: #606060;
+}
+.btn-cancel:hover {
+    background-color: #f2f2f2;
+}
+
+/* 수정됨 텍스트 스타일 */
+.edited-text {
+    font-size: 0.85em;
+    color: #909090; /* 회색으로 은은하게 */
+    margin-left: 2px;
 }
 
 /* Empty State */
@@ -908,7 +960,7 @@ body {
     align-items: center;
     gap: 4px;
     cursor: pointer;
-    margin-left: 4px;
+    margin-left: 1px;
 }
 
 /* 기본 아이콘 (빈 하트) */

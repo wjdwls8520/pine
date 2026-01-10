@@ -3,6 +3,7 @@ package com.site.pine.controller;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.reply.ReplyCreateReqDto;
 import com.site.pine.dto.reply.ReplyResDto;
+import com.site.pine.dto.reply.ReplyUpdateReqDto;
 import com.site.pine.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,22 +64,26 @@ public class ReplyController {
         return rs.getChildReplies(parentId, memberId);
     }
 
-//    @ResponseBody
-//    @PostMapping("/reply/updateComment/{replyId")
-//    public String update(
-//            @PathVariable Long replyId,
-//            @AuthenticationPrincipal MemberDto mdto
-//    ){
-//        if (mdto == null){
-//            throw new IllegalStateException("로그인이 필요한 서비스입니다.");
-//        }
-//        return "";
-//    }
+    @ResponseBody
+    @PutMapping("/reply")
+    public ResponseEntity<String> update(
+            @AuthenticationPrincipal MemberDto mdto,
+            @RequestBody ReplyUpdateReqDto reqDto
+    ){
+        if (mdto == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
+        }
 
+        try {
+            rs.updateComment(mdto.getId(), reqDto);
+            return ResponseEntity.ok("댓글이 수정되었습니다.");
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
-    // 삭제
-    @ResponseBody // AJAX 요청이니까 필수
-    @DeleteMapping("/reply/deleteComment/{replyId}")
+    @ResponseBody
+    @DeleteMapping("/reply/{replyId}")
     public ResponseEntity<String> delete(
             @PathVariable Long replyId,
             @AuthenticationPrincipal MemberDto mdto
@@ -90,9 +95,17 @@ public class ReplyController {
         try{
             rs.deleteReply(replyId, mdto.getId());
             return ResponseEntity.ok("댓글이 성공적으로 삭제되었습니다.");
+        } catch (IllegalStateException e) {
+            // 남의 거 삭제하려 함 "권한 없음" 403
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+
+        } catch (IllegalArgumentException e) {
+            // 이미 삭제됐거나 없는 댓글 "잘못된 요청" 400
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e){
+            // 알 수 없는 서버 에러 500
             log.error("댓글삭제 실패", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
         }
     }
 
