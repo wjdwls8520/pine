@@ -6,8 +6,6 @@
     <jsp:include page="../include/head.jsp"></jsp:include>
     <link rel="stylesheet" href="/css/post.css">
     <link rel="stylesheet" href="/css/swiper-bundle.min.css">
-
-
 </head>
 <body>
 <jsp:include page="../include/header.jsp"></jsp:include>

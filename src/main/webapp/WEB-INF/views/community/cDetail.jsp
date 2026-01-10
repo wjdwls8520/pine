@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="loginUser" />
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -14,6 +16,18 @@
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
     <article id="commuDtailPage" class="article workspace commu">
+
+        <sec:authorize access="isAuthenticated()">
+            <input type="hidden" id="loginCheck" value="true">
+        </sec:authorize>
+        <sec:authorize access="isAnonymous()">
+            <input type="hidden" id="loginCheck" value="false">
+        </sec:authorize>
+        <input type="hidden" id="targetShortsId" value="${targetPostId}">
+
+        <sec:authorize access="isAuthenticated()">
+            <input type="hidden" id="loginUser" value="${loginUser.id}">
+        </sec:authorize>
 
         <h2 class="pageTitle">community detail</h2>
         <section class="section section01 commuSection">
@@ -148,6 +162,7 @@
 
 <script>
     const POST_ID = ${post.id};
+    const LOGIN_USER_ID = "${sessionScope.loginUserId != null ? sessionScope.loginUserId : ''}";
 </script>
 <script src="/js/toggleLike.js"></script>
 <script src="/js/commujs/commuCommon.js"></script>
