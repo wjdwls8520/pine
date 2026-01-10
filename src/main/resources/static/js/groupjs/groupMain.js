@@ -93,7 +93,7 @@ window.addEventListener("load", () => {
                                     </div>
 
                                     <div class="postMiddle">
-                                        <div class="postContent" onclick="location.href='/community/cdetail/${info.postId}'">
+                                        <div class="postContent" onclick="location.href='/group/${groupId}/post/detail/${info.postId}'">
                                             ${info.content}
                                         </div>
                                         <div class="tagZone">
@@ -107,11 +107,11 @@ window.addEventListener("load", () => {
                                             <span class="ico ico_like ${info.liked ? "active" : ""}" onclick="toggleLike('POST', ${info.postId}, this)"></span>
                                             <span id="likeCount_${info.postId}">${info.likeCount}</span>
                                         </div>
-                                        <div class="icoBox postReply" onclick="location.href='/community/cdetail/${info.postId}'">
+                                        <div class="icoBox postReply" onclick="location.href='/group/${groupId}/post/detail/${info.postId}'">
                                             <span class="ico ico_reply"></span>
                                             <span>${info.replyCount}</span>
                                         </div>
-                                        <div class="icoBox postlink" onclick="copyPostUrl(${info.postId})" style="cursor: pointer;">
+                                        <div class="icoBox postlink" onclick="copyPostUrl(${groupId}, ${info.postId})" style="cursor: pointer;">
                                             <span class="ico ico_link"></span>
                                         </div>
                                     </div>
@@ -136,7 +136,7 @@ window.addEventListener("load", () => {
             })
             .catch(err => {
                     alert("데이터 로딩 실패:", err);
-                    location.href="/error";
+                    location.href="/";
                 }
             ).finally(() => loading = false);
     }

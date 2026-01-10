@@ -19,7 +19,7 @@
         <script> window.groupId = ${groupId} </script>
 
         <%-- section page--%>
-        <h2 class="pageTitle">community main</h2>
+        <h2 class="pageTitle">${groupName} Track</h2>
         <section class="section section01 commuSection">
 
             <%--  왼쪽 포스트 섹션--%>
@@ -59,6 +59,6 @@
 <jsp:include page="../include/groupPost_footer.jsp"></jsp:include>
 <script src="/js/swiper-bundle.min.js"></script>
 <script src="/js/toggleLike.js"></script>
-<script src="/js/commujs/commuCommon.js"></script>
+<script src="/js/groupjs/groupCommon.js"></script>
 <script src="/js/groupjs/groupMain.js"></script>
 

@@ -33,6 +33,10 @@
     // 1. 공통 변수 및 이동 함수 정의
     const path = window.location.pathname; // 예: /community, /community/edit/5
 
+    function moveGroup() {
+        location.href = '/group/gdetail/${groupId}'
+    }
+
     // 글쓰기 페이지로 이동
     function moveCreate() {
         if (!window.isLogin) {
@@ -75,9 +79,13 @@
         // [글쓰기] 버튼
         const groupPostMainPattern = /^\/group\/\d+\/post\/main$/;
         const groupPostCreatePattern = /^\/group\/\d+\/post\/create$/;
+        const groupPostUpdatePattern = /^\/group\/\d+\/post\/update$/;
+        const groupPostDetailPattern = /^\/group\/\d+\/post\/detail\/\d+$/;
         if (groupPostMainPattern.test(path)) {
             formActions.innerHTML = `
-                <div class="cancelButton"></div> <%-- 왼쪽 공백 유지 --%>
+                <div class="cancelButton">
+                    <button type="button" class="btnWH btnCancel" onclick="moveGroup();">그룹으로</button>
+                </div>
                 <div class="stepButtons">
                     <button type="button" class="btnWH btnSubmit" onclick="moveCreate();">글쓰기</button>
                 </div>
@@ -100,7 +108,7 @@
 
             // (3) 글 수정 페이지 (/community/edit/숫자)
         // [취소] [삭제] [수정하기] 버튼
-        else if (path.startsWith("/community/edit/")) {
+        else if (groupPostUpdatePattern.test(path)) {
             formActions.innerHTML = `
                 <div class="cancelButton">
                     <button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button>
@@ -114,7 +122,7 @@
         }
 
         // (4) 상세 페이지 (/community/cdetail/숫자) - 필요하다면 추가
-        else if (path.startsWith("/community/cdetail/")) {
+        else if (groupPostDetailPattern.test(path)) {
             formActions.innerHTML = `
                 <div class="cancelButton">
                     <button type="button" class="btnWH btnCancel" onclick="location.href='/community'">목록</button>
