@@ -2,6 +2,7 @@ package com.site.pine.repository;
 
 import com.site.pine.dto.community.PostListDto;
 import com.site.pine.dto.community.CommunityListDto;
+import com.site.pine.dto.group.GroupPostListDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.entity.post.Post;
 import org.apache.ibatis.annotations.Param;
@@ -82,6 +83,34 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     )
     Page<ShortsMainDto> getAllShortsPostList(@Param("loginId") Long loginId, Pageable pageable);
 
+    @Query(
+            value = """
+        select new com.site.pine.dto.group.GroupPostListDto(
+            p.id,
+            p.content,
+            gp.groupContents.id,
+            p.likeCount,
+            p.replyCount,
+            p.writeDate,
+            m.id,
+            m.nickname,
+            m.profile_img
+        )
+        from GroupPost gp
+        join gp.post p
+        left join p.member m 
+        where gp.groupContents.id = :groupId
+        order by  p.writeDate desc
+    """,
+
+    countQuery = """
+        select count(gp)
+        from GroupPost gp
+        join gp.post p
+        where gp.groupContents.id = :groupId
+    """
+    )
+    Page<GroupPostListDto> getAllGroupPostList(Pageable pageable, @Param("groupId") Long groupId);
 
 
     @Query("""
