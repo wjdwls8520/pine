@@ -25,19 +25,6 @@
             <section class="formGrid">
                 <div class="formMain">
 
-<%--                카테고리--%>
-                    <div class="fieldGroup">
-                        <label for="communitySelect" class="fieldLabel">카테고리</label>
-                        <select id="communitySelect" class="fieldControl" name="category">
-                            <option value="1" ${post.category == 1 ? 'selected' : ''}>General</option>
-                            <option value="2" ${post.category == 2 ? 'selected' : ''}>Travel</option>
-                            <option value="3" ${post.category == 3 ? 'selected' : ''}>K-POP</option>
-                            <option value="4" ${post.category == 4 ? 'selected' : ''}>Trend</option>
-                            <option value="5" ${post.category == 5 ? 'selected' : ''}>Game</option>
-                            <option value="6" ${post.category == 6 ? 'selected' : ''}>Ask</option>
-                        </select>
-                    </div>
-
 <%--                    본문    --%>
                     <div class="fieldGroup">
                         <label for="postBody" class="fieldLabel">본문</label>

@@ -1,8 +1,11 @@
 package com.site.pine.service;
 
+import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
 import com.site.pine.dto.community.CommunityCreateReqDto;
+import com.site.pine.dto.community.CommunityDetailResDto;
 import com.site.pine.dto.community.CommunityListDto;
+import com.site.pine.dto.group.GroupPostDetailResDto;
 import com.site.pine.dto.group.GroupPostListDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.post.PostMainFileDto;
@@ -11,6 +14,7 @@ import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.Tag;
 import com.site.pine.entity.TagMapping;
+import com.site.pine.entity.community.CommunityPost;
 import com.site.pine.entity.group.GroupPost;
 import com.site.pine.entity.post.Post;
 import com.site.pine.repository.*;
@@ -28,10 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -185,4 +186,64 @@ public class GroupPostService {
 
         return result;
     }
+
+    @Transactional
+    public GroupPostDetailResDto getDetail(Long memberId, Long id) {
+        GroupPost groupPost = groupPostRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("게시글이 없습니다. id=" + id));
+        Post post = groupPost.getPost();
+
+        //좋아요여부확인
+        boolean isLiked = false;
+        if(memberId != null) {
+            isLiked = postLikeRepository.existsByPost_IdAndMember_Id(post.getId(), memberId);
+        }
+
+        // 엔티티 → DTO 변환
+        GroupPostDetailResDto dto = new GroupPostDetailResDto();
+        dto.setId(post.getId());
+        dto.setContent(post.getContent());
+        dto.setLikeCount(post.getLikeCount());
+        dto.setReplyCount(post.getReplyCount());
+        dto.setStatus(post.getStatus());
+        dto.setGroupId(groupPost.getGroupContents().getId());
+        dto.setWriteDate(post.getWriteDate());
+        dto.setUpdateDate(post.getUpdateDate());
+        dto.setLiked(isLiked);
+
+        dto.setNickname(post.getMember().getNickname());
+        dto.setProfile_img(post.getMember().getProfile_img());
+
+        // 파일 DTO 리스트 만들 준비
+        List<FileDto> postFilesResult = new ArrayList<>();
+
+        // 게시글 엔티티 안에 있는 파일 리스트 꺼내오기
+        List<File> postFiles = post.getFiles();
+
+        // 파일 개수만큼 반복
+        for (File postFile : postFiles) {
+            // FileDto 객체 생성
+            FileDto fileDto = new FileDto();
+            // File 엔티티 → FileDto 로 값 복사
+            fileDto.setId(postFile.getId());
+            fileDto.setOriginalname(postFile.getOriginalname());
+            fileDto.setSize(postFile.getSize());
+            fileDto.setPath(postFile.getPath());
+            fileDto.setContentType(postFile.getContentType());
+            // 리스트에 추가
+            postFilesResult.add(fileDto);
+        }
+        // DTO에 파일 리스트 넣기
+        dto.setFiles(postFilesResult);
+
+        //태그
+        List<TagResDto> tags = tagService.getTagsByPostIds(List.of(post.getId()));
+        dto.setTags(tags);
+
+        dto.setMemberId(post.getMember().getId());
+
+        return dto;
+    }
+
+
 }

@@ -1,6 +1,8 @@
 package com.site.pine.controller;
 
 import com.site.pine.dto.community.CommunityCreateReqDto;
+import com.site.pine.dto.community.CommunityDetailResDto;
+import com.site.pine.dto.group.GroupPostDetailResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupAuthorizationService;
 import com.site.pine.service.GroupPostService;
@@ -27,6 +29,9 @@ public class GroupPostController {
 
     @GetMapping("/group/{groupId}/post/main")
     public String groupPostMain(@PathVariable("groupId") Long groupId, Model model) {
+        String groupName = groupAuthorizationService.getGroupOrThrow(groupId).getGroupName();
+        model.addAttribute("groupName", groupName);
+
         model.addAttribute("groupId", groupId);
         return "group/gPostMain";
     }
@@ -78,5 +83,23 @@ public class GroupPostController {
         System.out.println(reqDto);
         groupPostService.insertPost(memberDto, groupId, reqDto);
         return "redirect:/group/" + groupId + "/post/main";
+    }
+
+    @GetMapping("/group/{groupId}/post/detail/{id}")
+    public String getDetail(
+            @AuthenticationPrincipal MemberDto memberDto,
+            @PathVariable Long groupId,
+            @PathVariable("id") Long id, Model model
+    ) {
+        groupAuthorizationService.validateLoginMember(); // 로그인 여부 확인
+        groupAuthorizationService.getGroupMemberOrThrow(groupId, memberDto.getId()); // 그룹멤버인지 확인
+
+        Long memberId = memberDto.getId();
+        GroupPostDetailResDto post = groupPostService.getDetail(memberId, id); // 서비스에서 memberId가 null인 경우 좋아요 체크를 생략하도록
+        model.addAttribute("post", post);
+        if (memberId != null) {
+            model.addAttribute("loginUserId", memberId);
+        }
+        return "group/gPostDetail"; // JSP에서 ${post.필드} 로 접근
     }
 }
