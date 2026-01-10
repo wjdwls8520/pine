@@ -73,7 +73,8 @@
                         </div>
 
                         <%-- 1.새 파일 업로드용 input --%>
-                        <input type="file" name="files" id="mediaUploadInput" multiple accept="image/*,video/*" hidden />
+                        <input type="file" name="files" id="mediaUploadInput" multiple hidden />
+                        <input type="file" id="tempFileInput" multiple accept="image/*,video/*" hidden />
                         <input type="hidden" id="mediaJsonInput" name="mediaJson" />
 
                         <%-- 2.삭제할 기존 파일 ID들을 담을 곳 (서버 전송용) --%>
