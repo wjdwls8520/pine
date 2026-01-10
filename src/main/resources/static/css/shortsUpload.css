@@ -336,3 +336,52 @@ textarea.field-control {
     margin-top: 8px;
 }
 
+/* 태그 리스트 영역 */
+#tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* 개별 태그 아이템 (tag.js에서 생성됨) */
+.tagItem {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.tagItem:hover {
+    background-color: #e4e6eb;
+}
+
+.tagItem span {
+    margin-right: 6px;
+}
+
+/* 삭제 버튼 (x) */
+.delBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: none;
+    background-color: #ccc;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.delBtn:hover {
+    background-color: #ff4d4f; /* 삭제 시 빨간색 강조 */
+}

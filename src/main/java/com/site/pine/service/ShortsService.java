@@ -5,6 +5,7 @@ import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.dto.shorts.ShortsResDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
+import com.site.pine.dto.tag.TagResDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.post.Post;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,14 +76,27 @@ public class ShortsService {
             // 3️ 파일 DTO 일괄 조회
             List<PostMainFileDto> files =
                     fr.findFilesByPostIds(postIds);
-
             Map<Long, List<PostMainFileDto>> fileMap =files.stream().collect(Collectors.groupingBy(PostMainFileDto::getPostId));
+
+            // IN 절로 모든 태그 한번에 가져오기 (TagMappingRepository 쿼리 실행)
+            List<TagResDto> allTags = ts.getTagsByPostIds(postIds);
+
+            // Map으로 그룹핑: { 게시글ID : [태그명1, 태그명2, ...] }
+            Map<Long, List<String>> tagMap = allTags.stream()
+                    .collect(Collectors.groupingBy(
+                            TagResDto::getTargetId, // 게시글 ID로 그룹핑
+                            Collectors.mapping(TagResDto::getName, Collectors.toList()) // 태그 이름만 리스트로 수집
+                    ));
 
             // 4️ 파일 주입
             for (ShortsMainDto post : posts) {
                 if (fileMap.containsKey(post.getPostId())) {
                     fileMap.get(post.getPostId()).forEach(post::addFile);
                 }
+
+                // 태그 주입 (Map에서 꺼내서 세팅)
+                // getOrDefault를 써서 태그가 없으면 빈 리스트([])를 넣어준다 (Null 방지)
+                post.setTags(tagMap.getOrDefault(post.getPostId(), new ArrayList<>()));
             }
 
         }

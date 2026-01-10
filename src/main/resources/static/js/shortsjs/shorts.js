@@ -151,7 +151,7 @@ async function getData(page) {
 // ==========================================
 
 /**
- * [신규] 단건 쇼츠 조회 (공유 링크용)
+ *  단건 쇼츠 조회 (공유 링크용)
  * - 특정 영상을 가져와서 리스트의 '맨 앞'에 꽂아넣는다.
  */
 function getOneShort(targetId) {
@@ -186,18 +186,23 @@ function renderShortCard(info, isPrepend = false) {
     let userProfile = info.profileImg ? info.profileImg : '/images/icon_pinedory.png';
     let likeClass = info.liked ? 'on' : '';
 
-    // ★ 1. 드롭다운 메뉴 아이템 구성
+    //  태그 HTML 생성 (데이터가 있을 때만)
+    let tagHtml = '';
+    if (info.tags && info.tags.length > 0) {
+        tagHtml = `<div class="shorts-tags">`;
+        info.tags.forEach(tag => {
+            // 커뮤니티 스타일 클래스 적용 (예: tag-item)
+            tagHtml += `<span class="tag-item">#${tag}</span>`;
+        });
+        tagHtml += `</div>`;
+    }
+
+    // 1. 드롭다운 메뉴 아이템 구성
     // 기본 메뉴: 설명, 신고 (누구나 보임)
-    // '설명' 버튼은 기능이 모호하여 예시로 '정보 보기'로 명명했습니다.
     let menuItems = `
         <li><button type="button" class="dropdownItem" onclick="alert('이 쇼츠에 대한 설명입니다:\\n${info.content}')">설명</button></li>
         <li><button type="button" class="dropdownItem" onclick="handleReport('SHORTS', '${info.postId}')">신고</button></li>
     `;
-
-    // 내 글일 경우: 수정, 삭제 추가 (기존 메뉴 뒤에 붙임 or 덮어쓰기)
-    // 작성자가 본인이라면 '신고' 대신 '수정/삭제'가 뜨는 게 일반적이지만,
-    // 요청하신 대로 "설명"은 남기고 "신고" 대신 "수정/삭제"를 넣거나, 다 넣을 수도 있습니다.
-    // 여기서는 "작성자는 신고 불필요 -> 수정/삭제로 대체" 하는 방식으로 짭니다.
 
     if (loginUser && String(info.memberId) === String(loginUser)) {
         menuItems = `
@@ -207,7 +212,7 @@ function renderShortCard(info, isPrepend = false) {
         `;
     }
 
-    // ★ 2. 드롭다운 HTML 조립 (항상 보임)
+    // 2. 드롭다운 HTML 조립 (항상 보임)
     const optionHtml = `
         <div class="commentOption" onclick="event.stopPropagation()">
             <button type="button" class="moreBtn" onclick="toggleCommentMenu(this)">
@@ -234,6 +239,7 @@ function renderShortCard(info, isPrepend = false) {
                         <div class="userBody">
                             <p class="shortsTitle">${escapeHtml(info.title)}</p>
                             <p class="shortsContent">${escapeHtml(info.content)}</p>
+                            ${tagHtml}
                         </div>
                     </div>
                 </aside>

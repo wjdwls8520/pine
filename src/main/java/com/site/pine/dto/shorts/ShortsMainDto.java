@@ -26,6 +26,8 @@ public class ShortsMainDto {
     private int likeCount;
     private boolean liked;
 
+    private List<String> tags;
+
     private List<PostMainFileDto> files = new ArrayList<PostMainFileDto>();
 
     public ShortsMainDto(

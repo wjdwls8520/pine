@@ -55,3 +55,4 @@
 <div id="commonToast" class="toastMsg"></div>
 <jsp:include page="../include/shorts_footer.jsp"></jsp:include>
 <script src="/js/shortsjs/shorts.js"></script>
+<%--<script src="/js/reply.js"></script>--%>
