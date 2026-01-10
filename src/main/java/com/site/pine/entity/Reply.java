@@ -73,4 +73,12 @@ public class Reply {
     private List<Reply> children = new ArrayList<>();
 
 
+    public void updateComment(String updatecontent) {
+        this.content = updatecontent;
+        this.updateDate = LocalDateTime.now(); // 댓글 수정시간
+    }
+
+    public void changeDeleteYn(String deleteYN) {
+        this.deleteYN = deleteYN;
+    }
 }

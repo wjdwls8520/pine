@@ -3,6 +3,7 @@ package com.site.pine.service;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.reply.ReplyCreateReqDto;
 import com.site.pine.dto.reply.ReplyResDto;
+import com.site.pine.dto.reply.ReplyUpdateReqDto;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.Reply;
 import com.site.pine.entity.post.Post;
@@ -121,24 +122,41 @@ public class ReplyService {
     }
 
     @Transactional
+    public void updateComment(Long id, ReplyUpdateReqDto reqDto) {
+        Reply reply = rr.findById(reqDto.getReplyId()).orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+
+        if("Y".equals(reply.getDeleteYN())) {
+            throw new IllegalArgumentException("삭제된 댓글은 수정할 수 없습니다.");
+        }
+
+        if(!reply.getMember().getId().equals(id)) {
+            throw new IllegalStateException("자신의 댓글만 수정할 수 있습니다.");
+        }
+
+        reply.updateComment(reqDto.getContent());
+    }
+
+    @Transactional
     public void deleteReply(Long replyId, Long memberId) {
-        // 1. 댓글 조회
+        //  댓글 조회
         Reply reply = rr.findById(replyId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
 
-        // 2. 권한 체크 (작성자 본인 확인)
+        // 이미 삭제된 댓글인지 확인 (중복 감소 방지)
+        if ("Y".equals(reply.getDeleteYN())) {
+            throw new IllegalArgumentException("이미 삭제된 댓글입니다.");
+        }
+
+        // 권한 체크 (작성자 본인 확인)
         if (!reply.getMember().getId().equals(memberId)) {
             throw new IllegalStateException("본인의 댓글만 삭제할 수 있습니다.");
         }
+        // soft delete
+        reply.changeDeleteYn("Y");
 
-        // 3. 삭제 로직 분기
-        if (reply.getChildren().isEmpty()) {
-            // 자식이 없으면 -> DB에서 진짜 삭제 (Hard Delete)
-            rr.delete(reply);
-            pr.decreaseReplyCount(reply.getPost().getId());
-        } else {
-            // 자식이 있으면 -> "삭제된 댓글입니다" 상태로 변경 (Soft Delete) -> 대댓글 구조 유지
-            reply.setDeleteYN("Y");
-        }
+        // 게시글의 댓글 수 감소
+        pr.decreaseReplyCount(reply.getPost().getId());
     }
+
+
 }

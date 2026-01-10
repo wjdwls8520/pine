@@ -19,6 +19,11 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
         join fetch r.member 
         where r.post.id = :postId 
         and r.parent is null 
+        and (
+            r.deleteYN = 'N'
+            or
+            exists (select c from Reply c where c.parent = r and c.deleteYN = 'N')
+        )
         order by r.writeDate desc
     """)
     Page<Reply> findParentReplies(@Param("postId") Long postId, Pageable pageable);
@@ -30,6 +35,7 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
         from Reply r 
         join fetch r.member 
         where r.parent.id = :parentId 
+        and (r.deleteYN = 'N' or SIZE(r.children) > 0)
         order by r.id asc
     """)
     List<Reply> findChildReplies(@Param("parentId") Long parentId);

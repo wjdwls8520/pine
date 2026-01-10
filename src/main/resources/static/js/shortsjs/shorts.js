@@ -437,40 +437,54 @@ function closeComment() {
 
 // 3. 댓글 데이터 불러오기 (AJAX)
 function loadReplies(postId, page) {
+    // page가 0이면(새로고침) LastPage 플래그를 초기화해줘야 다시 로딩이 됩니다.
+    if (page === 0) {
+        isReplyLastPage = false;
+    }
+
     if (isReplyLoading || isReplyLastPage) return;
 
     isReplyLoading = true;
 
-    // 백엔드 API 호출
-    fetch(`/reply/list?postId=${postId}&page=${page}`)
-        .then(res => {
-            if (!res.ok) throw new Error("댓글 조회 실패");
-            return res.json();
-        })
-        .then(data => {
-            const replies = data.content; // Page 객체의 content가 리스트
-            const listUl = document.getElementById("commentListUl");
+    fetch(`/reply/list?postId=${postId}&page=${page}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store"
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("댓글 조회 실패");
+        return res.json();
+    })
+    .then(data => {
+        const replies = data.content;
+        const listUl = document.getElementById("commentListUl");
 
-            // 마지막 페이지인지 체크
-            if (data.last === true) {
-                isReplyLastPage = true;
-            }
+        // 첫 페이지(0)를 부를 땐, 기존 목록을 싹 비워야 합니다. (중복 방지)
+        if (page === 0) {
+            listUl.innerHTML = "";
+        }
 
-            // [HTML 조립] 닉네임 + 날짜 / 내용 구조
-            // html 함수 호출
-            let html = "";
-            replies.forEach(reply => {
-                html += createReplyItemHtml(reply, false);
-            });
+        // 마지막 페이지인지 체크
+        if (data.last === true) {
+            isReplyLastPage = true;
+        }
 
-            listUl.insertAdjacentHTML("beforeend", html);
-            checkCommentOverflow();
-            replyPage++; // 다음 페이지 준비
-        })
-        .catch(err => console.error(err))
-        .finally(() => {
-            isReplyLoading = false;
+        // [HTML 조립] 닉네임 + 날짜 / 내용 구조
+        // html 함수 호출
+        let html = "";
+        replies.forEach(reply => {
+            html += createReplyItemHtml(reply, false);
         });
+
+        listUl.insertAdjacentHTML("beforeend", html);
+
+        checkCommentOverflow();
+        replyPage++; // 다음 페이지 준비
+    })
+    .catch(err => console.error(err))
+    .finally(() => {
+        isReplyLoading = false;
+    });
 }
 
 /**
@@ -478,6 +492,10 @@ function loadReplies(postId, page) {
  */
 function createReplyItemHtml(reply, isSubReply = false) {
     let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(reply.writeDate) : reply.writeDate;
+    // 수정된 댓글이면 날짜 뒤에 (수정됨) 추가
+    if (reply.isEdited) {
+        dateStr += ' <span class="edited-text">(수정됨)</span>';
+    }
     let isDeleted = reply.deleteYN === 'Y';
 
     // 삭제된 댓글 처리
@@ -506,7 +524,7 @@ function createReplyItemHtml(reply, isSubReply = false) {
         if (isMine) {
             // 내 댓글: 수정/삭제
             menuItems = `
-                <li><button type="button" class="dropdownItem" onclick="updateComment('${reply.id}')">수정</button></li>
+                <li><button type="button" class="dropdownItem" onclick="showEditForm('${reply.id}')">수정</button></li>
                 <li><button type="button" class="dropdownItem danger" onclick="deleteComment('${reply.id}')">삭제</button></li>
             `;
         } else {
@@ -564,7 +582,7 @@ function createReplyItemHtml(reply, isSubReply = false) {
             <div class="replyContentBox">
                 <div class="commentTop">
                     <b>${nickname}</b>
-                    <span class="date">${dateStr}</span>
+                    <span class="date reply-date">${dateStr}</span>
                     ${optionHtml}
                 </div>
 
@@ -1044,31 +1062,65 @@ document.addEventListener('click', function(e) {
     }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-/* ===========================
-   [기능 구현] 수정/삭제 로직
-   =========================== */
-
 /**
  * 댓글 수정
  */
-function updateComment(replyId) {
+/* 1. 수정 폼 열기 */
+function showEditForm(replyId) {
+    const replyItem = document.getElementById(`reply-${replyId}`);
+    const pTag = replyItem.querySelector('p'); // 본문 텍스트 태그
+    const originalContent = pTag.innerText; // 현재 적혀있는 내용 가져오기
+
+    // 이미 수정 창이 열려있다면 중복 실행 방지
+    if (replyItem.querySelector('.edit-form-container')) return;
+
+    // 1. 기존 텍스트 숨기기
+    pTag.style.display = 'none';
+
+    // 2. 수정 폼 HTML 생성 (백틱 `` 사용)
+    const editFormHtml = `
+        <div class="edit-form-container" id="edit-form-${replyId}">
+            <textarea class="edit-textarea" id="edit-textarea-${replyId}">${originalContent}</textarea>
+            <div class="edit-btn-group">
+                <button type="button" class="btn-cancel" onclick="cancelEdit(event, ${replyId})">취소</button>
+                <button type="button" class="btn-save" onclick="saveEdit(${replyId})">저장</button>
+            </div>
+        </div>
+    `;
+
+    // 3. p태그 바로 뒤에 폼 삽입
+    pTag.insertAdjacentHTML('afterend', editFormHtml);
+
+    // (선택사항) 드롭다운 메뉴 닫기
+    document.querySelectorAll('.dropdownMenu.active').forEach(m => m.classList.remove('active'));
+}
+
+/* 2. 수정 취소 */
+function cancelEdit(e, replyId) {
+    // 클릭이 댓글 패널이나 배경으로 퍼지지 않아 패널이 닫히지않음
+    if (e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+    }
     const replyItem = document.getElementById(`reply-${replyId}`);
     const pTag = replyItem.querySelector('p');
-    const currentContent = pTag.innerText;
+    const editForm = document.getElementById(`edit-form-${replyId}`);
 
-    const newContent = prompt("수정할 내용을 입력해주세요.", currentContent);
-    if (newContent === null) return;
+    // 폼 제거
+    if (editForm) {
+        editForm.remove();
+    }
+    // 텍스트 다시 보이기
+    if (pTag) {
+        pTag.style.display = 'block'; // or 'flex' 등 원래 display 속성
+    }
+}
+
+/* 3. 댓글 수정  */
+function saveEdit(replyId) {
+    const textarea = document.getElementById(`edit-textarea-${replyId}`);
+    const newContent = textarea.value;
+
+    // 유효성 검사
     if (newContent.trim() === "") {
         alert("내용을 입력해주세요.");
         return;
@@ -1077,37 +1129,94 @@ function updateComment(replyId) {
     fetch(`/reply`, {
         method: 'PUT',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: replyId, content: newContent })
+        body: JSON.stringify({ replyId: replyId, content: newContent })
     })
-    .then(res => {
-        if(res.ok) {
-            pTag.innerText = newContent;
-            showToastMsg("댓글이 수정되었습니다.");
-            document.querySelectorAll('.dropdownMenu.active').forEach(m => m.classList.remove('active'));
-        } else {
-            alert("수정 실패");
+    .then(async res => {
+        const msg = await res.text();
+
+        if (res.status === 401) {
+            alert(msg);
+            window.location.href = "/login";
+            return;
         }
+        if (!res.ok) {
+            alert(msg);
+            return;
+        }
+
+        const replyItem = document.getElementById(`reply-${replyId}`);
+        const pTag = replyItem.querySelector('p');
+
+        // 1. 텍스트 내용 변경
+        pTag.innerText = newContent;
+
+        // 2. (수정됨) 표시 즉시 붙이기
+        const dateSpan = replyItem.querySelector('.reply-date');
+
+        // (1) 날짜 태그가 있고 (2) 아직 "(수정됨)" 표시가 없을 때만 추가
+        if (dateSpan && !replyItem.querySelector('.edited-text')) {
+            dateSpan.insertAdjacentHTML('beforeend', ' <span class="edited-text">(수정됨)</span>');
+        }
+
+        // 2. 폼 닫기 (취소 함수 재사용하면 됨)
+        cancelEdit(null, replyId);
+
+        showToastMsg("댓글이 수정되었습니다.");
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error("수정 오류:", err));
 }
 
 /**
  * 댓글 삭제
  */
 function deleteComment(replyId) {
-    if(!confirm("정말 댓글을 삭제하시겠습니까?")) return;
+    if (!confirm("정말 댓글을 삭제하시겠습니까?")) return;
 
-    fetch(`/reply/${replyId}`, { method: 'DELETE' })
-    .then(res => {
-        if(res.ok) {
-            showToastMsg("댓글이 삭제되었습니다.");
-            loadReplies(currentPostIdForReply, 0); // 리스트 갱신
-        } else {
-            alert("삭제에 실패했습니다.");
-        }
+    fetch(`/reply/${replyId}`, {
+        method: 'DELETE',
+        headers: { "Content-Type": "application/json" }
     })
-    .catch(err => console.error(err));
+        .then(async res => {
+            const msg = await res.text();
+
+            // 2. [401 Unauthorized] 로그인이 필요한 경우
+            if (res.status === 401) {
+                alert(msg);
+                window.location.href = "/login";
+                return;
+            }
+
+            // 3. [400 Bad Request / 403 Forbidden] 그 외 에러 (권한 없음, 이미 삭제됨 등)
+            if (!res.ok) {
+                alert(msg);
+                return;
+            }
+
+            // 4. [200 OK] 성공
+            showToastMsg(msg);
+
+            // 목록 새로고침 (가장 깔끔한 방법)
+            // 전역변수 currentPostIdForReply를 사용하여 현재 보고 있는 댓글창을 갱신합니다.
+            loadReplies(currentPostIdForReply, 0);
+        })
+        .catch(err => console.error("통신 에러:", err));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ===========================
    [게시글 전용] 수정/삭제 기능

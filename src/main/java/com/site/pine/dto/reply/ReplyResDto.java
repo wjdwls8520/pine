@@ -27,15 +27,23 @@ public class ReplyResDto {
     private List<ReplyResDto> children; // 대댓글 리스트
     private Integer likeCount;
     private Boolean liked;
+    private Boolean isEdited; // 수정여부
 
 
     public static ReplyResDto from(Reply reply, boolean includeChildren, boolean isLiked) {
 
         boolean isDeleted = "Y".equals(reply.getDeleteYN());
 
+        // updateDate가 null이 아니고(필수), 작성일보다 '이후'여야만 true
+        boolean checkEdited = !isDeleted &&
+                                reply.getUpdateDate() != null &&
+                                reply.getUpdateDate().isAfter(reply.getWriteDate());
+
         ReplyResDtoBuilder builder = ReplyResDto.builder()
                 .id(reply.getId())
+                .postId(reply.getPost().getId())
                 .content(isDeleted ? "삭제된 댓글입니다" : reply.getContent())
+                .isEdited(checkEdited)
                 .deleteYN(reply.getDeleteYN())
                 .writeDate(reply.getWriteDate())
                 .memberId(isDeleted ? null : reply.getMember().getId())
