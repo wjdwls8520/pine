@@ -24,6 +24,11 @@ window.addEventListener("load", () => {
     // 2. 태그 입력 이벤트 (Enter 키)
     if (tagInput) {
         tagInput.addEventListener("keydown", (e) => {
+
+            // 한글 조합(IME) 중일 때 중복 입력 방지
+            // e.isComposing: 현재 글자가 조합 중이면 true (예: '한'을 치고 엔터를 누르는 순간)
+            if (e.isComposing) return;
+
             if (e.key === "Enter") {
                 e.preventDefault(); // 폼 제출 방지
                 const value = e.target.value.trim();

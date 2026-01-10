@@ -66,25 +66,29 @@ function loadMainReplies() {
 }
 
 /**
- * [R] 대댓글 불러오기
+ * [R] 대댓글 불러오기 (수정됨)
  */
 function loadChildReplies(parentId, childCount) {
     const childArea = document.getElementById(`childArea-${parentId}`);
-    const toggleBtn = document.getElementById(`btnToggleChild-${parentId}`);
+    const toggleBtn = document.getElementById(`btnToggleChild-${parentId}`); // 이게 없을 수도 있음!
 
-    // display 제어는 로직의 영역이라 style.display 사용 (초기값은 CSS로 none 처리됨)
+    // 1. 이미 열려있으면 -> 닫기
     if (childArea.style.display === "block") {
         childArea.style.display = "none";
-        toggleBtn.innerText = `── 답글 ${childCount}개 보기`;
+        // 🔥 [수정] 버튼이 있을 때만 텍스트 변경
+        if (toggleBtn) toggleBtn.innerText = `── 답글 ${childCount}개 보기`;
         return;
     }
 
+    // 2. 데이터가 이미 있으면 -> 열기
     if (childArea.innerHTML.trim() !== "") {
         childArea.style.display = "block";
-        toggleBtn.innerText = `── 답글 숨기기`;
+        // 🔥 [수정] 버튼이 있을 때만 텍스트 변경
+        if (toggleBtn) toggleBtn.innerText = `── 답글 숨기기`;
         return;
     }
 
+    // 3. 서버 요청
     fetch(`/reply/${parentId}/children`)
         .then(res => res.json())
         .then(children => {
@@ -94,7 +98,12 @@ function loadChildReplies(parentId, childCount) {
             });
             childArea.innerHTML = html;
             childArea.style.display = "block";
-            toggleBtn.innerText = `── 답글 숨기기`;
+
+            // 🔥 [수정] 버튼이 존재할 때만 텍스트를 변경합니다.
+            // (첫 대댓글 작성 시에는 버튼이 없으므로 에러가 나지 않게 패스합니다)
+            if (toggleBtn) {
+                toggleBtn.innerText = `── 답글 숨기기`;
+            }
         })
         .catch(err => {
             console.error(err);

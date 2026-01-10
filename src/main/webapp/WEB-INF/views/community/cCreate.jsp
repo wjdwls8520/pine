@@ -54,7 +54,6 @@
                             <c:forEach items="${post.tags}" var="tag" varStatus="status">${tag}${!status.last ? ',' : ''}
                             </c:forEach>
                         </c:if>" />
-
                     </div>
 
 <%--                        업로드--%>

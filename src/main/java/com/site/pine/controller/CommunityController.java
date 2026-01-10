@@ -6,7 +6,6 @@ import com.site.pine.dto.community.PostDetailDto;
 import com.site.pine.dto.community.PostModifyDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.CommunityService;
-import com.site.pine.service.LikesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
