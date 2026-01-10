@@ -35,7 +35,7 @@ body {
     padding: 40px 40px 0;
     height: calc(100vh - 156px);
     box-sizing: border-box;
-    gap: 25px;
+    gap: 30px;
 }
 
 /* ===========================
@@ -1064,4 +1064,28 @@ body {
     font-size: 14px;
     line-height: 1.4;
     word-break: break-all;
+}
+
+/* 쇼츠해쉬태그 */
+/* 태그 감싸는 박스 */
+.shorts-tags {
+    margin-bottom: 8px; /* 제목과 내용 사이, 혹은 내용 위아래 간격 */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* 개별 태그 디자인 */
+.tag-item {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+    background-color: #f0f8ff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.tag-item:hover {
+    text-decoration: underline;
 }
