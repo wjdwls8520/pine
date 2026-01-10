@@ -2,8 +2,18 @@
  * shorts.js
  * - 쇼츠 목록 무한 스크롤
  * - 비디오 자동 재생/일시정지 (IntersectionObserver)
- * - 커스텀 비디오 컨트롤 (재생바, 시간 표시, 클릭 토글)
+ * - 커스텀 비디오 컨트롤 (
+ * 재생바, 시간 표시, 클릭 토글)
  */
+function escapeHtml(text) {
+    if (!text) return text;
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 let page = 0;
 let totalPages = 10;
@@ -191,7 +201,7 @@ function renderShortCard(info, isPrepend = false) {
 
     if (loginUser && String(info.memberId) === String(loginUser)) {
         menuItems = `
-            <li><button type="button" class="dropdownItem" onclick="alert('설명:\\n${info.content}')">설명</button></li>
+            <li><button type="button" class="dropdownItem" onclick="alert('설명:\\n${escapeHtml(info.content)}')">설명</button></li>
             <li><button type="button" class="dropdownItem" onclick="updateShorts('${info.postId}')">수정</button></li>
             <li><button type="button" class="dropdownItem danger" onclick="deleteShorts('${info.postId}')">삭제</button></li>
         `;
@@ -217,13 +227,13 @@ function renderShortCard(info, isPrepend = false) {
                         <div class="userHeader">
                             <div class="avatar"><img src="${userProfile}" alt="user"></div>
                             <div class="userInfo">
-                                <strong class="nickname">@${info.nickname}</strong>
+                                <strong class="nickname">@${escapeHtml(info.nickname)}</strong>
                                 <span class="writedate">· ${dateStr}</span>
                             </div>
                         </div>
                         <div class="userBody">
-                            <p class="shortsTitle">${info.title}</p>
-                            <p class="shortsContent">${info.content}</p>
+                            <p class="shortsTitle">${escapeHtml(info.title)}</p>
+                            <p class="shortsContent">${escapeHtml(info.content)}</p>
                         </div>
                     </div>
                 </aside>
@@ -500,7 +510,7 @@ function createReplyItemHtml(reply, isSubReply = false) {
 
     // 삭제된 댓글 처리
     let contentClass = isDeleted ? 'deleted' : '';
-    let contentText = isDeleted ? '삭제된 댓글입니다.' : reply.content;
+    let contentText = isDeleted ? '삭제된 댓글입니다.' : escapeHtml(reply.content);
     let nickname = isDeleted ? '(알수없음)' : `@${reply.nickname}`;
 
     // 프로필 이미지
@@ -829,12 +839,12 @@ document.getElementById("btnReplyRegist").addEventListener("click", () => {
 });
 
 // 5. 댓글 무한 스크롤 이벤트
-const commentScrollArea = document.getElementById("commentScrollArea");
-if (commentScrollArea) {
-    commentScrollArea.addEventListener("scroll", () => {
-        const scrollTop = commentScrollArea.scrollTop;
-        const clientHeight = commentScrollArea.clientHeight;
-        const scrollHeight = commentScrollArea.scrollHeight;
+const commentListUl = document.getElementById("commentListUl");
+if (commentListUl) {
+    commentListUl.addEventListener("scroll", () => {
+        const scrollTop = commentListUl.scrollTop;
+        const clientHeight = commentListUl.clientHeight;
+        const scrollHeight = commentListUl.scrollHeight;
 
         if (scrollTop + clientHeight >= scrollHeight - 50) {
             loadReplies(currentPostIdForReply, replyPage);
@@ -1080,7 +1090,7 @@ function showEditForm(replyId) {
     // 2. 수정 폼 HTML 생성 (백틱 `` 사용)
     const editFormHtml = `
         <div class="edit-form-container" id="edit-form-${replyId}">
-            <textarea class="edit-textarea" id="edit-textarea-${replyId}">${originalContent}</textarea>
+            <textarea class="edit-textarea" id="edit-textarea-${replyId}" maxlength="500">${originalContent}</textarea>
             <div class="edit-btn-group">
                 <button type="button" class="btn-cancel" onclick="cancelEdit(event, ${replyId})">취소</button>
                 <button type="button" class="btn-save" onclick="saveEdit(${replyId})">저장</button>
@@ -1123,6 +1133,11 @@ function saveEdit(replyId) {
     // 유효성 검사
     if (newContent.trim() === "") {
         alert("내용을 입력해주세요.");
+        return;
+    }
+
+    if (newContent.length > 500) {
+        alert("댓글은 500자까지만 입력 가능합니다.");
         return;
     }
 

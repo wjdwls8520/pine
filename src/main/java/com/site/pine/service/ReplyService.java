@@ -76,6 +76,10 @@ public class ReplyService {
         if (reqDto.getParentId() != null) {
             Reply parent = rr.findById(reqDto.getParentId())
                     .orElseThrow(() -> new IllegalArgumentException("부모 댓글이 존재하지 않습니다."));
+            // 부모 댓글이 삭제된 상태인지 확인 (삭제된 댓글엔 답글 금지)
+            if ("Y".equals(parent.getDeleteYN())) {
+                throw new IllegalArgumentException("삭제된 댓글에는 답글을 작성할 수 없습니다.");
+            }
             // 부모 댓글과 자식 댓글이 같은 게시글인지 확인 (데이터 꼬임 방지)
             if (!parent.getPost().getId().equals(post.getId())) {
                 throw new IllegalArgumentException("부모 댓글과 다른 게시글에 대댓글을 달 수 없습니다.");
