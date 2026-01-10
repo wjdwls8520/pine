@@ -38,8 +38,8 @@ public class CommunityService {
     private final FileRepository fr;
     private final PostLikeRepository lr;
     private final MemberRepository mr;
-    private final TagRepository tr;
-    private final TagMappingRepository tmr;
+    private final TagService tagService;
+    private final ReplyRepository replyRepository;
 
     @Transactional
     public void insertPost(MemberDto mdto, CommunityCreateReqDto reqDto) {
@@ -54,26 +54,7 @@ public class CommunityService {
         pr.save(postEntity);
 
         //  태그 처리
-        if (reqDto.getTags() != null && !reqDto.getTags().isBlank()) {
-
-            List<String> tagNames = Arrays.stream(reqDto.getTags().split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .distinct()
-                    .toList();
-
-            for (String tagName : tagNames) {
-
-                Tag tag = tr.findByName(tagName)
-                        .orElseGet(() -> tr.save(new Tag(null, tagName)));
-
-                TagMapping mapping = new TagMapping();
-                mapping.setTag(tag);
-                mapping.setTargetId(postEntity.getId());
-
-                tmr.save(mapping);
-            }
-        }
+        tagService.updateTags(postEntity.getId(), reqDto.getTags());
 
         // 파일테이블 저장 및 s3업로드
         List<MultipartFile> fileList = reqDto.getFiles();
@@ -127,13 +108,13 @@ public class CommunityService {
         List<CommunityListDto> posts = postPages.getContent();
 
 
-        // 1️⃣ 게시글 ID 리스트 추출
+        //  게시글 ID 리스트 추출
         List<Long> postIds = posts.stream().map(CommunityListDto::getPostId).collect(Collectors.toList());
 
-        // 2️⃣ 파일 조회
+        //  파일 조회
         List<PostMainFileDto> files = fr.findFilesByPostIds(postIds);
 
-        // 3️⃣ DTO에 파일 주입
+        //  DTO에 파일 주입
         Map<Long, List<PostMainFileDto>> fileMap = files.stream()
                 .collect(Collectors.groupingBy(PostMainFileDto::getPostId));
 
@@ -143,11 +124,8 @@ public class CommunityService {
             }
         }
 
-
-
         // 태그 조회
-        List<TagResDto> tags =
-                tmr.findTagsByTargetIds(postIds);
+        List<TagResDto> tags = tagService.getTagsByPostIds(postIds);
 
         Map<Long, List<TagResDto>> tagMap = tags.stream()
                 .collect(Collectors.groupingBy(TagResDto::getTargetId));
@@ -240,8 +218,7 @@ public class CommunityService {
         dto.setFiles(postFilesResult);
 
         //태그
-        List<TagResDto> tags = tmr.findTagsByTargetIds(List.of(post.getId()));
-        // DTO에 넣기
+        List<TagResDto> tags = tagService.getTagsByPostIds(List.of(post.getId()));
         dto.setTags(tags);
 
         dto.setMemberId(post.getMember().getId());
@@ -266,17 +243,16 @@ public class CommunityService {
         // ==========================================
 
         // 3-1. 태그 매핑 삭제
-        tmr.deleteByTargetId(postId);
+        tagService.deleteTags(postId);
 
         // 3-2. 좋아요 삭제
         lr.deleteByPost(post);
 
         // 3-3. 파일(이미지) DB 데이터 삭제
-        // (실제 S3 파일 삭제는 나중에 구현해도 됩니다. 일단 DB부터!)
         fr.deleteByPost(post);
 
         // 3-4. 댓글 삭제 (ReplyRepository가 있다면)
-        // replyRepository.deleteByPost(post);
+        //replyRepository.deleteByPost(post);
 
         // 3-5. CommunityPost(카테고리 연결) 삭제
         cpr.deleteByPost(post);
@@ -296,10 +272,8 @@ public class CommunityService {
         CommunityPost cp = cpr.findByIdWithPost(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
-        // 태그 조회 (기존에 만들어둔 메서드 활용 or 새로 조회)
-        // 여기선 간단히 TagMappingRepository에서 이름만 가져온다고 가정
-        List<String> tags = tmr.findTagsByTargetIds(List.of(postId))
-                .stream().map(TagResDto::getName).toList();
+        //태그가져오기
+        List<String> tags = tagService.getTags(postId);
 
         return new PostDetailDto(cp, tags);
     }
@@ -329,47 +303,22 @@ public class CommunityService {
         // ==================================================
         // 4. 태그 수정
         // ==================================================
-        // 기존 태그 매핑을 싹 지우고, 새로 입력된 태그를 다시 등록하는 방식이 제일 깔끔함
         if (dto.getTags() != null) {
-            // 4-1. 기존 매핑 삭제
-            tmr.deleteByTargetId(postId);
-
-            // 삭제 쿼리를 DB에 즉시 반영 (강제 플러시)
-            // 이걸 안 하면 아래 save() 할 때 "이미 데이터가 있다"며 에러가 남
-            tmr.flush();
-
-            // 4-2. 새 태그 등록 (insertPost 로직 재사용)
-            // 빈 값이 아닐 때만 실행
-            if (!dto.getTags().isBlank()) {
-                List<String> tagNames = Arrays.stream(dto.getTags().split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .distinct()
-                        .toList();
-
-                for (String tagName : tagNames) {
-                    // 태그 테이블에 없으면 저장, 있으면 가져오기
-                    Tag tag = tr.findByName(tagName)
-                            .orElseGet(() -> tr.save(new Tag(null, tagName)));
-
-                    // 매핑 테이블 저장
-                    TagMapping mapping = new TagMapping();
-                    mapping.setTag(tag);
-                    mapping.setTargetId(postId);
-                    tmr.save(mapping);
-                }
-            }
+            tagService.updateTags(postId, dto.getTags());
         }
 
-        // ==================================================
         // 5. 파일 삭제 (사용자가 삭제 버튼 누른 파일들)
-        // ==================================================
         if (dto.getDeleteFileIds() != null && !dto.getDeleteFileIds().isEmpty()) {
-            // DB에서 해당 파일들 삭제
-            fr.deleteAllById(dto.getDeleteFileIds()); //이거쓰면안됨 수정필요!
+            // 1. DB에서 파일 정보 조회
+            List<File> deleteFiles = fr.findAllById(dto.getDeleteFileIds());
 
-            // S3에서도 실제 파일을 지우려면 여기서 S3UploadService 호출
-            // for (Long fileId : dto.getDeleteFileIds()) { ... }
+            // 2. S3에서 실제 파일 삭제
+            for (File file : deleteFiles) {
+                sus.deleteFile(file.getPath());
+            }
+
+            // 3. DB에서 삭제
+            fr.deleteAll(deleteFiles);
         }
 
         // =========================================================
