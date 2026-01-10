@@ -155,8 +155,16 @@ public class ReplyService {
         if (!reply.getMember().getId().equals(memberId)) {
             throw new IllegalStateException("본인의 댓글만 삭제할 수 있습니다.");
         }
+
+        // 혹시 모를 LazyInitializationException 방지를 위해 ID 미리 확보
+        Long postId = reply.getPost().getId();
+
+        // 좋아요 삭제
+        rlr.deleteByReply(reply);
+
         // soft delete
         reply.changeDeleteYn("Y");
+        rr.save(reply);
 
         // 게시글의 댓글 수 감소
         pr.decreaseReplyCount(reply.getPost().getId());
