@@ -248,6 +248,48 @@
                     </div>
                 </section>
 
+
+                <%-- [NEW] Group Tracklist Section (Apple Music Style) --%>
+                <section class="groupTrackList">
+                    <div class="trackListHeader">
+                            <h3>New Post</h3>
+                        <%-- '더보기' 클릭 시 전체 게시글 목록 페이지로 이동 --%>
+                        <a href="/group/gdetail/${groupDetail.id}/post" class="btnTrackMore">
+                            더 보기
+                        </a>
+                    </div>
+
+                    <ul class="trackList">
+                        <%-- 예시 데이터: 실제 개발 시 c:forEach로 대체 --%>
+                        <c:forEach var="i" begin="1" end="5" step="1">
+                            <li class="trackItem" onclick="location.href='/group/gdetail/${groupDetail.id}/post/' ;">
+                                <div class="trackIndexWrap">
+                                    <span class="trackIndex">${i}</span>
+                                    <img src="/images/icon_pinedory.png" alt="play" class="trackPlayIcon">
+                                </div>
+                                <div class="trackInfo">
+                                    <p class="trackTitle">
+                                        <c:choose>
+                                            <c:when test="${i == 1}">[공지] 이번 앨범 활동 관련 필독 사항입니다.</c:when>
+                                            <c:when test="${i == 2}">오늘자 무대 직캠 공유합니다 (화질 좋음)</c:when>
+                                            <c:otherwise>그룹 활동 게시글 제목 예시입니다 ${i}</c:otherwise>
+                                        </c:choose>
+                                    </p>
+                                    <span class="trackArtist">
+                                        <c:choose>
+                                            <c:when test="${i == 1}">관리자</c:when>
+                                            <c:otherwise>팬덤명${i}</c:otherwise>
+                                        </c:choose>
+                                    </span>
+                                </div>
+                                <div class="trackMeta">
+                                    <span class="trackDate">2026.01.08</span>
+                                </div>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                </section>
+
             </div>
         </section>
 
@@ -276,9 +318,9 @@
 </div>
 <div id="commonToast" class="toastMsg"></div>
 
-<script src="js/common.js"></script>
+<script src="/js/common.js"></script>
 <script>
-    let targetId = Number("${groupDetail.id}");
+    let targetId = ${groupId};
 
     <%-- 현재 조회수 가져오기 --%>
     fetch(`/view/groupviewcount/` + targetId, {

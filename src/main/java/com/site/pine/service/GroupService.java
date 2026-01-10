@@ -1,7 +1,6 @@
 package com.site.pine.service;
 
 import com.site.pine.dto.S3DeleteEventDto;
-import com.site.pine.dto.community.CommunityListDto;
 import com.site.pine.dto.group.*;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.File;

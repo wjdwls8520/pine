@@ -1,3 +1,4 @@
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <footer id="footer" class="subFooter groupFooter">
     <div class="inner">
@@ -79,6 +80,10 @@
         }
     }
 
+    function createGroupPost() {
+        location.href = `/group/${groupDetail.id}/post/create`;
+    }
+
     window.addEventListener("load", () => {
 
         // 메뉴가 들어갈 div
@@ -133,7 +138,7 @@
                     formActions.innerHTML = `
                         <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
                         <div class="stepButtons">
-                            <button type="button" class="btnWH btnNext" id="" onclick="">그룹 포스트 작성</button>
+                            <button type="button" class="btnWH btnNext" id="" onclick="createGroupPost();">그룹 포스트 작성</button>
                         </div>
                     `;
                 } else {

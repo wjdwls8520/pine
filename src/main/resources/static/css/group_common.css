@@ -214,6 +214,45 @@
 .groupJoinBtnSubmit {background: #194f37; border: 1px solid #194f37; color: #fff;}
 .groupJoinBtnSubmit:hover {background: #0f3d26; border-color: #0f3d26;}
 
+
+
+/* 그룹 디테일의 인기포스트 디자인 */
+
+/* Section Container */
+.groupTrackList {display: flex; flex-direction: column; gap: 20px; padding: 32px; border-radius: 24px; background: #fff; box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);}
+
+/* Header Area */
+.groupTrackList .trackListHeader {display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;}
+.groupTrackList .trackListHeader h3 {margin: 0; font-size: 22px; font-weight: 700; color: #0f172a;}
+.groupTrackList .btnTrackMore {display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 600; color: #fa586a; text-decoration: none; transition: color 0.2s;}
+.groupTrackList .btnTrackMore img {width: 12px; height: 12px; opacity: 0.6;}
+.groupTrackList .btnTrackMore:hover {color: #e11d48; text-decoration: underline;}
+
+/* List Area */
+.groupTrackList .trackList {display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none;}
+
+/* List Item (Row) */
+.groupTrackList .trackItem {display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s;}
+.groupTrackList .trackItem:hover {background-color: #f8fafc;}
+.groupTrackList .trackItem:hover .trackIndexWrap .trackIndex {display: none;}
+.groupTrackList .trackItem:hover .trackIndexWrap .trackPlayIcon {display: block;}
+
+/* Index Column */
+.groupTrackList .trackIndexWrap {display: flex; justify-content: center; align-items: center; width: 30px;}
+.groupTrackList .trackIndex {font-size: 14px; font-weight: 500; color: #94a3b8;}
+.groupTrackList .trackPlayIcon {display: none; width: 16px; height: 16px; object-fit: contain;}
+
+/* Info Column (Title + Artist) */
+.groupTrackList .trackInfo {flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0;}
+.groupTrackList .trackTitle {margin: 0; font-size: 16px; font-weight: 500; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.groupTrackList .trackArtist {font-size: 13px; color: #64748b;}
+
+/* Meta Column (Date/Views) */
+.groupTrackList .trackMeta {flex-shrink: 0; font-size: 13px; color: #94a3b8; font-family: 'Roboto', sans-serif;}
+
+
+
+
 /* 반응형 디자인 */
 @media (max-width: 1024px) {
     .groupDetail {padding: 24px;}
@@ -257,4 +296,8 @@
     .groupJoinListItemAvatarImg {font-size: 18px;}
     .groupJoinListItemName {font-size: 16px;}
     .groupJoinListBtn {padding: 8px 16px; font-size: 13px;}
+
+    .groupTrackList {padding: 24px 16px;}
+    .groupTrackList .trackTitle {font-size: 15px;}
+    .groupTrackList .trackMeta {display: none;}
 }
