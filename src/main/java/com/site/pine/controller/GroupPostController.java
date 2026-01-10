@@ -9,12 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Controller
@@ -26,6 +24,24 @@ public class GroupPostController {
     private final GroupAuthorizationService groupAuthorizationService;
 
     private final GroupPostService groupPostService;
+
+    @GetMapping("/group/{groupId}/post/main")
+    public String groupPostMain(@PathVariable("groupId") Long groupId, Model model) {
+        model.addAttribute("groupId", groupId);
+        return "group/gPostMain";
+    }
+
+    @GetMapping("/group/{groupId}/post/main/{page}")
+    @ResponseBody
+    public HashMap<String, Object> getPostList(
+            @AuthenticationPrincipal MemberDto memberDto,
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("page") Integer page
+    ) {
+        groupAuthorizationService.validateLoginMember(); // 로그인 여부 확인
+        groupAuthorizationService.getGroupMemberOrThrow(groupId, memberDto.getId()); // 그룹멤버인지 확인
+        return groupPostService.getPostPage(memberDto,page, groupId);
+    }
 
     @GetMapping("/group/{groupId}/post/create")
     public String groupPost(

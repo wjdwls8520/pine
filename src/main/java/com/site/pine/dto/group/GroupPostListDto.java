@@ -1,0 +1,75 @@
+package com.site.pine.dto.group;
+
+import com.site.pine.dto.post.PostMainFileDto;
+import com.site.pine.dto.tag.TagResDto;
+import lombok.Getter;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+public class GroupPostListDto {
+
+    // Post
+    private Long postId;
+    private String content;
+    private Long groupId;
+    private Integer likeCount;
+    private Integer replyCount;
+    private Timestamp writeDate;
+
+    // Member
+    private Long memberId;
+    private String nickname;
+    private String profileImg;
+
+    private boolean liked; // 로그인 유저의 좋아요 여부
+    private boolean owner; // 로그인 유저의 글인지 여부
+
+    // ✅ Files (여러 개)
+    private List<PostMainFileDto> files = new ArrayList<>();
+
+    //태그
+    private List<TagResDto> tags = new ArrayList<>();
+
+    //  JPQL 생성자
+    public GroupPostListDto(
+            Long postId,
+            String content,
+            Long groupId,
+            Integer likeCount,
+            Integer replyCount,
+            Timestamp writeDate,
+            Long memberId,
+            String nickname,
+            String profileImg
+    ) {
+        this.postId = postId;
+        this.content = content;
+        this.groupId = groupId;
+        this.likeCount = likeCount;
+        this.replyCount = replyCount;
+        this.writeDate = writeDate;
+        this.memberId = memberId;
+        this.nickname = nickname;
+        this.profileImg = profileImg;
+    }
+
+    //  Service에서 파일 주입용
+    public void addFile(PostMainFileDto file) {
+        this.files.add(file);
+    }
+
+    //  태그 주입용
+    public void addTag(TagResDto tag) {
+        this.tags.add(tag);
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
+    }
+
+    public void setOwner(boolean owner) {this.owner = owner;}
+}
+

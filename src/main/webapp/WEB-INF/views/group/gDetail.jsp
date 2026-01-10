@@ -254,12 +254,30 @@
                     <div class="trackListHeader">
                             <h3>New Post</h3>
                         <%-- '더보기' 클릭 시 전체 게시글 목록 페이지로 이동 --%>
-                        <a href="/group/gdetail/${groupDetail.id}/post" class="btnTrackMore">
+                        <a class="btnTrackMore" onclick="
+                            <c:choose>
+                                <c:when test="isGroupMember">
+                                    location.href = '/group/${groupDetail.id}/post/main'
+                                </c:when>
+                                <c:otherwise>
+                                    alert('그룹멤버만 이용 가능합니다.');
+                                </c:otherwise>
+                            </c:choose>
+                        ">
                             더 보기
                         </a>
                     </div>
 
-                    <ul class="trackList">
+                    <ul class="trackList" onclick="
+                        <c:choose>
+                            <c:when test="isGroupMember">
+                                    location.href = '/group/${groupDetail.id}/post/main'
+                            </c:when>
+                            <c:otherwise>
+                                    alert('그룹멤버만 이용 가능합니다.');
+                            </c:otherwise>
+                        </c:choose>
+                    ">
                         <%-- 예시 데이터: 실제 개발 시 c:forEach로 대체 --%>
                         <c:forEach var="i" begin="1" end="5" step="1">
                             <li class="trackItem" onclick="location.href='/group/gdetail/${groupDetail.id}/post/' ;">
