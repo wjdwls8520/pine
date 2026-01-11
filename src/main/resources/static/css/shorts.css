@@ -128,6 +128,12 @@ body {
     color: #334155;
     line-height: 1.4;
     -webkit-line-clamp: 2;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.shortsFeed .cardInner .userPanel .shortsTitle:hover {
+    color: #4f46e5;
 }
 
 .shortsFeed .cardInner .userPanel .shortsContent {
@@ -137,17 +143,14 @@ body {
     -webkit-line-clamp: 3;
 }
 
-.shortsFeed .cardInner .userPanel .shortsTitle.expandable,
 .shortsFeed .cardInner .userPanel .shortsContent.expandable {
     cursor: pointer;
 }
 
-.shortsFeed .cardInner .userPanel .shortsTitle.expandable:hover,
 .shortsFeed .cardInner .userPanel .shortsContent.expandable:hover {
     opacity: 0.8;
 }
 
-.shortsFeed .cardInner .userPanel .shortsTitle.expandable:not(.expanded)::after,
 .shortsFeed .cardInner .userPanel .shortsContent.expandable:not(.expanded)::after {
     content: "[더보기]";
     position: absolute;
@@ -160,19 +163,16 @@ body {
     font-weight: 400;
     color: rgb(148, 163, 184);;
 }
-.shortsFeed .cardInner .userPanel .shortsTitle.expandable:not(.expanded):hover::after,
 .shortsFeed .cardInner .userPanel .shortsContent.expandable:not(.expanded):hover::after {
     color: #474747;
 }
 
-.shortsFeed .cardInner .userPanel .shortsTitle.expanded,
 .shortsFeed .cardInner .userPanel .shortsContent.expanded {
     -webkit-line-clamp: unset;
     overflow: visible;
     display: block;
 }
 
-.shortsFeed .cardInner .userPanel .shortsTitle.expanded::after,
 .shortsFeed .cardInner .userPanel .shortsContent.expanded::after {
     content: " [접기]";
     color: rgb(148, 163, 184);;
@@ -182,18 +182,11 @@ body {
     display: inline-block;
 }
 
-.shortsFeed .cardInner .userPanel .shortsTitle.expandable:not(.expanded)::after {
-    height: 1.4em;
-    line-height: 1.4;
-    padding-top: 6px;
-}
-
 .shortsFeed .cardInner .userPanel .shortsContent.expandable:not(.expanded)::after {
     height: 1.6em;
     line-height: 1.6;
 }
 
-.shortsFeed .cardInner .userPanel .shortsTitle.expanded:hover::after,
 .shortsFeed .cardInner .userPanel .shortsContent.expanded:hover::after{
     color: #474747;
 }
@@ -446,6 +439,182 @@ body {
 }
 
 .commentsPanel.open { transform: translateX(0); }
+
+/* ===========================
+   [Description Panel] 설명 패널
+   =========================== */
+.descriptionPanel {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    z-index: 400;
+    top: 48px; right: 0; bottom: 48px;
+    padding: 0 24px 24px;
+    height: auto;
+    width: 420px;
+    background: #fff;
+    border-left: 1px solid #e5e7eb;
+    box-shadow: var(--panel-shadow);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.descriptionPanel.open { transform: translateX(0); }
+
+/* 설명 패널 헤더 */
+.descriptionPanel .panelHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 24px 0 18px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.descriptionPanel .panelTitle {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.descriptionPanel .panelTitle strong {
+    font-size: 18px;
+    color: #0f172a;
+    font-weight: 700;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 작성자 정보 영역 */
+.descriptionPanel .authorInfo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.descriptionPanel .authorAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #e5e7eb;
+}
+
+.descriptionPanel .authorAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.descriptionPanel .authorDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.descriptionPanel .authorName {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.descriptionPanel .authorDate {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+/* 설명 패널 본문 */
+.descriptionPanel .panelBody {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* 본문 내용 */
+.descriptionPanel .descContent {
+    font-size: 14px;
+    color: #334155;
+    line-height: 1.7;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+/* 해시태그 영역 */
+.descriptionPanel .descTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px 0;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.descriptionPanel .descTags .tag-item {
+    font-size: 13px;
+    color: #4f46e5;
+    font-weight: 600;
+    background-color: #eef2ff;
+    padding: 6px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.descriptionPanel .descTags .tag-item:hover {
+    background-color: #ddd6fe;
+    transform: translateY(-1px);
+}
+
+/* 통계 정보 영역 */
+.descriptionPanel .descStats {
+    display: flex;
+    gap: 24px;
+    padding: 16px 0;
+}
+
+.descriptionPanel .statItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.descriptionPanel .statItem .statIcon {
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.7;
+}
+
+.descriptionPanel .statItem .statIcon.like {
+    background-image: url('../images/ico_like.png');
+}
+
+.descriptionPanel .statItem .statIcon.view {
+    background-image: url('../images/ico_view.png');
+}
+
+.descriptionPanel .statItem .statLabel {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.descriptionPanel .statItem .statValue {
+    font-size: 15px;
+    color: #0f172a;
+    font-weight: 700;
+}
 
 .panelHeader {
     display: flex;
