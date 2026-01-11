@@ -47,6 +47,44 @@
                 </div>
             </div>
         </div>
+
+        <div class="descriptionPanel" id="descriptionPanel">
+            <div class="panelHeader">
+                <div class="panelTitle">
+                    <strong id="descPanelTitle">제목</strong>
+                    <div class="authorInfo">
+                        <div class="authorAvatar">
+                            <img id="descPanelProfileImg" src="/images/icon_pinedory.png" alt="프로필">
+                        </div>
+                        <div class="authorDetails">
+                            <span class="authorName" id="descPanelUser">@작성자</span>
+                            <span class="authorDate" id="descPanelDate">날짜</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="closeBtn" onclick="closeDescription()">닫기</button>
+            </div>
+            <div class="panelBody">
+                <div class="descContent" id="descPanelContent">
+                    내용이 표시됩니다.
+                </div>
+                <div class="descTags" id="descPanelTags">
+                    <!-- 해시태그가 동적으로 추가됩니다 -->
+                </div>
+                <div class="descStats">
+                    <div class="statItem">
+                        <span class="statIcon like"></span>
+                        <span class="statLabel">좋아요</span>
+                        <span class="statValue" id="descPanelLikeCount">0</span>
+                    </div>
+                    <div class="statItem">
+                        <span class="statIcon view"></span>
+                        <span class="statLabel">조회수</span>
+                        <span class="statValue" id="descPanelViewCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>

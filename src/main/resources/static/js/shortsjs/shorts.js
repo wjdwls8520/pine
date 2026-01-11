@@ -6,6 +6,27 @@
  */
 
 // ==========================================
+//  0. 유틸리티 함수
+// ==========================================
+
+/**
+ * HTML 이스케이프 함수 (XSS 방지)
+ * - reply.js에도 동일한 함수가 있을 수 있으므로, 없을 경우에만 정의
+ */
+if (typeof escapeHtml === 'undefined') {
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+}
+
+// ==========================================
 //  1. 전역 변수 및 설정
 // ==========================================
 let page = 0;
@@ -157,24 +178,37 @@ function renderShortCard(info, isPrepend = false) {
         tagHtml += `</div>`;
     }
 
-    // 1. 드롭다운 메뉴 아이템 구성
+    // 1. 게시물 데이터를 JSON 문자열로 변환 (설명 패널에서 사용)
+    const postDataJson = JSON.stringify({
+        postId: info.postId,
+        title: info.title,
+        nickname: info.nickname,
+        writeDate: dateStr,
+        content: info.content,
+        tags: info.tags || [],
+        likeCount: info.likeCount,
+        viewCount: info.viewCount || 0,
+        profileImg: userProfile
+    }).replace(/"/g, '&quot;'); // HTML 속성에 안전하게 넣기 위한 이스케이프
+
+    // 2. 드롭다운 메뉴 아이템 구성
     // 기본 메뉴: 설명, 신고 (누구나 보임)
     let menuItems = `
-        <li><button type="button" class="dropdownItem" onclick="alert('이 쇼츠에 대한 설명입니다:\\n${info.content}')">설명</button></li>
+        <li><button type="button" class="dropdownItem" onclick='openDescriptionFromMenu(this)'>설명</button></li>
         <li><button type="button" class="dropdownItem" onclick="handleReport('SHORTS', '${info.postId}')">신고</button></li>
     `;
 
     if (loginUser && String(info.memberId) === String(loginUser)) {
         menuItems = `
-            <li><button type="button" class="dropdownItem" onclick="alert('설명:\\n${escapeHtml(info.content)}')">설명</button></li>
+            <li><button type="button" class="dropdownItem" onclick='openDescriptionFromMenu(this)'>설명</button></li>
             <li><button type="button" class="dropdownItem" onclick="updateShorts('${info.postId}')">수정</button></li>
             <li><button type="button" class="dropdownItem danger" onclick="deleteShorts('${info.postId}')">삭제</button></li>
         `;
     }
 
-    // 2. 드롭다운 HTML 조립 (항상 보임)
+    // 3. 드롭다운 HTML 조립 (항상 보임)
     const optionHtml = `
-        <div class="commentOption" onclick="event.stopPropagation()">
+        <div class="commentOption" onclick="event.stopPropagation()" data-post-info="${postDataJson}">
             <button type="button" class="moreBtn" onclick="toggleCommentMenu(this)">
                 <img src="/images/ico_menu.png" alt="더보기">
             </button>
@@ -185,7 +219,7 @@ function renderShortCard(info, isPrepend = false) {
     `;
 
     const html = `
-        <div class="shortsCard" data-post-id="${info.postId}" data-title="${info.title}" data-user="${info.nickname}" data-date="${dateStr}">
+        <div class="shortsCard" data-post-id="${info.postId}" data-title="${info.title}" data-user="${info.nickname}" data-date="${dateStr}" data-post-info="${postDataJson}">
             <div class="cardInner">
                  <aside class="userPanel">
                     <div class="userWrap">
@@ -197,7 +231,7 @@ function renderShortCard(info, isPrepend = false) {
                             </div>
                         </div>
                         <div class="userBody">
-                            <p class="shortsTitle">${escapeHtml(info.title)}</p>
+                            <p class="shortsTitle" onclick="openDescriptionFromTitle(this)" style="cursor: pointer;">${escapeHtml(info.title)}</p>
                             <p class="shortsContent">${escapeHtml(info.content)}</p>
                             ${tagHtml}
                         </div>
@@ -259,10 +293,8 @@ function renderShortCard(info, isPrepend = false) {
     const titleEl = newCard.querySelector('.shortsTitle');
     const descEl = newCard.querySelector('.shortsContent');
 
-    if (titleEl && titleEl.scrollHeight > titleEl.clientHeight) {
-        titleEl.classList.add('expandable');
-        titleEl.setAttribute('onclick', 'toggleExpand(this)');
-    }
+    // 제목은 항상 클릭 시 설명 패널을 열도록 설정됨 (위에서 이미 처리)
+    // 더보기 스타일은 제거하고, 제목 클릭은 설명 패널 열기만 수행
 
     if (descEl && descEl.scrollHeight > descEl.clientHeight) {
         descEl.classList.add('expandable');
@@ -508,6 +540,147 @@ shortsFeedWrap.addEventListener('click', (e) => {
             });
     }
 });
+
+/**
+ * 설명 패널 열기
+ * @param {Object} postData - 쇼츠 게시물 데이터
+ * @param {string} postData.title - 제목
+ * @param {string} postData.nickname - 작성자 닉네임
+ * @param {string} postData.writeDate - 작성일
+ * @param {string} postData.content - 내용
+ * @param {Array} postData.tags - 해시태그 배열
+ * @param {number} postData.likeCount - 좋아요 수
+ * @param {number} postData.viewCount - 조회수
+ * @param {string} postData.profileImg - 프로필 이미지 경로
+ */
+function openDescription(postData) {
+    const panel = document.getElementById("descriptionPanel");
+    
+    if (!panel) {
+        console.error("[설명 패널] 패널 요소를 찾을 수 없습니다.");
+        return;
+    }
+
+    // 1. 헤더 정보 세팅
+    document.getElementById("descPanelTitle").innerText = postData.title || "제목 없음";
+    
+    // 프로필 이미지
+    const profileImg = document.getElementById("descPanelProfileImg");
+    if (profileImg) {
+        profileImg.src = postData.profileImg || '/images/icon_pinedory.png';
+    }
+
+    // 작성자 및 날짜
+    document.getElementById("descPanelUser").innerText = "@" + (postData.nickname || "익명");
+    document.getElementById("descPanelDate").innerText = postData.writeDate || "";
+
+    // 2. 본문 내용 (줄바꿈 처리)
+    const contentEl = document.getElementById("descPanelContent");
+    if (contentEl) {
+        // 줄바꿈을 <br>로 변환하여 HTML에 표시
+        const formattedContent = escapeHtml(postData.content || "내용 없음").replace(/\n/g, '<br>');
+        contentEl.innerHTML = formattedContent;
+    }
+
+    // 3. 해시태그 렌더링
+    const tagsContainer = document.getElementById("descPanelTags");
+    if (tagsContainer) {
+        if (postData.tags && postData.tags.length > 0) {
+            let tagsHtml = '';
+            postData.tags.forEach(tag => {
+                tagsHtml += `<span class="tag-item">#${escapeHtml(tag)}</span>`;
+            });
+            tagsContainer.innerHTML = tagsHtml;
+            tagsContainer.style.display = 'flex';
+        } else {
+            tagsContainer.innerHTML = '';
+            tagsContainer.style.display = 'none';
+        }
+    }
+
+    // 4. 통계 정보 (좋아요, 조회수)
+    document.getElementById("descPanelLikeCount").innerText = formatNumber(postData.likeCount || 0);
+    document.getElementById("descPanelViewCount").innerText = formatNumber(postData.viewCount || 0);
+
+    // 5. 패널 열기 애니메이션
+    panel.classList.add("open");
+}
+
+/**
+ * 설명 패널 닫기
+ */
+function closeDescription() {
+    const panel = document.getElementById("descriptionPanel");
+    if (panel) {
+        panel.classList.remove("open");
+    }
+}
+
+/**
+ * 숫자 포맷팅 (예: 1234 -> 1.2K)
+ * @param {number} num - 숫자
+ * @returns {string} - 포맷된 문자열
+ */
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+}
+
+/**
+ * 제목 클릭 시 설명 패널 열기
+ * @param {HTMLElement} titleElement - 클릭된 제목 요소
+ */
+function openDescriptionFromTitle(titleElement) {
+    // 부모 카드에서 데이터 추출
+    const card = titleElement.closest('.shortsCard');
+    if (!card) return;
+
+    const postDataStr = card.getAttribute('data-post-info');
+    if (!postDataStr) {
+        console.error("[설명 패널] 게시물 데이터를 찾을 수 없습니다.");
+        return;
+    }
+
+    try {
+        const postData = JSON.parse(postDataStr.replace(/&quot;/g, '"'));
+        openDescription(postData);
+    } catch (e) {
+        console.error("[설명 패널] 데이터 파싱 오류:", e);
+    }
+}
+
+/**
+ * 드롭다운 메뉴에서 설명 패널 열기
+ * @param {HTMLElement} menuButton - 클릭된 메뉴 버튼
+ */
+function openDescriptionFromMenu(menuButton) {
+    // 부모 commentOption에서 데이터 추출
+    const optionDiv = menuButton.closest('.commentOption');
+    if (!optionDiv) return;
+
+    const postDataStr = optionDiv.getAttribute('data-post-info');
+    if (!postDataStr) {
+        console.error("[설명 패널] 게시물 데이터를 찾을 수 없습니다.");
+        return;
+    }
+
+    try {
+        const postData = JSON.parse(postDataStr.replace(/&quot;/g, '"'));
+        openDescription(postData);
+        
+        // 드롭다운 메뉴 닫기
+        const dropdown = optionDiv.querySelector('.dropdownMenu');
+        if (dropdown) {
+            dropdown.classList.remove('active');
+        }
+    } catch (e) {
+        console.error("[설명 패널] 데이터 파싱 오류:", e);
+    }
+}
 
 // ==========================================
 //  6. 초기 실행 (Initialization)
