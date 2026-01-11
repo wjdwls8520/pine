@@ -21,4 +21,8 @@ public class ShortsPost {
     @Comment("쇼츠 제목")
     @Column(nullable = false, length = 100)
     private String title;
+
+    @Comment("조회수")
+    @Column(nullable = false)
+    private Long viewCount = 0L;
 }
