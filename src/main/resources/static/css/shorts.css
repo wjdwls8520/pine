@@ -130,10 +130,11 @@ body {
     -webkit-line-clamp: 2;
     cursor: pointer;
     transition: color 0.2s ease;
+    padding-left: 5px;
 }
 
 .shortsFeed .cardInner .userPanel .shortsTitle:hover {
-    color: #4f46e5;
+    color: #2e2e2e;
 }
 
 .shortsFeed .cardInner .userPanel .shortsContent {
@@ -489,14 +490,16 @@ body {
     text-overflow: ellipsis;
 }
 
-/* 작성자 정보 영역 */
-.descriptionPanel .authorInfo {
+/* 작성자 정보 영역 (설명/댓글 패널 공용) */
+.descriptionPanel .authorInfo,
+.commentsPanel .authorInfo {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.descriptionPanel .authorAvatar {
+.descriptionPanel .authorAvatar,
+.commentsPanel .authorAvatar {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -505,25 +508,29 @@ body {
     border: 1px solid #e5e7eb;
 }
 
-.descriptionPanel .authorAvatar img {
+.descriptionPanel .authorAvatar img,
+.commentsPanel .authorAvatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.descriptionPanel .authorDetails {
+.descriptionPanel .authorDetails,
+.commentsPanel .authorDetails {
     display: flex;
     flex-direction: row;
     gap: 2px;
 }
 
-.descriptionPanel .authorName {
+.descriptionPanel .authorName,
+.commentsPanel .authorName {
     font-size: 13px;
     font-weight: 600;
     color: #0f172a;
 }
 
-.descriptionPanel .authorDate {
+.descriptionPanel .authorDate,
+.commentsPanel .authorDate {
     display: flex;
     align-items: center;
     font-size: 11px;
@@ -549,6 +556,7 @@ body {
     line-height: 1.7;
     word-break: break-word;
     white-space: pre-wrap;
+    padding-left: 3px;
 }
 
 /* 해시태그 영역 */
@@ -562,18 +570,11 @@ body {
 
 .descriptionPanel .descTags .tag-item {
     font-size: 13px;
-    color: #4f46e5;
+    color: #64748b;
     font-weight: 600;
     background-color: #eef2ff;
     padding: 6px 12px;
     border-radius: 16px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.descriptionPanel .descTags .tag-item:hover {
-    background-color: #ddd6fe;
-    transform: translateY(-1px);
 }
 
 /* 통계 정보 영역 */
@@ -640,11 +641,15 @@ body {
     overflow: hidden;
 }
 
-.commentHeaderTitle {
+.panelTitle strong {
+    font-size: 18px;
+    color: #0f172a;
+    font-weight: 700;
+    margin-top: 12px;
+    padding-left: 3px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: block;
 }
 
 .panelTitle span { font-size: 13px; color: #94a3b8; }
@@ -779,18 +784,6 @@ body {
 }
 
 .commentList p.deleted { color: #94a3b8; font-style: italic; }
-
-.commentsPanel .panelHeader .panelTitle .commentHeaderUser {
-    color: rgb(15, 23, 42);
-    font-weight: 600;
-    margin-right: 4px;
-}
-
-.commentsPanel .panelHeader .panelTitle #commentPanelDate {
-    font-size: 11px;
-    color: rgb(148, 163, 184);
-    font-weight: 400;
-}
 
 .commentInput {
     margin-top: auto;
@@ -1258,9 +1251,5 @@ body {
     background-color: #f0f8ff;
     padding: 2px 6px;
     border-radius: 4px;
-    cursor: pointer;
 }
 
-.tag-item:hover {
-    text-decoration: underline;
-}
