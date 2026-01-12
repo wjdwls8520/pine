@@ -5,12 +5,12 @@ import com.site.pine.dto.community.CommunityListDto;
 import com.site.pine.dto.group.GroupPostListDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.entity.post.Post;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -58,7 +58,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             (CASE WHEN EXISTS (
                 SELECT 1 FROM PostLike pl
                 WHERE pl.post = p AND pl.member.id = :loginId
-            ) THEN true ELSE false END)
+            ) THEN true ELSE false END),
+            sp.viewCount
         )
         from ShortsPost sp
         join sp.post p

@@ -23,6 +23,7 @@ public class ShortsResDto {
 
     private int likeCount;
     private int replyCount;
+    private Long viewCount;
 
     private List<String> tags;
     private List<FileDto> files;
@@ -34,6 +35,7 @@ public class ShortsResDto {
         // 1. ShortsPost 정보 매핑
         dto.setPostId(entity.getPost().getId());
         dto.setTitle(entity.getTitle());
+        dto.setViewCount(entity.getViewCount());
 
         // 2. 부모 Post 정보 매핑
         dto.setContent(entity.getPost().getContent());

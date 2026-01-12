@@ -10,11 +10,13 @@ import com.site.pine.entity.File;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.post.Post;
 import com.site.pine.entity.shorts.ShortsPost;
+import com.site.pine.entity.shorts.ShortsViewHistory;
 import com.site.pine.event.ShortsMediaEvent;
 import com.site.pine.repository.FileRepository;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.PostRepository;
 import com.site.pine.repository.shorts.ShortsPostRepository;
+import com.site.pine.repository.shorts.ShortsViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,12 +24,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // 🔧 수정: Spring Tx로 통일 권장
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +55,7 @@ public class ShortsService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ShortsAsyncService sas;
     private final TagService ts;
+    private final ShortsViewRepository svr;
 
     @Transactional(readOnly = true)
     public HashMap<String, Object> getAllShorts(MemberDto memberdto, int page) {
@@ -205,5 +210,39 @@ public class ShortsService {
         List<String> tags = ts.getTags(postId);
 
         return ShortsResDto.from(shortsPost, tags);
+    }
+
+    // 쇼츠 재생수 증가(비동기 처리)
+    @Async("taskExecutor") // AsyncConfig에 등록된 Bean 이름 (보통 taskExecutor)
+    @Transactional
+    public void countView(Long shortsId, Long memberId, String cookie) {
+
+        // 쿨타임 기준 시간 설정 (현재 시간 - 10분)
+        LocalDateTime timeLimit = LocalDateTime.now().minusMinutes(10);
+
+        // 중복 조회 체크
+        boolean isDuplicate;
+        if (memberId != null) {
+            // 회원: (쇼츠ID + 회원ID)로 체크
+            isDuplicate = svr.existsByMemberRecent(shortsId, memberId, timeLimit);
+        } else {
+            // 비회원: (쇼츠ID + 쿠키)로 체크
+            isDuplicate = svr.existsByCookieRecent(shortsId, cookie, timeLimit);
+        }
+
+        // 중복이면 로직 종료 (DB 쓰기 방지)
+        if (isDuplicate) return;
+
+        // 기록 저장
+        // getReferenceById: 실제 조회 쿼리 없이 Proxy 객체만 가져옴 (성능 최적화)
+        ShortsPost shortsPost = spr.getReferenceById(shortsId);
+        Member member = (memberId != null) ? mr.getReferenceById(memberId) : null;
+
+        ShortsViewHistory history = new ShortsViewHistory(shortsPost, member, cookie);
+        svr.save(history);
+
+        // 조회수 증가 (Atomic Update)
+        // DB 쿼리로 직접 +1 실행 (동시성 해결)
+        spr.increaseViewCount(shortsId);
     }
 }

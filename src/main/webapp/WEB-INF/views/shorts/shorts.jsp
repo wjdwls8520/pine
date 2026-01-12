@@ -51,7 +51,6 @@
         <div class="descriptionPanel" id="descriptionPanel">
             <div class="panelHeader">
                 <div class="panelTitle">
-                    <strong id="descPanelTitle">제목</strong>
                     <div class="authorInfo">
                         <div class="authorAvatar">
                             <img id="descPanelProfileImg" src="/images/icon_pinedory.png" alt="프로필">
@@ -61,6 +60,7 @@
                             <span class="authorDate" id="descPanelDate">날짜</span>
                         </div>
                     </div>
+                    <strong id="descPanelTitle">제목</strong>
                 </div>
                 <button class="closeBtn" onclick="closeDescription()">닫기</button>
             </div>
@@ -81,6 +81,11 @@
                         <span class="statIcon view"></span>
                         <span class="statLabel">조회수</span>
                         <span class="statValue" id="descPanelViewCount">0</span>
+                    </div>
+                    <div class="statItem">
+                        <span class="statIcon reply"></span>
+                        <span class="statLabel">댓글</span>
+                        <span class="statValue" id="descPanelReplyCount">0</span>
                     </div>
                 </div>
             </div>

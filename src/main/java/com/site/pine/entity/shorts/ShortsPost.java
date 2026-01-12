@@ -22,7 +22,7 @@ public class ShortsPost {
     @Column(nullable = false, length = 100)
     private String title;
 
-    @Comment("조회수")
+    @Comment("재생수")
     @Column(nullable = false)
     private Long viewCount = 0L;
 }
