@@ -49,14 +49,17 @@ public class ShortsController {
         return "shorts/shortsUpload";
     }
 
+    @ResponseBody
     @PostMapping("/shorts/shortsUpload")
-    public String shortsUpload(@AuthenticationPrincipal MemberDto memberdto, @ModelAttribute ShortsUploadReqDto shortsuploadreqdto, RedirectAttributes redirectAttrs){
+    public Map<String, Object> shortsUpload(@AuthenticationPrincipal MemberDto memberdto, @ModelAttribute ShortsUploadReqDto shortsuploadreqdto){
+        Map<String, Object> map = new HashMap<>();
         System.out.println(shortsuploadreqdto);
         System.out.println(memberdto);
 
         if (memberdto == null) {
-            redirectAttrs.addFlashAttribute("msg", "로그인 후 이용해주세요");
-            return "redirect:/login";
+            map.put("success", false);
+            map.put("msg", "로그인 후 이용해주세요");
+            return map;
         }
 
         MultipartFile video = shortsuploadreqdto.getVideoFile();
@@ -64,46 +67,58 @@ public class ShortsController {
 
         // 1. 영상 검증
         if(video == null || video.isEmpty()) {
-            redirectAttrs.addFlashAttribute("msg","영상 파일은 필수입니다.");
-            return "redirect:/shorts";
+            map.put("success", false);
+            map.put("msg", "영상 파일은 필수입니다.");
+            return map;
         }
 
-        if(video.getSize() > 10 *  1024 * 1024) {
-            redirectAttrs.addFlashAttribute("msg", "영상은 최대 10MB까지 업로드 가능합니다.");
-            return "redirect:/shorts";
+        if(video.getSize() > 10 * 1024 * 1024) {
+            map.put("success", false);
+            map.put("msg", "영상은 최대 10MB까지 업로드 가능합니다.");
+            return map;
         }
 
         if(video.getContentType() == null || !video.getContentType().startsWith("video/")) {
-            redirectAttrs.addFlashAttribute("msg", "영상 파일만 업로드할 수 있습니다.");
-            return "redirect:/shorts";
+            map.put("success", false);
+            map.put("msg", "영상 파일만 업로드할 수 있습니다.");
+            return map;
         }
 
         // 2. 수동 썸네일 검증
         if("manual".equals(shortsuploadreqdto.getThumbnailType())){
             if (thumbnail == null || thumbnail.isEmpty()) {
-                redirectAttrs.addFlashAttribute("msg","썸네일 파일이 없습니다.");
-                return "redirect:/shorts";
+                map.put("success", false);
+                map.put("msg", "썸네일 파일이 없습니다.");
+                return map;
             }
 
-            if(thumbnail.getSize() > 5 *  1024 * 1024) {
-                redirectAttrs.addFlashAttribute("msg","썸네일 이미지는 5MB 이내로 가능합니다.");
-                return "redirect:/shorts";
+            if(thumbnail.getSize() > 5 * 1024 * 1024) {
+                map.put("success", false);
+                map.put("msg", "썸네일 이미지는 5MB 이내로 가능합니다.");
+                return map;
             }
 
             if(thumbnail.getContentType() == null || !thumbnail.getContentType().startsWith("image/")) {
-                redirectAttrs.addFlashAttribute("msg", "이미지 파일만 썸네일로 사용할 수 있습니다.");
-                return "redirect:/shorts";
+                map.put("success", false);
+                map.put("msg", "이미지 파일만 썸네일로 사용할 수 있습니다.");
+                return map;
             }
         }
 
         try {
             ss.insertShorts(shortsuploadreqdto, memberdto);
-            redirectAttrs.addFlashAttribute("msg", "쇼츠가 정상적으로 업로드되었습니다");
-        }catch (IllegalStateException e){
-            redirectAttrs.addFlashAttribute("msg", e.getMessage());
+            map.put("success", true);
+            map.put("msg", "쇼츠가 정상적으로 업로드되었습니다");
+        } catch (IllegalStateException e) {
+            map.put("success", false);
+            map.put("msg", e.getMessage());
+        } catch (Exception e) {
+            log.error("쇼츠 업로드 중 오류 발생", e);
+            map.put("success", false);
+            map.put("msg", "업로드 중 알 수 없는 오류가 발생했습니다.");
         }
 
-        return "redirect:/shorts";
+        return map;
     }
 
     @GetMapping("/shorts/detail/{postId}")
