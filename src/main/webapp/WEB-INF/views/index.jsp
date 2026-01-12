@@ -29,7 +29,7 @@
                                     <img src="/images/banner01.png" alt="배너이미지" />
                                 </div>
                                 <div class="infoBox">
-                                    <div class="tit">2030 서울 팬클럽 모임</div>
+                                    <div class="tit">2026년 대한민국 수험생 경품 이벤트</div>
                                 </div>
                             </a>
                         </div>
@@ -39,7 +39,7 @@
                                     <img src="/images/banner02.png" alt="배너이미지" />
                                 </div>
                                 <div class="infoBox">
-                                    <div class="tit">2030 서울 팬클럽 모임 이쫘나아아아아아아아앙아아앙아아앙앙!!!!!!!</div>
+                                    <div class="tit">박보검 생일 축하 배너</div>
                                 </div>
                             </a>
                         </div>
@@ -49,7 +49,7 @@
                                     <img src="/images/banner03.png" alt="배너이미지" />
                                 </div>
                                 <div class="infoBox">
-                                    <div class="tit">2030 서울 팬클럽 모임</div>
+                                    <div class="tit">인기 아이돌 닮은 웹툰 캐릭터를 찾아라! 이벤트</div>
                                 </div>
                             </a>
                         </div>
@@ -59,7 +59,7 @@
                                     <img src="/images/banner04.png" alt="배너이미지" />
                                 </div>
                                 <div class="infoBox">
-                                    <div class="tit">2030 서울 팬클럽 모임</div>
+                                    <div class="tit">K-문화를 찾아</div>
                                 </div>
                             </a>
                         </div>
@@ -67,16 +67,6 @@
                             <a href="#">
                                 <div class="imgBox">
                                     <img src="/images/banner05.png" alt="배너이미지" />
-                                </div>
-                                <div class="infoBox">
-                                    <div class="tit">2030 서울 팬클럽 모임</div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="swiper-slide">
-                            <a href="#">
-                                <div class="imgBox">
-                                    <img src="/images/banner03.png" alt="배너이미지" />
                                 </div>
                                 <div class="infoBox">
                                     <div class="tit">2030 서울 팬클럽 모임</div>
@@ -93,7 +83,7 @@
                 <div class="contentsWrap">
                     <div class="postBox">
                         <c:forEach items="${postAll}" var="post">
-                            <div class="postList">
+                            <div class="postList cursor" onclick="location.href='/community/cdetail/${post.id}'">
                                 <div class="postInfo">
                                     <div class="top">
                                         <div class="tit">
@@ -126,7 +116,7 @@
                 <div class="contentsWrap">
                     <div class="groupBox">
                         <c:forEach items="${groupAll}" var="group">
-                            <div class="groupList">
+                            <div class="groupList cursor" onclick="location.href='/group/gdetail/${group.id}'">
                                 <div class="imgBox">
                                     <img src="${group.groupImg.path}" alt="이미지" />
                                 </div>
