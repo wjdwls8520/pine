@@ -412,6 +412,9 @@ function openDescription(postData) {
         profileImg.src = postData.profileImg || '/images/icon_pinedory.png';
     }
 
+    const nickname = postData.nickname ? postData.nickname : "알 수 없음";
+    document.getElementById("descPanelUser").innerText = "@" + nickname;
+
     // 날짜
     if (typeof timeAgoAjax === 'function' && postData.writeDate) {
         document.getElementById("descPanelDate").innerText = timeAgoAjax(postData.writeDate);
@@ -555,6 +558,23 @@ function openComment(postId, title, writer, date) {
     document.getElementById("commentPanelUser").innerText = "@" + writer;
     document.getElementById("commentPanelDate").innerText = date || "";
 
+    // 프로필 이미지 설정
+    const card = document.querySelector(`.shortsCard[data-post-id="${postId}"]`);
+    if (card) {
+        const postInfoStr = card.getAttribute('data-post-info');
+        if (postInfoStr) {
+            try {
+                const postInfo = JSON.parse(postInfoStr.replace(/&quot;/g, '"'));
+                const profileImg = document.getElementById("commentPanelProfileImg");
+                if (profileImg) {
+                    profileImg.src = postInfo.profileImg || '/images/icon_pinedory.png';
+                }
+            } catch (e) {
+                console.error("프로필 이미지 설정 중 오류:", e);
+            }
+        }
+    }
+
     document.getElementById("commentListUl").innerHTML = "";
     document.getElementById("replyInput").value = "";
 
@@ -594,6 +614,20 @@ function refreshCommentPanelIfOpen(cardElement) {
     document.getElementById("commentPanelTitle").innerText = title;
     document.getElementById("commentPanelUser").innerText = "@" + writer;
     document.getElementById("commentPanelDate").innerText = date || "";
+
+    // 프로필 이미지 설정
+    const postInfoStr = cardElement.getAttribute('data-post-info');
+    if (postInfoStr) {
+        try {
+            const postInfo = JSON.parse(postInfoStr.replace(/&quot;/g, '"'));
+            const profileImg = document.getElementById("commentPanelProfileImg");
+            if (profileImg) {
+                profileImg.src = postInfo.profileImg || '/images/icon_pinedory.png';
+            }
+        } catch (e) {
+            console.error("프로필 이미지 설정 중 오류:", e);
+        }
+    }
 
     document.getElementById("commentListUl").innerHTML = "";
     document.getElementById("replyInput").value = "";
@@ -676,7 +710,7 @@ function increaseViewCount(postId) {
         .catch(err => console.error("[View] 통신 오류:", err));
 }
 
-// [유틸] DOM 내 조회수 업데이트 (필요 시 사용)
+// DOM 내 조회수 업데이트
 function updateViewCountInDOM(postId) {
     const card = document.querySelector(`.shortsCard[data-post-id="${postId}"]`);
     if (!card) return;
@@ -703,19 +737,33 @@ function updateViewCountInDOM(postId) {
     }
 }
 
-// 쇼츠 수정 (미구현)
+// 쇼츠 수정
 function updateShorts(postId) {
-    const newContent = prompt("수정할 설명을 입력하세요.");
-    if (newContent) {
-        alert("수정 기능은 서버 API 연결이 필요합니다.\n입력내용: " + newContent);
-    }
+    location.href = `/shorts/shortsUpdate/${postId}`;
 }
 
-// 쇼츠 삭제 (미구현)
+// 쇼츠 삭제
 function deleteShorts(postId) {
-    if (confirm("정말 이 쇼츠를 삭제하시겠습니까?")) {
-        alert("삭제 요청이 전송되었습니다. (기능 연결 필요)");
+    if (!confirm("정말 이 쇼츠를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.")) {
+        return;
     }
+
+    fetch(`/shorts/delete/${postId}`, {
+        method: 'DELETE',
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.msg);
+            location.href = '/shorts';
+        } else {
+            alert(data.msg);
+        }
+    })
+    .catch(err => {
+        console.error("삭제 실패:", err);
+        alert("시스템 오류가 발생했습니다.");
+    });
 }
 
 // 링크 복사 (공유 버튼 이벤트 위임)

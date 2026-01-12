@@ -1,12 +1,17 @@
 package com.site.pine.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @ControllerAdvice
@@ -48,10 +53,46 @@ public class GlobalExceptionHandler {
                 .build(); // 바디 없이 깔끔하게 리턴
     }
 
-    // 진짜 서버 에러(NPE 등)만 스택 트레이스를 찍습니다.
+//    // 진짜 서버 에러(NPE 등)만 스택 트레이스를 찍습니다.
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<String> handleServerException(Exception e) {
+//        log.error("서버 내부 오류 발생", e); // 이건 우리가 고쳐야 하니까 다 찍음
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//    }
+
+    /**
+     *    서버 에러 (500) 처리
+     * - AJAX(JSON) 요청이면 -> JSON 응답 { success: false, msg: ... }
+     * - 일반 브라우저 요청이면 -> 에러 메시지(String) 또는 에러 페이지 리턴
+     */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleServerException(Exception e) {
-        log.error("서버 내부 오류 발생", e); // 이건 우리가 고쳐야 하니까 다 찍음
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    public Object handleServerException(Exception e, HttpServletRequest request) {
+        log.error("서버 내부 오류 발생", e);
+
+        // 1. 요청이 JSON을 원하는지 확인 (AJAX/Fetch 요청 체크)
+        String acceptHeader = request.getHeader("Accept");
+        String xRequestedWith = request.getHeader("X-Requested-With");
+
+        boolean isJsonRequest = (acceptHeader != null && acceptHeader.contains("application/json")) ||
+                "XMLHttpRequest".equals(xRequestedWith);
+
+        // 2. JSON 요청인 경우 -> Map 반환 (ResponseEntity<Map>)
+        if (isJsonRequest) {
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("success", false);
+            errorMap.put("msg", "서버 오류: " + e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON) // 명시적 JSON 타입 설정
+                    .body(errorMap);
+        }
+
+        // 3. 일반 요청인 경우  단순 문자열 반환
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("서버 오류가 발생했습니다: " + e.getMessage());
+
     }
+
 }

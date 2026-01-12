@@ -82,4 +82,34 @@ public class TagService {
         }
         return tmr.findTagsByTargetIds(postIds);
     }
+
+
+    /**
+     *  리스트로 들어온 태그 저장 (DTO 대응용)
+     */
+    public void updateTags(Long postId, List<String> tags) {
+        // 1. 초기화
+        tmr.deleteByTargetId(postId);
+        tmr.flush();
+
+        if (tags == null || tags.isEmpty()) return;
+
+        // 2. 중복 제거
+        List<String> distinctTags = tags.stream()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .toList();
+
+        // 3. 저장
+        for (String tagName : distinctTags) {
+            Tag tag = tr.findByName(tagName)
+                    .orElseGet(() -> tr.save(new Tag(null, tagName)));
+
+            TagMapping mapping = new TagMapping();
+            mapping.setTag(tag);
+            mapping.setTargetId(postId);
+            tmr.save(mapping);
+        }
+    }
 }

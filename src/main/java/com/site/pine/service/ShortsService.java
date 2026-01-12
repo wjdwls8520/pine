@@ -4,6 +4,7 @@ import com.site.pine.dto.post.PostMainFileDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.dto.shorts.ShortsResDto;
+import com.site.pine.dto.shorts.ShortsUpdateReqDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.dto.tag.TagResDto;
 import com.site.pine.entity.File;
@@ -12,9 +13,9 @@ import com.site.pine.entity.post.Post;
 import com.site.pine.entity.shorts.ShortsPost;
 import com.site.pine.entity.shorts.ShortsViewHistory;
 import com.site.pine.event.ShortsMediaEvent;
-import com.site.pine.repository.FileRepository;
-import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.PostRepository;
+import com.site.pine.repository.*;
+import com.site.pine.repository.like.PostLikeRepository;
+import com.site.pine.repository.like.ReplyLikeRepository;
 import com.site.pine.repository.shorts.ShortsPostRepository;
 import com.site.pine.repository.shorts.ShortsViewRepository;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,11 @@ public class ShortsService {
     private final ShortsAsyncService sas;
     private final TagService ts;
     private final ShortsViewRepository svr;
+
+    private final ReplyRepository rr;
+    private final ReplyLikeRepository rlr;
+    private final PostLikeRepository plr;
+    private final TagMappingRepository tmr;
 
     @Transactional(readOnly = true)
     public HashMap<String, Object> getAllShorts(MemberDto memberdto, int page) {
@@ -245,4 +251,92 @@ public class ShortsService {
         // DB 쿼리로 직접 +1 실행 (동시성 해결)
         spr.increaseViewCount(shortsId);
     }
+
+    @Transactional
+    public void updateShorts(ShortsUpdateReqDto dto, Long loginMemberId) {
+        // ShortsPost 조회 (조인된 Post 정보도 필요함)
+        ShortsPost shortsPost = spr.findById(dto.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        // 작성자 권한 체크
+        if (!shortsPost.getPost().getMember().getId().equals(loginMemberId)) {
+            throw new IllegalArgumentException("본인의 게시글만 수정할 수 있습니다.");
+        }
+
+        // 데이터 업데이트
+        shortsPost.setTitle(dto.getTitle());
+        shortsPost.getPost().setContent(dto.getContent());
+
+        // 태그 업데이트
+        if (dto.getTags() != null) {
+            ts.updateTags(dto.getPostId(), dto.getTags());
+        }
+
+        // 썸네일 업데이트 (Optional)
+        MultipartFile newThumb = dto.getThumbnailFile();
+        if (newThumb != null && !newThumb.isEmpty()) {
+
+            // Post ID를 기준으로 기존 이미지 파일 조회 (PostMainFileDto 로직 참고)
+            Long targetPostId = shortsPost.getPost().getId();
+
+            File oldThumbFile = fr.findByPostIdAndContentTypeStartingWith(targetPostId, "image/")
+                    .stream().findFirst().orElse(null);
+
+            if (oldThumbFile != null) {
+                try {
+                    // 기존 파일 S3 삭제 (S3UploadService 메서드명 확인 필요)
+                    sus.deleteFile(oldThumbFile.getPath());
+
+                    // 새 파일 업로드
+                    String newPath = sus.saveFile(newThumb);
+
+                    // DB 정보 갱신 (Dirty Checking)
+                    oldThumbFile.setOriginalname(newThumb.getOriginalFilename());
+                    oldThumbFile.setPath(newPath);
+                    oldThumbFile.setSize(newThumb.getSize());
+                    oldThumbFile.setContentType(newThumb.getContentType());
+
+                } catch (Exception e) {
+                    log.error("썸네일 변경 실패", e);
+                }
+            }
+        }
+    }
+
+    @Transactional
+    public void deleteShorts(Long postId, Long memberId) {
+
+        ShortsPost shortsPost = spr.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        if (!shortsPost.getPost().getMember().getId().equals(memberId)) {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
+
+        Post post = shortsPost.getPost();
+
+        rr.unlinkRepliesByPost(post); // 대댓글 관계 끊기
+        rlr.deleteAllByPost(post); // 댓글 좋아요 삭제
+        rr.deleteAllByPost(post); // 댓글 삭제
+        plr.deleteAllByPost(post); // 게시글 좋아요 삭제
+
+        // S3 파일 삭제 (DB 삭제 전에 물리 파일부터 지움)
+        List<File> files = fr.findAllByPost(post);
+        if (!files.isEmpty()) {
+            for (File file : files) {
+                sus.deleteFile(file.getPath());
+            }
+            // 파일 DB 삭제
+            fr.deleteAllByPost(post);
+        }
+
+        tmr.deleteByTargetId(post.getId()); // 해쉬태그 삭제
+        svr.deleteAllByShortsPost(shortsPost); // 재생수 삭제
+
+        spr.delete(shortsPost); // 게시물 삭제
+        pr.delete(post); // 게시물 공통엔티티 삭제
+    }
+
+
+
 }

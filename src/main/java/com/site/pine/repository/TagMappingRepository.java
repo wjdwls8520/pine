@@ -2,7 +2,9 @@ package com.site.pine.repository;
 
 import com.site.pine.dto.tag.TagResDto;
 import com.site.pine.entity.TagMapping;
+import com.site.pine.entity.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,7 +15,9 @@ public interface TagMappingRepository extends JpaRepository<TagMapping, Long> {
     List<TagMapping> findAllByTargetId(Long targetId);
 
     // 2. 삭제 (TagService용)
-    void deleteByTargetId(Long targetId);
+    @Modifying
+    @Query("DELETE FROM TagMapping tm WHERE tm.targetId = :targetId")
+    void deleteByTargetId(@Param("targetId") Long targetId);
 
     // 여러 게시글의 태그를 한 번에 가져오는 쿼리 (CommunityService 조회용)
     // TagResDto 생성자가 (tagId, tagName, targetId) 순서라고 가정합니다.
@@ -22,4 +26,6 @@ public interface TagMappingRepository extends JpaRepository<TagMapping, Long> {
             "join tm.tag t " +
             "where tm.targetId in :targetIds")
     List<TagResDto> findTagsByTargetIds(@Param("targetIds") List<Long> targetIds);
+
+
 }

@@ -33,8 +33,9 @@ body {
 /* 업로드 페이지 스타일 */
 .shorts-upload-page {
     padding: 40px;
+    width: 100%;
     max-width: 900px;
-    /*margin: 0 auto;*/
+    margin: 0 auto;
 }
 
 .upload-form {
@@ -277,6 +278,10 @@ textarea.field-control {
     display: none;
 }
 
+.thumbnail-update-area{
+    margin-top: 10px;
+}
+
 .thumbnail-upload-area.active {
     display: block;
 }
@@ -384,4 +389,38 @@ textarea.field-control {
 
 .delBtn:hover {
     background-color: #ff4d4f; /* 삭제 시 빨간색 강조 */
+}
+
+
+
+/* 수정 페이지 전용 스타일 */
+.info-box {
+    padding: 20px;
+    background-color: #fff8e1;
+    border: 1px solid #ffe0b2;
+    border-radius: 8px;
+    color: #f57f17;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.info-box .icon { font-size: 20px; }
+
+.current-thumbnail {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+}
+.current-thumbnail img {
+    max-height: 150px;
+    border-radius: 4px;
+}
+.current-thumbnail p {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
 }

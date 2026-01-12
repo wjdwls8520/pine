@@ -344,7 +344,7 @@
 .heroActions { display: flex; gap: 12px; }
 
 .createForm { margin-top: 36px; }
-.formGrid { width: 900px; max-width: 100%; }
+.formGrid { margin: 0 auto; width: 900px; max-width: 100%; }
 
 .formMain {
     border: 1px solid #e2e8f0;

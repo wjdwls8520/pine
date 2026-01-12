@@ -56,6 +56,15 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Query("select r.likeCount from Reply r where r.id = :id")
     Integer findLikeCountById(@Param("id") Long id);
 
+    // 대댓글의 부모 연결을 끊음
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Reply r SET r.parent = NULL WHERE r.post = :post")
+    void unlinkRepliesByPost(@Param("post") Post post);
+
+    // 댓글 완전 삭제
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM Reply r WHERE r.post = :post")
+    void deleteAllByPost(@Param("post") Post post);
 
     //포스트삭제->댓글 대댓글 전체삭제 순서
     // [1단계] 자식 댓글(대댓글) 먼저 삭제 (parent_id가 있는 것들)
@@ -67,4 +76,5 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from Reply r where r.post.id = :postId and r.parent is null")
     void deleteParentRepliesByPostId(@Param("postId") Long postId);
+
 }
