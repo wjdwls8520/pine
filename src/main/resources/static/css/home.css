@@ -20,7 +20,6 @@ html::-webkit-scrollbar {
 
 .contentsWrap {display: flex; box-sizing: border-box;}
 .section05 .contentsWrap {flex-flow: wrap;}
-.section06 .contentsWrap {flex-flow: wrap;}
 .sectionFAQ .contentsWrap {flex-flow: wrap;}
 
 .section02 .postBox {display: flex; flex-flow: wrap; gap: 26px; width: 100%;}
@@ -120,14 +119,14 @@ section.section04 .bigTitle img {height: 42px;}
     .section02 .postList {width: calc(50% - 13px);}
     .section03 .groupBox .groupList {width: calc(25% - 20px);}
     .section05 .memberList {width: calc(50% - 8px);}
-    .section06 .contentsWrap .cultureList {width: calc(33.33% - 24px);}
+    .section06 .contentsWrap {flex-flow: wrap; justify-content: flex-start; width: auto;}
+    .section06 .contentsWrap .cultureList {width: calc(50% - 18px);}
     .sectionFAQ .faqList {width: calc(33.33% - 11px);}
 }
 
 @media screen and (max-width: 1024px) {
     .section03 .groupBox .groupList {width: calc(33.33% - 18px);}
     .section05 .memberList {width: calc(50% - 8px);}
-    .section06 .contentsWrap .cultureList {width: calc(50% - 18px);}
     .sectionFAQ .faqList {width: calc(50% - 8px);}
     .contentsWrap .lyrics {padding-left: 100px; font-size: 20px; width: 100% !important; margin-right: 0 !important;}
     .contentsWrap .lyrics:after {left: 20px; width: 50px; height: 50px;}

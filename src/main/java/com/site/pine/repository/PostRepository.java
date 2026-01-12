@@ -168,7 +168,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             p.likeCount,
             (SELECT f.path FROM File f WHERE f.post = p ORDER BY f.id ASC LIMIT 1)
         )
-        from Post p
+        from CommunityPost cp
+        join cp.post p
         join p.member m
         order by p.likeCount desc, p.writeDate desc
     """
