@@ -412,6 +412,9 @@ function openDescription(postData) {
         profileImg.src = postData.profileImg || '/images/icon_pinedory.png';
     }
 
+    const nickname = postData.nickname ? postData.nickname : "알 수 없음";
+    document.getElementById("descPanelUser").innerText = "@" + nickname;
+
     // 날짜
     if (typeof timeAgoAjax === 'function' && postData.writeDate) {
         document.getElementById("descPanelDate").innerText = timeAgoAjax(postData.writeDate);
@@ -555,6 +558,23 @@ function openComment(postId, title, writer, date) {
     document.getElementById("commentPanelUser").innerText = "@" + writer;
     document.getElementById("commentPanelDate").innerText = date || "";
 
+    // 프로필 이미지 설정
+    const card = document.querySelector(`.shortsCard[data-post-id="${postId}"]`);
+    if (card) {
+        const postInfoStr = card.getAttribute('data-post-info');
+        if (postInfoStr) {
+            try {
+                const postInfo = JSON.parse(postInfoStr.replace(/&quot;/g, '"'));
+                const profileImg = document.getElementById("commentPanelProfileImg");
+                if (profileImg) {
+                    profileImg.src = postInfo.profileImg || '/images/icon_pinedory.png';
+                }
+            } catch (e) {
+                console.error("프로필 이미지 설정 중 오류:", e);
+            }
+        }
+    }
+
     document.getElementById("commentListUl").innerHTML = "";
     document.getElementById("replyInput").value = "";
 
@@ -594,6 +614,20 @@ function refreshCommentPanelIfOpen(cardElement) {
     document.getElementById("commentPanelTitle").innerText = title;
     document.getElementById("commentPanelUser").innerText = "@" + writer;
     document.getElementById("commentPanelDate").innerText = date || "";
+
+    // 프로필 이미지 설정
+    const postInfoStr = cardElement.getAttribute('data-post-info');
+    if (postInfoStr) {
+        try {
+            const postInfo = JSON.parse(postInfoStr.replace(/&quot;/g, '"'));
+            const profileImg = document.getElementById("commentPanelProfileImg");
+            if (profileImg) {
+                profileImg.src = postInfo.profileImg || '/images/icon_pinedory.png';
+            }
+        } catch (e) {
+            console.error("프로필 이미지 설정 중 오류:", e);
+        }
+    }
 
     document.getElementById("commentListUl").innerHTML = "";
     document.getElementById("replyInput").value = "";
@@ -703,12 +737,9 @@ function updateViewCountInDOM(postId) {
     }
 }
 
-// 쇼츠 수정 (미구현)
+// 쇼츠 수정
 function updateShorts(postId) {
-    const newContent = prompt("수정할 설명을 입력하세요.");
-    if (newContent) {
-        alert("수정 기능은 서버 API 연결이 필요합니다.\n입력내용: " + newContent);
-    }
+    location.href = `/shorts/shortsUpdate/${postId}`;
 }
 
 // 쇼츠 삭제 (미구현)

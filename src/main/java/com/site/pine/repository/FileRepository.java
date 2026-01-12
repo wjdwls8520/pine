@@ -7,12 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Arrays;
 import java.util.List;
 
 public interface FileRepository extends JpaRepository<File, Long> {
 
     @Query("""
-    select new com.site.pine.dto.post.PostMainFileDto(
+
+            select new com.site.pine.dto.post.PostMainFileDto(
         f.post.id,
         f.id,
         f.path,
@@ -26,4 +28,10 @@ public interface FileRepository extends JpaRepository<File, Long> {
     List<PostMainFileDto> findFilesByPostIds(@Param("postIds") List<Long> postIds);
 
     void deleteByPost(Post post);
+
+    // 특정 게시글(postId)의 파일 중, 특정 타입(prefix, 예: "image/")으로 시작하는 파일 찾기
+    @Query("select f from File f where f.post.id = :postId and f.contentType like concat(:prefix, '%')")
+    List<File> findByPostIdAndContentTypeStartingWith(@Param("postId") Long postId, @Param("prefix") String prefix);
+
+
 }

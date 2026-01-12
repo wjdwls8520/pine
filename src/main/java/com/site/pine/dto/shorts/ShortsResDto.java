@@ -18,6 +18,7 @@ public class ShortsResDto {
     private String content;
     private Timestamp writeDate;
     private Timestamp updateDate;
+    private Long memberId;
     private String nickname;
     private String profileImg;
 
@@ -40,11 +41,13 @@ public class ShortsResDto {
         // 2. 부모 Post 정보 매핑
         dto.setContent(entity.getPost().getContent());
         dto.setWriteDate(entity.getPost().getWriteDate());
+        dto.setUpdateDate(entity.getPost().getUpdateDate());
         dto.setLikeCount(entity.getPost().getLikeCount());
         dto.setReplyCount(entity.getPost().getReplyCount());
 
         // 3. 작성자(Member) 정보 매핑
         if (entity.getPost().getMember() != null) {
+            dto.setMemberId(entity.getPost().getMember().getId());
             dto.setNickname(entity.getPost().getMember().getNickname());
             dto.setProfileImg(entity.getPost().getMember().getProfile_img());
         }

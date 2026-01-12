@@ -30,11 +30,16 @@
         <div class="commentsPanel" id="commentsPanel">
             <div class="panelHeader">
                 <div class="panelTitle">
-                    <strong class="commentHeaderTitle" id="commentPanelTitle">제목</strong>
-                    <div>
-                        <span class="commentHeaderUser" id="commentPanelUser">@작성자</span>
-                        <span id="commentPanelDate">날짜</span>
+                    <div class="authorInfo">
+                        <div class="authorAvatar">
+                            <img id="commentPanelProfileImg" src="/images/icon_pinedory.png" alt="프로필">
+                        </div>
+                        <div class="authorDetails">
+                            <span class="authorName" id="commentPanelUser">@작성자</span>
+                            <span class="authorDate" id="commentPanelDate">날짜</span>
+                        </div>
                     </div>
+                    <strong id="commentPanelTitle">제목</strong>
                 </div>
                 <button class="closeBtn" onclick="closeComment()">닫기</button>
             </div>

@@ -2,6 +2,7 @@ package com.site.pine.controller;
 
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.shorts.ShortsResDto;
+import com.site.pine.dto.shorts.ShortsUpdateReqDto;
 import com.site.pine.dto.shorts.ShortsUploadReqDto;
 import com.site.pine.service.ShortsService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -109,6 +111,50 @@ public class ShortsController {
     public ResponseEntity<ShortsResDto> getShortDetail(@PathVariable Long postId) {
         ShortsResDto dto = ss.getShortsDetail(postId);
         return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/shorts/shortsUpdate/{postId}")
+    public String editShortsPage(@PathVariable Long postId,
+                                 @AuthenticationPrincipal MemberDto memberDto,
+                                 Model model) {
+        ShortsResDto shorts = ss.getShortsDetail(postId);
+
+        if (memberDto == null || !shorts.getMemberId().equals(memberDto.getId())) {
+            return "redirect:/errorLogin";
+        }
+        model.addAttribute("shorts", shorts);
+
+        return "shorts/shortsUpdate";
+    }
+
+    @ResponseBody
+    @PostMapping("/shorts/shortsUpdate")
+    public Map<String, Object> updateShorts(
+            @AuthenticationPrincipal MemberDto memberDto,
+            @ModelAttribute ShortsUpdateReqDto dto
+    ) {
+        Map<String, Object> map = new HashMap<>();
+
+        if (memberDto == null) {
+            map.put("success", false);
+            map.put("msg", "로그인이 필요한 서비스입니다.");
+            return map;
+        }
+
+        try {
+            ss.updateShorts(dto, memberDto.getId());
+            map.put("success", true);
+            map.put("msg", "수정이 완료되었습니다.");
+
+        } catch (IllegalArgumentException e) {
+            map.put("success", false);
+            map.put("msg", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            map.put("success", false);
+            map.put("msg", "수정 중 오류가 발생했습니다.");
+        }
+        return map;
     }
 
 
