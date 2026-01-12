@@ -1,16 +1,23 @@
 package com.site.pine.controller;
 
+import com.site.pine.service.MainService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
+@RequiredArgsConstructor
 public class RouterController {
 
-//    @Autowired
+    private final MainService mainService;
 
     @GetMapping("/")
-    public String main() {
+    public String main(Model model) {
+
+        model.addAttribute("postAll", mainService.getBestPost());
+        model.addAttribute("groupAll", mainService.getBestGroup());
+
         return "index";
     }
 
