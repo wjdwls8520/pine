@@ -4,6 +4,7 @@ import com.site.pine.dto.post.PostMainFileDto;
 import com.site.pine.entity.File;
 import com.site.pine.entity.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -33,5 +34,11 @@ public interface FileRepository extends JpaRepository<File, Long> {
     @Query("select f from File f where f.post.id = :postId and f.contentType like concat(:prefix, '%')")
     List<File> findByPostIdAndContentTypeStartingWith(@Param("postId") Long postId, @Param("prefix") String prefix);
 
+    // S3 파일 삭제를 위해 파일 목록 조회
+    List<File> findAllByPost(Post post);
 
+    // DB 데이터 일괄 삭제
+    @Modifying
+    @Query("DELETE FROM File f WHERE f.post = :post")
+    void deleteAllByPost(@Param("post") Post post);
 }

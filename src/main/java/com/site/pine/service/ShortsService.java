@@ -13,9 +13,9 @@ import com.site.pine.entity.post.Post;
 import com.site.pine.entity.shorts.ShortsPost;
 import com.site.pine.entity.shorts.ShortsViewHistory;
 import com.site.pine.event.ShortsMediaEvent;
-import com.site.pine.repository.FileRepository;
-import com.site.pine.repository.MemberRepository;
-import com.site.pine.repository.PostRepository;
+import com.site.pine.repository.*;
+import com.site.pine.repository.like.PostLikeRepository;
+import com.site.pine.repository.like.ReplyLikeRepository;
 import com.site.pine.repository.shorts.ShortsPostRepository;
 import com.site.pine.repository.shorts.ShortsViewRepository;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +57,11 @@ public class ShortsService {
     private final ShortsAsyncService sas;
     private final TagService ts;
     private final ShortsViewRepository svr;
+
+    private final ReplyRepository rr;
+    private final ReplyLikeRepository rlr;
+    private final PostLikeRepository plr;
+    private final TagMappingRepository tmr;
 
     @Transactional(readOnly = true)
     public HashMap<String, Object> getAllShorts(MemberDto memberdto, int page) {
@@ -297,6 +302,41 @@ public class ShortsService {
             }
         }
     }
+
+    @Transactional
+    public void deleteShorts(Long postId, Long memberId) {
+
+        ShortsPost shortsPost = spr.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        if (!shortsPost.getPost().getMember().getId().equals(memberId)) {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
+
+        Post post = shortsPost.getPost();
+
+        rr.unlinkRepliesByPost(post); // 대댓글 관계 끊기
+        rlr.deleteAllByPost(post); // 댓글 좋아요 삭제
+        rr.deleteAllByPost(post); // 댓글 삭제
+        plr.deleteAllByPost(post); // 게시글 좋아요 삭제
+
+        // S3 파일 삭제 (DB 삭제 전에 물리 파일부터 지움)
+        List<File> files = fr.findAllByPost(post);
+        if (!files.isEmpty()) {
+            for (File file : files) {
+                sus.deleteFile(file.getPath());
+            }
+            // 파일 DB 삭제
+            fr.deleteAllByPost(post);
+        }
+
+        tmr.deleteByTargetId(post.getId()); // 해쉬태그 삭제
+        svr.deleteAllByShortsPost(shortsPost); // 재생수 삭제
+
+        spr.delete(shortsPost); // 게시물 삭제
+        pr.delete(post); // 게시물 공통엔티티 삭제
+    }
+
 
 
 }

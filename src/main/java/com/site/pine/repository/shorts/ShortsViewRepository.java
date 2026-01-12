@@ -1,7 +1,9 @@
 package com.site.pine.repository.shorts;
 
+import com.site.pine.entity.shorts.ShortsPost;
 import com.site.pine.entity.shorts.ShortsViewHistory; // 변경된 이름 import
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -34,4 +36,8 @@ public interface ShortsViewRepository extends JpaRepository<ShortsViewHistory, L
     boolean existsByCookieRecent(@Param("shortsId") Long shortsId,
                                  @Param("cookie") String cookie,
                                  @Param("timeLimit") LocalDateTime timeLimit);
+
+    @Modifying
+    @Query("DELETE FROM ShortsViewHistory h WHERE h.targetId = :shortsPost")
+    void deleteAllByShortsPost(@Param("shortsPost") ShortsPost shortsPost);
 }

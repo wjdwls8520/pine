@@ -1,6 +1,7 @@
 package com.site.pine.repository;
 
 import com.site.pine.entity.Reply;
+import com.site.pine.entity.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -55,4 +56,14 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     // 3. 현재 좋아요 개수 조회
     @Query("select r.likeCount from Reply r where r.id = :id")
     Integer findLikeCountById(@Param("id") Long id);
+
+    // 대댓글의 부모 연결을 끊음
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Reply r SET r.parent = NULL WHERE r.post = :post")
+    void unlinkRepliesByPost(@Param("post") Post post);
+
+    // 댓글 완전 삭제
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM Reply r WHERE r.post = :post")
+    void deleteAllByPost(@Param("post") Post post);
 }
