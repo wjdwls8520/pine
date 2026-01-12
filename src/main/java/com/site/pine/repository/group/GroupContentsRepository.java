@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -112,4 +113,30 @@ public interface GroupContentsRepository extends JpaRepository<GroupContents, Lo
 
     @Query("select gc.likeCount from GroupContents gc where gc.id = :id")
     Integer findLikeCountById(@Param("id") Long id);
+
+    // 좋아요 + 조회수 순으로 그룹 조회
+    @Query(
+            value = """
+        select new com.site.pine.dto.group.GroupContentsJpqlResDto(
+            gc.id,
+            gc.groupName,
+            gc.groupDescription,
+            gc.joinState,
+            gc.autoJoin,
+            gc.userLimit,
+            gc.allViewCount,
+            gc.likeCount,
+            gc.postCount,
+            gc.groupMemberCount,
+            gc.todayViewCount,
+            gc.indate,
+            f.id,
+            f.path
+        )
+        from GroupContents gc
+        left join gc.file f
+        order by (gc.likeCount + gc.allViewCount) desc, gc.indate desc
+    """
+    )
+    List<GroupContentsJpqlResDto> findGroupBestResDto(Pageable limitSix);
 }

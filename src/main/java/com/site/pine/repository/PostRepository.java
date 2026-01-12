@@ -3,6 +3,7 @@ package com.site.pine.repository;
 import com.site.pine.dto.community.PostListDto;
 import com.site.pine.dto.community.CommunityListDto;
 import com.site.pine.dto.group.GroupPostListDto;
+import com.site.pine.dto.post.PostAllDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
 import com.site.pine.entity.post.Post;
 import org.springframework.data.domain.Page;
@@ -153,4 +154,24 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Post p SET p.replyCount = (CASE WHEN p.replyCount > 0 THEN p.replyCount - 1 ELSE 0 END) WHERE p.id = :postId")
     void decreaseReplyCount(@Param("postId") Long postId);
+
+
+    // 일반 포스트와 그룹 포스트를 좋아요 순으로 조회
+    @Query(value = """
+        SELECT new com.site.pine.dto.post.PostAllDto(
+            p.id,
+            m.id,
+            m.nickname,
+            m.profile_img,
+            p.content,
+            p.replyCount,
+            p.likeCount,
+            (SELECT f.path FROM File f WHERE f.post = p ORDER BY f.id ASC LIMIT 1)
+        )
+        from Post p
+        join p.member m
+        order by p.likeCount desc, p.writeDate desc
+    """
+    )
+    List<PostAllDto> findAllBestPost(Pageable pageable);
 }

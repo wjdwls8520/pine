@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <html>
 <head>
     <jsp:include page="./include/head.jsp"></jsp:include>
@@ -87,424 +89,72 @@
 
             </section>
             <section class="section section02">
-                <h2 class="bigTitle">BEST 컨텐츠 <a href="#">더 보기</a> </h2>
+                <h2 class="bigTitle">BEST 컨텐츠 <a href="/community">더 보기</a> </h2>
                 <div class="contentsWrap">
                     <div class="postBox">
-                        <div class="postList">
-                            <div class="postInfo">
-                                <div class="top">
-                                    <div class="tit">
-                                        <span class="headTitle">
-                                            [<span class="ht">자유게시판</span>]
-                                        </span>
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
+                        <c:forEach items="${postAll}" var="post">
+                            <div class="postList">
+                                <div class="postInfo">
+                                    <div class="top">
+                                        <div class="tit">
+                                            ${post.content}
+                                        </div>
+                                    </div>
+                                    <div class="bot">
+                                        <span class="userNickname">${post.nickname}</span>
+                                        <span class="likeCount">좋아요 ${post.likeCount}</span>
                                     </div>
                                 </div>
-                                <div class="bot">
-                                    <span class="userNickname">별난거북이</span>
-                                    <span class="viewCount">조회수 321</span>
-                                    <span class="likeCount">좋아요 88</span>
+                                <c:choose>
+                                    <c:when test="${not empty post.fileSrc}">
+                                        <div class="thumbImg">
+                                            <img src="${post.fileSrc}" alt="thumbImg" />
+                                        </div>
+                                    </c:when>
+                                </c:choose>
+                                <div class="replyCount">
+                                    ${post.replyCount}
                                 </div>
                             </div>
-                            <div class="thumbImg">
-                                <img src="/images/banner01.png" alt="thumbImg" />
-                            </div>
-                            <div class="replyCount">
-                                112
-                            </div>
-                        </div>
-                        <div class="postList">
-                            <div class="postInfo">
-                                <div class="top">
-                                    <div class="tit">
-                                        <span class="headTitle">
-                                            [<span class="ht">자유게시판</span>]
-                                        </span>
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="bot">
-                                    <span class="userNickname">별난거북이</span>
-                                    <span class="viewCount">조회수 321</span>
-                                    <span class="likeCount">좋아요 88</span>
-                                </div>
-                            </div>
-                            <div class="thumbImg">
-                                <img src="/images/banner02.png" alt="thumbImg" />
-                            </div>
-                            <div class="replyCount">
-                                112
-                            </div>
-                        </div>
-                        <div class="postList">
-                            <div class="postInfo">
-                                <div class="top">
-                                    <div class="tit">
-                                        <span class="headTitle">
-                                            [<span class="ht">자유게시판</span>]
-                                        </span>
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="bot">
-                                    <span class="userNickname">별난거북이</span>
-                                    <span class="viewCount">조회수 321</span>
-                                    <span class="likeCount">좋아요 88</span>
-                                </div>
-                            </div>
-                            <div class="thumbImg">
-                                <img src="/images/banner03.png" alt="thumbImg" />
-                            </div>
-                            <div class="replyCount">
-                                112
-                            </div>
-                        </div>
-                        <div class="postList">
-                            <div class="postInfo">
-                                <div class="top">
-                                    <div class="tit">
-                                        <span class="headTitle">
-                                            [<span class="ht">자유게시판</span>]
-                                        </span>
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="bot">
-                                    <span class="userNickname">별난거북이</span>
-                                    <span class="viewCount">조회수 321</span>
-                                    <span class="likeCount">좋아요 88</span>
-                                </div>
-                            </div>
-                            <div class="thumbImg">
-                                <img src="/images/banner04.png" alt="thumbImg" />
-                            </div>
-                            <div class="replyCount">
-                                112
-                            </div>
-                        </div>
-                        <div class="postList">
-                            <div class="postInfo">
-                                <div class="top">
-                                    <div class="tit">
-                                        <span class="headTitle">
-                                            [<span class="ht">자유게시판</span>]
-                                        </span>
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="bot">
-                                    <span class="userNickname">별난거북이</span>
-                                    <span class="viewCount">조회수 321</span>
-                                    <span class="likeCount">좋아요 88</span>
-                                </div>
-                            </div>
-                            <div class="thumbImg">
-                                <img src="/images/banner02.png" alt="thumbImg" />
-                            </div>
-                            <div class="replyCount">
-                                112
-                            </div>
-                        </div>
-                        <div class="postList">
-                            <div class="postInfo">
-                                <div class="top">
-                                    <div class="tit">
-                                        <span class="headTitle">
-                                            [<span class="ht">자유게시판</span>]
-                                        </span>
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="bot">
-                                    <span class="userNickname">별난거북이</span>
-                                    <span class="viewCount">조회수 321</span>
-                                    <span class="likeCount">좋아요 88</span>
-                                </div>
-                            </div>
-                            <div class="thumbImg">
-                                <img src="/images/banner05.png" alt="thumbImg" />
-                            </div>
-                            <div class="replyCount">
-                                112
-                            </div>
-                        </div>
-                        <div class="postList">
-                            <div class="postInfo">
-                                <div class="top">
-                                    <div class="tit">
-                                        <span class="headTitle">
-                                            [<span class="ht">자유게시판</span>]
-                                        </span>
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="bot">
-                                    <span class="userNickname">별난거북이</span>
-                                    <span class="viewCount">조회수 321</span>
-                                    <span class="likeCount">좋아요 88</span>
-                                </div>
-                            </div>
-                            <div class="thumbImg">
-                                <img src="/images/banner01.png" alt="thumbImg" />
-                            </div>
-                            <div class="replyCount">
-                                112
-                            </div>
-                        </div>
-                        <div class="postList">
-                            <div class="postInfo">
-                                <div class="top">
-                                    <div class="tit">
-                                        <span class="headTitle">
-                                            [<span class="ht">자유게시판</span>]
-                                        </span>
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="bot">
-                                    <span class="userNickname">별난거북이</span>
-                                    <span class="viewCount">조회수 321</span>
-                                    <span class="likeCount">좋아요 88</span>
-                                </div>
-                            </div>
-                            <div class="thumbImg">
-                                <img src="/images/banner02.png" alt="thumbImg" />
-                            </div>
-                            <div class="replyCount">
-                                112
-                            </div>
-                        </div>
+                        </c:forEach>
+
                     </div>
                 </div>
             </section>
             <section class="section section03">
-                <h2 class="bigTitle">BEST 모임 <a href="#">더 보기</a> </h2>
+                <h2 class="bigTitle">BEST 모임 <a href="/group">더 보기</a> </h2>
                 <div class="contentsWrap">
                     <div class="groupBox">
-                        <div class="groupList">
-                            <div class="imgBox">
-                                <img src="/images/banner01.png" alt="이미지" />
-                            </div>
-                            <div class="groupInfo">
-                                <div class="top">
-                                    <div class="groupImg">
-                                        <img src="/images/banner02.png" alt="groupImg" />
-                                    </div>
-                                    <div class="tit">
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
+                        <c:forEach items="${groupAll}" var="group">
+                            <div class="groupList">
+                                <div class="imgBox">
+                                    <img src="${group.groupImg.path}" alt="이미지" />
                                 </div>
-                                <div class="mid">
-                                    <span class="groupName">별난거북이</span>
-                                </div>
-                                <div class="bot">
-                                    <div class="left">
-                                        <span class="viewCount">조회수 321</span>
-                                        <span class="writeDate">3개월 전</span>
+                                <div class="groupInfo">
+                                    <div class="top">
+<%--                                        <div class="groupImg">--%>
+<%--                                            <img src="/images/banner02.png" alt="groupImg" />--%>
+<%--                                        </div>--%>
+                                        <div class="tit">
+                                            <c:out value="${group.groupDescription}" />
+                                        </div>
                                     </div>
-                                    <div class="right">
-                                        <span class="likeCount">좋아요 88</span>
-                                        <span class="replyCount">댓글 122</span>
+                                    <div class="mid">
+                                        <span class="groupName"><c:out value="${group.groupName}" /></span>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="groupList">
-                            <div class="imgBox">
-                                <img src="/images/banner02.png" alt="이미지" />
-                            </div>
-                            <div class="groupInfo">
-                                <div class="top">
-                                    <div class="groupImg">
-                                        <img src="/images/banner03.png" alt="groupImg" />
-                                    </div>
-                                    <div class="tit">
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="mid">
-                                    <span class="groupName">별난거북이</span>
-                                </div>
-                                <div class="bot">
-                                    <div class="left">
-                                        <span class="viewCount">조회수 321</span>
-                                        <span class="writeDate">3개월 전</span>
-                                    </div>
-                                    <div class="right">
-                                        <span class="likeCount">좋아요 88</span>
-                                        <span class="replyCount">댓글 122</span>
+                                    <div class="bot">
+                                        <div class="left">
+                                            <span class="viewCount">조회수 ${group.allViewCount}</span>
+                                            <span class="likeCount">좋아요 ${group.likeCount}</span>
+                                        </div>
+                                        <div class="right">
+
+                                            <span class="writeDate"><fmt:formatDate value="${group.indate}" pattern="yyyy-MM-dd"/></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="groupList">
-                            <div class="imgBox">
-                                <img src="/images/banner03.png" alt="이미지" />
-                            </div>
-                            <div class="groupInfo">
-                                <div class="top">
-                                    <div class="groupImg">
-                                        <img src="/images/banner04.png" alt="groupImg" />
-                                    </div>
-                                    <div class="tit">
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="mid">
-                                    <span class="groupName">별난거북이</span>
-                                </div>
-                                <div class="bot">
-                                    <div class="left">
-                                        <span class="viewCount">조회수 321</span>
-                                        <span class="writeDate">3개월 전</span>
-                                    </div>
-                                    <div class="right">
-                                        <span class="likeCount">좋아요 88</span>
-                                        <span class="replyCount">댓글 122</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="groupList">
-                            <div class="imgBox">
-                                <img src="/images/banner04.png" alt="이미지" />
-                            </div>
-                            <div class="groupInfo">
-                                <div class="top">
-                                    <div class="groupImg">
-                                        <img src="/images/banner05.png" alt="groupImg" />
-                                    </div>
-                                    <div class="tit">
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="mid">
-                                    <span class="groupName">별난거북이</span>
-                                </div>
-                                <div class="bot">
-                                    <div class="left">
-                                        <span class="viewCount">조회수 321</span>
-                                        <span class="writeDate">3개월 전</span>
-                                    </div>
-                                    <div class="right">
-                                        <span class="likeCount">좋아요 88</span>
-                                        <span class="replyCount">댓글 122</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="groupList">
-                            <div class="imgBox">
-                                <img src="/images/banner05.png" alt="이미지" />
-                            </div>
-                            <div class="groupInfo">
-                                <div class="top">
-                                    <div class="groupImg">
-                                        <img src="/images/banner01.png" alt="groupImg" />
-                                    </div>
-                                    <div class="tit">
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="mid">
-                                    <span class="groupName">별난거북이</span>
-                                </div>
-                                <div class="bot">
-                                    <div class="left">
-                                        <span class="viewCount">조회수 321</span>
-                                        <span class="writeDate">3개월 전</span>
-                                    </div>
-                                    <div class="right">
-                                        <span class="likeCount">좋아요 88</span>
-                                        <span class="replyCount">댓글 122</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="groupList">
-                            <div class="imgBox">
-                                <img src="/images/banner02.png" alt="이미지" />
-                            </div>
-                            <div class="groupInfo">
-                                <div class="top">
-                                    <div class="groupImg">
-                                        <img src="/images/banner03.png" alt="groupImg" />
-                                    </div>
-                                    <div class="tit">
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="mid">
-                                    <span class="groupName">별난거북이</span>
-                                </div>
-                                <div class="bot">
-                                    <div class="left">
-                                        <span class="viewCount">조회수 321</span>
-                                        <span class="writeDate">3개월 전</span>
-                                    </div>
-                                    <div class="right">
-                                        <span class="likeCount">좋아요 88</span>
-                                        <span class="replyCount">댓글 122</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="groupList">
-                            <div class="imgBox">
-                                <img src="/images/banner03.png" alt="이미지" />
-                            </div>
-                            <div class="groupInfo">
-                                <div class="top">
-                                    <div class="groupImg">
-                                        <img src="/images/banner04.png" alt="groupImg" />
-                                    </div>
-                                    <div class="tit">
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="mid">
-                                    <span class="groupName">별난거북이</span>
-                                </div>
-                                <div class="bot">
-                                    <div class="left">
-                                        <span class="viewCount">조회수 321</span>
-                                        <span class="writeDate">3개월 전</span>
-                                    </div>
-                                    <div class="right">
-                                        <span class="likeCount">좋아요 88</span>
-                                        <span class="replyCount">댓글 122</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="groupList">
-                            <div class="imgBox">
-                                <img src="/images/banner04.png" alt="이미지" />
-                            </div>
-                            <div class="groupInfo">
-                                <div class="top">
-                                    <div class="groupImg">
-                                        <img src="/images/banner05.png" alt="groupImg" />
-                                    </div>
-                                    <div class="tit">
-                                        2024 엑소 으르렁 무비 봄? ㅋㅋㅋ 와 이번에 진짜 대박이야 좀 멋있었어.
-                                    </div>
-                                </div>
-                                <div class="mid">
-                                    <span class="groupName">별난거북이</span>
-                                </div>
-                                <div class="bot">
-                                    <div class="left">
-                                        <span class="viewCount">조회수 321</span>
-                                        <span class="writeDate">3개월 전</span>
-                                    </div>
-                                    <div class="right">
-                                        <span class="likeCount">좋아요 88</span>
-                                        <span class="replyCount">댓글 122</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        </c:forEach>
 
                     </div>
                 </div>
