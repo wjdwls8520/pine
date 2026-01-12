@@ -1,6 +1,5 @@
 package com.site.pine.service;
 
-import com.site.pine.dto.group.GroupContentResDto;
 import com.site.pine.dto.group.GroupContentsJpqlResDto;
 import com.site.pine.dto.post.PostAllDto;
 import com.site.pine.repository.PostRepository;

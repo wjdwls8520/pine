@@ -32,7 +32,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         )
         from CommunityPost cp
         join cp.post p
-        left join p.member m 
+        left join p.member m
         order by  p.writeDate desc
     """,
 
@@ -53,7 +53,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             p.updateDate,
             m.id,
             m.nickname,
-            m.profile_img,                
+            m.profile_img,
             p.replyCount,
             p.likeCount,
             (CASE WHEN EXISTS (
@@ -100,7 +100,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         )
         from GroupPost gp
         join gp.post p
-        left join p.member m 
+        left join p.member m
         where gp.groupContents.id = :groupId
         order by  p.writeDate desc
     """,
