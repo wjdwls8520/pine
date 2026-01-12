@@ -151,177 +151,70 @@
             </section>
 
             <section class="section section05">
-                <h2 class="bigTitle"> 요즘 인기 폭발 멤버</h2>
+                <h2 class="bigTitle">요즘 멤버들</h2>
                 <div class="contentsWrap">
-                    <div class="memberList">
-                        <div class="userInfo">
-                            <div class="userProfile">
-                                <img src="/images/banner05.png" alt="profile" />
+                    <c:forEach items="${memberAll}" var="member">
+                        <div class="memberList">
+                            <div class="userInfo">
+                                <div class="userProfile">
+                                    <c:choose>
+                                        <c:when test="${not empty member.profileImg}">
+                                            <img src="${member.profileImg}" alt="profile" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <img src="/images/banner05.png" alt="profile" />
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <div class="userWrap">
+                                    <span class="userNickname"><c:out value="${member.nickname}"/></span>
+                                    <span class="userMsg"><c:out value="${member.profileMsg}"/></span>
+                                </div>
+<%--                                <button class="btnFollow">--%>
+<%--                                    Follow--%>
+<%--                                </button>--%>
                             </div>
-                            <div class="userWrap">
-                                <span class="userNickname">별난거부기</span>
-                                <span class="userMsg">케이드라마가더좋아</span>
-                            </div>
-                            <button class="btnFollow">
-                                Follow
-                            </button>
+                            <div class="line"></div>
+                            <c:forEach items="${member.posts}" var="post">
+                                <div class="userContents cursor" onclick="location.href='/community/cdetail/${post.postId}'">
+                                    <div class="contentsList">
+                                        <div class="tit">
+                                            <span class="headTitle">
+                                                <c:choose>
+                                                    <c:when test="${post.category == 1}">
+                                                        [General]
+                                                    </c:when>
+                                                    <c:when test="${post.category == 2}">
+                                                        [Travel]
+                                                    </c:when>
+                                                    <c:when test="${post.category == 3}">
+                                                        [K-POP]
+                                                    </c:when>
+                                                    <c:when test="${post.category == 4}">
+                                                        [Trend]
+                                                    </c:when>
+                                                    <c:when test="${post.category == 5}">
+                                                        [Game]
+                                                    </c:when>
+                                                    <c:when test="${post.category == 6}">
+                                                        [Ask]
+                                                    </c:when>
+                                                </c:choose>
+                                            </span>
+                                            ${post.content}
+                                        </div>
+
+                                        <c:if test="${not empty post.fileSrc}">
+                                            <div class="postImg">
+                                                <img src="${post.fileSrc}" alt="postThumbImg" />
+                                            </div>
+                                        </c:if>
+                                    </div>
+                                </div>
+                            </c:forEach>
+
                         </div>
-                        <div class="line"></div>
-                        <div class="userContents">
-                            <div class="contentsList">
-                                <div class="tit">
-                                    <span class="headTitle">
-                                        [<span class="ht">자유게시판</span>]
-                                    </span>
-                                    이사람이 가장 조회수랑 좋아요가 많은 글
-                                </div>
-                                <div class="postImg">
-                                    <img src="/images/banner01.png" alt="postThumbImg" />
-                                </div>
-                            </div>
-                            <div class="contentsList">
-                                <div class="tit">
-                                    <span class="headTitle">
-                                        [<span class="ht">K-POP</span>]
-                                    </span>
-                                    개발자라면 몰랐다간 손해 보는 제미나이 CLI 꿀팁 7가지
-                                </div>
-                                <div class="postImg">
-                                    <img src="/images/banner02.png" alt="postThumbImg" />
-                                </div>
-                            </div>
-                            <div class="btnMore">
-                                더 알아보기
-                            </div>
-                        </div>
-                    </div>
-                    <div class="memberList">
-                        <div class="userInfo">
-                            <div class="userProfile">
-                                <img src="/images/banner04.png" alt="profile" />
-                            </div>
-                            <div class="userWrap">
-                                <span class="userNickname">별난거부기</span>
-                                <span class="userMsg">케이드라마가더좋아</span>
-                            </div>
-                            <button class="btnFollow">
-                                Follow
-                            </button>
-                        </div>
-                        <div class="line"></div>
-                        <div class="userContents">
-                            <div class="contentsList">
-                                <div class="tit">
-                                    <span class="headTitle">
-                                        [<span class="ht">자유게시판</span>]
-                                    </span>
-                                    이사람이 가장 조회수랑 좋아요가 많은 글
-                                </div>
-                                <div class="postImg">
-                                    <img src="/images/banner03.png" alt="postThumbImg" />
-                                </div>
-                            </div>
-                            <div class="contentsList">
-                                <div class="tit">
-                                    <span class="headTitle">
-                                        [<span class="ht">K-POP</span>]
-                                    </span>
-                                    신뢰의 상실, 그리고 의심이라는 방패
-                                </div>
-                                <div class="postImg">
-                                    <img src="/images/banner04.png" alt="postThumbImg" />
-                                </div>
-                            </div>
-                            <div class="btnMore">
-                                더 알아보기
-                            </div>
-                        </div>
-                    </div>
-                    <div class="memberList">
-                        <div class="userInfo">
-                            <div class="userProfile">
-                                <img src="/images/banner03.png" alt="profile" />
-                            </div>
-                            <div class="userWrap">
-                                <span class="userNickname">별난거부기</span>
-                                <span class="userMsg">케이드라마가더좋아</span>
-                            </div>
-                            <button class="btnFollow">
-                                Follow
-                            </button>
-                        </div>
-                        <div class="line"></div>
-                        <div class="userContents">
-                            <div class="contentsList">
-                                <div class="tit">
-                                    <span class="headTitle">
-                                        [<span class="ht">자유게시판</span>]
-                                    </span>
-                                    이사람이 가장 조회수랑 좋아요가 많은 글
-                                </div>
-                                <div class="postImg">
-                                    <img src="/images/banner05.png" alt="postThumbImg" />
-                                </div>
-                            </div>
-                            <div class="contentsList">
-                                <div class="tit">
-                                    <span class="headTitle">
-                                        [<span class="ht">K-POP</span>]
-                                    </span>
-                                    나완전히 새됐어 필요하면 내가 너 MySQL이 설치된 경로를 바로 확인할 수 있게 도와줄 수도 있어요.
-                                    혹시 MySQL이 어디에 설치되어 있는지 모르면, 아래 명령어 한 번만 실행해줄래요?
-                                </div>
-                                <div class="postImg">
-                                    <img src="/images/banner01.png" alt="postThumbImg" />
-                                </div>
-                            </div>
-                            <div class="btnMore">
-                                더 알아보기
-                            </div>
-                        </div>
-                    </div>
-                    <div class="memberList">
-                        <div class="userInfo">
-                            <div class="userProfile">
-                                <img src="/images/banner01.png" alt="profile" />
-                            </div>
-                            <div class="userWrap">
-                                <span class="userNickname">별난거부기</span>
-                                <span class="userMsg">케이드라마가더좋아 그치만 노래도좋은걸 ㅎㅎㅎ</span>
-                            </div>
-                            <button class="btnFollow">
-                                Follow
-                            </button>
-                        </div>
-                        <div class="line"></div>
-                        <div class="userContents">
-                            <div class="contentsList">
-                                <div class="tit">
-                                    <span class="headTitle">
-                                        [<span class="ht">자유게시판</span>]
-                                    </span>
-                                    이사람이 가장 조회수랑 좋아요가 많은 글
-                                </div>
-                                <div class="postImg">
-                                    <img src="/images/banner02.png" alt="postThumbImg" />
-                                </div>
-                            </div>
-                            <div class="contentsList">
-                                <div class="tit">
-                                    <span class="headTitle">
-                                        [<span class="ht">K-POP</span>]
-                                    </span>
-                                    세상에 펼쳐지는 지혜로운 사랑과 흔들림 없는 '충실함'
-                                </div>
-                                <div class="postImg">
-                                    <img src="/images/banner03.png" alt="postThumbImg" />
-                                </div>
-                            </div>
-                            <div class="btnMore">
-                                더 알아보기
-                            </div>
-                        </div>
-                    </div>
+                    </c:forEach>
                 </div>
             </section>
 

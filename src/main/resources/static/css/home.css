@@ -78,7 +78,7 @@ section.section04 .bigTitle img {height: 42px;}
 .section05 .userContents {display: flex; flex-direction: column; gap: 22px; padding: 22px; box-sizing: border-box;}
 .section05 .userContents .contentsList {display: flex; align-items: flex-start; gap: 8px;}
 .section05 .contentsList .tit {display: -webkit-box; width: 100%;  font-size: 16px; font-weight: 400; word-wrap: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-overflow: ellipsis; overflow: hidden; }
-.section05 .contentsList .headTitle {margin-right: 4px; font-size: 16px; font-weight: 600;}
+.section05 .contentsList .headTitle {margin-right: 4px; font-size: 13px; font-weight: 500;}
 .section05 .contentsList .postImg {flex-shrink: 0; width: 68px; height: 58px; border-radius: 4px; overflow: hidden;}
 .section05 .contentsList .postImg > img {width: 100%; height: 100%; object-fit: cover;}
 .section05 .line {margin: 0px auto; width: 92%; height: 1px; background: #e3e6e9; border-radius: 8px; box-sizing: border-box; }
