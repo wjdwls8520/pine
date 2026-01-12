@@ -3,6 +3,7 @@ package com.site.pine.service;
 import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
 import com.site.pine.dto.community.*;
+import com.site.pine.dto.group.GroupContentsJpqlResDto;
 import com.site.pine.dto.post.PostMainFileDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.tag.TagResDto;
@@ -11,7 +12,9 @@ import com.site.pine.entity.community.CommunityPost;
 import com.site.pine.entity.post.Post;
 import com.site.pine.repository.*;
 import com.site.pine.repository.community.CommunityPostRepository;
+import com.site.pine.repository.group.GroupContentsRepository;
 import com.site.pine.repository.like.PostLikeRepository;
+import com.site.pine.repository.like.ReplyLikeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -40,6 +43,8 @@ public class CommunityService {
     private final MemberRepository mr;
     private final TagService tagService;
     private final ReplyRepository replyRepository;
+    private final ReplyLikeRepository replyLikeRepository;
+    private final GroupContentsRepository groupContentsRepository;
 
     @Transactional
     public void insertPost(MemberDto mdto, CommunityCreateReqDto reqDto) {
@@ -98,12 +103,12 @@ public class CommunityService {
     }
 
     @Transactional(readOnly = true)
-    public HashMap<String, Object> getPostPage(MemberDto mdto, Integer page) {
+    public HashMap<String, Object> getPostPage(MemberDto mdto, Integer page, Integer category) {
         HashMap<String, Object> result = new HashMap<>();
 
         Pageable pageable = PageRequest.of(page, 6);
 
-        Page<CommunityListDto> postPages = pr.getAllCommunityPostList(pageable);
+        Page<CommunityListDto> postPages = pr.getAllCommunityPostList(pageable, category);
         System.out.println();
         List<CommunityListDto> posts = postPages.getContent();
 
@@ -229,7 +234,6 @@ public class CommunityService {
     @Transactional
     public void deletePost(Long postId, Long memberId) {
         // 1. 게시글 조회 (없으면 에러)
-
         Post post = pr.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
@@ -245,22 +249,39 @@ public class CommunityService {
         // 3-1. 태그 매핑 삭제
         tagService.deleteTags(postId);
 
-        // 3-2. 좋아요 삭제
+        // 3-2. 게시글 좋아요 삭제
         lr.deleteByPost(post);
 
-        // 3-3. 파일(이미지) DB 데이터 삭제
+        // (1) 댓글 좋아요 삭제
+        replyLikeRepository.deleteAllByPost(post);
+
+        // (2) 대댓글(자식) 먼저 삭제 🧹
+        replyRepository.deleteChildRepliesByPostId(postId);
+
+        // (3) 메인댓글(부모) 나중에 삭제 🧹
+        replyRepository.deleteParentRepliesByPostId(postId);
+
+        // 파일(S3 + DB) 삭제
+        // post.getFiles() 대신 리포지토리에서 직접 조회 (LazyInitializationException 방지)
+        List<File> files = fr.findAllByPost(post);
+
+        if (files != null && !files.isEmpty()) {
+            for (File file : files) {
+                try {
+                    sus.deleteFile(file.getPath()); // S3 삭제
+                } catch (Exception e) {
+                    log.error("S3 파일 삭제 실패: {}", file.getPath());
+                }
+            }
+        }
+
+        // S3 삭제가 끝난 후 DB 데이터 삭제
         fr.deleteByPost(post);
 
-        // 3-4. 댓글 삭제 (ReplyRepository가 있다면)
-        //replyRepository.deleteByPost(post);
-
-        // 3-5. CommunityPost(카테고리 연결) 삭제
+        // 3-4. CommunityPost(카테고리 연결) 삭제
         cpr.deleteByPost(post);
 
-
-        // ==========================================
-        // 4. 대망의 게시글 삭제 💣
-        // ==========================================
+        // 4. 게시글 삭제
         pr.delete(post);
     }
 
@@ -354,5 +375,12 @@ public class CommunityService {
         }
 
         // 트랜잭션 종료 시 update 쿼리가 자동으로 날아감
+    }
+
+    //베스트그룹가져오기
+    @Transactional(readOnly = true)
+    public List<GroupContentsJpqlResDto> getBestGroup() {
+        Pageable limitSix = PageRequest.of(0, 6);
+        return groupContentsRepository.findGroupBestResDto(limitSix);
     }
 }

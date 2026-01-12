@@ -66,4 +66,16 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM Reply r WHERE r.post = :post")
     void deleteAllByPost(@Param("post") Post post);
+
+    //포스트삭제->댓글 대댓글 전체삭제 순서
+    // [1단계] 자식 댓글(대댓글) 먼저 삭제 (parent_id가 있는 것들)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Reply r where r.post.id = :postId and r.parent is not null")
+    void deleteChildRepliesByPostId(@Param("postId") Long postId);
+
+    // [2단계] 부모 댓글(메인댓글) 나중에 삭제 (parent_id가 없는 것들)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Reply r where r.post.id = :postId and r.parent is null")
+    void deleteParentRepliesByPostId(@Param("postId") Long postId);
+
 }

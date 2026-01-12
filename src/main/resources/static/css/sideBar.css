@@ -2,8 +2,11 @@
 
 .menu {display: flex; flex-direction: column; justify-content: center; align-items: flex-start; width: 100%;}
 .menu > li {padding: 0 30px; width: 100%; box-sizing: border-box; transition: all 0.3s;}
-.menu > li:hover {background: #e3e6e9;}
-.menu > li.active {}
+.menu > li:hover,
+.menu > li.active {
+    background: #f4f6f8; /* 호버 및 활성화 시 배경색 */
+    font-weight: 700;    /* 활성화 시 글씨 굵게 */
+}
 .menu > li.line {margin: 10px auto; width: 92%; height: 1px; background: #e3e6e9; border-radius: 8px; box-sizing: border-box; }
 
 .menu > li > a {display: flex; align-items: center; gap: 8px; height: 52px;}
@@ -11,7 +14,56 @@
 .menu > li > a .iconBox > img {height: 100%; object-fit: contain;}
 .menu > li > a > span {display: flex; align-items: center; text-align: center; font-size: 16px;}
 
+/* 화살표 아이콘 (기본: 닫힘 상태) */
+.menu > li .arrow {
+    display: inline-block;
+    width: 10px; height: 10px;
+    margin-left: auto; /* 우측 정렬 */
+    border-top: 2px solid #999;
+    border-right: 2px solid #999;
+    transform: rotate(135deg); /* 아래쪽 화살표 모양 */
+    transition: transform 0.3s ease;
+}
 
+/* 메뉴가 열렸을 때 화살표 회전 */
+.menu > li.open .arrow {
+    transform: rotate(315deg); /* 위쪽 화살표 모양 */
+    border-color: #333;
+}
+
+/* 2. 서브 메뉴 (아코디언 효과) */
+.subMenu {
+    overflow: hidden;
+    max-height: 0; /* 기본적으로 숨김 (높이 0) */
+    transition: max-height 0.4s ease-in-out; /* 부드러운 슬라이딩 효과 */
+}
+
+/* 서브 메뉴가 열렸을 때 */
+.menu > li.open .subMenu {
+    max-height: 500px; /* 충분히 큰 높이 지정 (내용물만큼만 열림) */
+    padding-bottom: 10px;
+}
+
+/* 서브 메뉴 아이템 스타일 */
+.subMenu li a {
+    display: block;
+    padding: 10px 0 10px 34px; /* 들여쓰기 */
+    font-size: 14px;
+    color: #666;
+    transition: color 0.2s;
+    text-decoration: none;
+}
+
+.subMenu li a:hover {
+    color: #333;
+    background-color: #eee;
+}
+
+/* 현재 보고 있는 서브 메뉴 하이라이트 */
+.subMenu li a.current {
+    color: #194f37;
+    font-weight: 700;
+}
 
 @media (max-width: 1440px){
     .lnb {width: 184px;}

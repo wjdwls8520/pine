@@ -24,15 +24,19 @@ public class CommunityController {
     private final CommunityService cs;
 
 
-    @GetMapping("/community") //  url
-    public String community(){
-        return "community/cMain"; //   작업폴더/jsp파일이름
+    @GetMapping("/community")
+    public String community(Model model){ // Model 파라미터 추가
+
+        // [추가] 인기 그룹 리스트 가져오기
+        model.addAttribute("bestGroups", cs.getBestGroup());
+
+        return "community/cMain";
     }
 
     @GetMapping("/community/{page}")
     @ResponseBody
-    public HashMap<String, Object> getPostList(@AuthenticationPrincipal MemberDto mdto,@PathVariable("page") Integer page) {
-        return cs.getPostPage(mdto,page);
+    public HashMap<String, Object> getPostList(@AuthenticationPrincipal MemberDto mdto,@PathVariable("page") Integer page, @RequestParam(name = "category", required = false) Integer category) {
+        return cs.getPostPage(mdto,page,category);
     }
 
     @GetMapping("/community/ccreate") //  url
@@ -62,13 +66,18 @@ public class CommunityController {
 
     @GetMapping("/community/cdetail/{id}")
     public String getDetail(@AuthenticationPrincipal MemberDto mdto, @PathVariable("id") Long id, Model model) {
-        Long memberId = (mdto != null) ? mdto.getId() : null; // 로그인 안하면 null
-        CommunityDetailResDto post = cs.getDetail(memberId, id); // 서비스에서 memberId가 null인 경우 좋아요 체크를 생략하도록
+        Long memberId = (mdto != null) ? mdto.getId() : null;
+        CommunityDetailResDto post = cs.getDetail(memberId, id);
+
         model.addAttribute("post", post);
         if (memberId != null) {
             model.addAttribute("loginUserId", memberId);
         }
-        return "community/cDetail"; // JSP에서 ${post.필드} 로 접근
+
+        // [추가] 디테일 페이지에도 인기 그룹 리스트 전달
+        model.addAttribute("bestGroups", cs.getBestGroup());
+
+        return "community/cDetail";
     }
 
 
