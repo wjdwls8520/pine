@@ -18,7 +18,7 @@ import java.util.List;
 public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query(
-    value = """
+            value = """
         select new com.site.pine.dto.community.CommunityListDto(
             p.id,
             p.content,
@@ -32,16 +32,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         )
         from CommunityPost cp
         join cp.post p
-        left join p.member m
-        order by  p.writeDate desc
+        left join p.member m 
+        WHERE (:category IS NULL OR cp.category = :category)
+        order by p.writeDate desc
     """,
 
-    countQuery = """
+            countQuery = """
         select count(cp)
         from CommunityPost cp
+        WHERE (:category IS NULL OR cp.category = :category)
     """
     )
-    Page<CommunityListDto> getAllCommunityPostList(Pageable pageable);
+    Page<CommunityListDto> getAllCommunityPostList(
+            Pageable pageable,
+            @Param("category") Integer category // ⬅️ 파라미터 추가
+    );
 
     @Query(
             value = """
@@ -53,7 +58,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             p.updateDate,
             m.id,
             m.nickname,
-            m.profile_img,
+            m.profile_img,                
             p.replyCount,
             p.likeCount,
             (CASE WHEN EXISTS (
@@ -100,12 +105,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         )
         from GroupPost gp
         join gp.post p
-        left join p.member m
+        left join p.member m 
         where gp.groupContents.id = :groupId
         order by  p.writeDate desc
     """,
 
-    countQuery = """
+            countQuery = """
         select count(gp)
         from GroupPost gp
         join gp.post p
@@ -154,6 +159,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Post p SET p.replyCount = (CASE WHEN p.replyCount > 0 THEN p.replyCount - 1 ELSE 0 END) WHERE p.id = :postId")
     void decreaseReplyCount(@Param("postId") Long postId);
+
 
 
     // 일반 포스트와 그룹 포스트를 좋아요 순으로 조회

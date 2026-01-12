@@ -28,8 +28,6 @@ public interface FileRepository extends JpaRepository<File, Long> {
     """)
     List<PostMainFileDto> findFilesByPostIds(@Param("postIds") List<Long> postIds);
 
-    List<File> findAllByPost(Post post);
-
     void deleteByPost(Post post);
 
     // 특정 게시글(postId)의 파일 중, 특정 타입(prefix, 예: "image/")으로 시작하는 파일 찾기

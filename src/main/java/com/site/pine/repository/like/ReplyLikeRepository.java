@@ -3,6 +3,7 @@ package com.site.pine.repository.like;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.Reply;
 import com.site.pine.entity.like.ReplyLike;
+import com.site.pine.entity.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

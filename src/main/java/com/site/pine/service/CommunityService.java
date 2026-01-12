@@ -253,7 +253,7 @@ public class CommunityService {
         lr.deleteByPost(post);
 
         // (1) 댓글 좋아요 삭제
-        replyLikeRepository.deleteAllByPostId(postId);
+        replyLikeRepository.deleteAllByPost(post);
 
         // (2) 대댓글(자식) 먼저 삭제 🧹
         replyRepository.deleteChildRepliesByPostId(postId);
