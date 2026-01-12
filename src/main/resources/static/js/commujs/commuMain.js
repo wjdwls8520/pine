@@ -5,6 +5,14 @@ window.addEventListener("load", () => {
 
     const postWrap = document.getElementById("postList");
     const scrollBox = document.getElementById("commuMainPage");
+    const pageTitle = document.querySelector(".pageTitle"); // 페이지 제목 요소
+
+    // 1. URL에서 카테고리 값 가져오기
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('category'); // 값이 없으면 null
+
+    // 2. 카테고리에 따라 페이지 제목 변경 & 사이드바 활성화
+    updateCategoryUI(category);
 
     // 최초 로딩
     getData(page);
@@ -29,7 +37,13 @@ window.addEventListener("load", () => {
     function getData(page) {
         loading = true;
 
-        fetch(`/community/${page}`)
+        // 3. fetch URL 생성 (카테고리가 있으면 쿼리스트링 추가)
+        let url = `/community/${page}`;
+        if (category) {
+            url += `?category=${category}`;
+        }
+
+        fetch(url)
             .then(res => {
                 if (!res.ok) throw new Error(res.status);
                 return res.json();
@@ -53,11 +67,9 @@ window.addEventListener("load", () => {
 
                     const isMyPost = info.owner;
 
-                    // 2. 버튼 HTML 생성
+                    // 버튼 HTML 생성
                     let modalHtml = '';
-
                     if (isMyPost) {
-                        // 내 글: 수정, 삭제
                         modalHtml = `
                             <div class="postMoreModal">
                                 <button class="menuItem" onclick="goEdit(${info.postId})">수정</button>
@@ -65,7 +77,6 @@ window.addEventListener("load", () => {
                             </div>
                         `;
                     } else {
-                        // 남의 글: 신고, 저장
                         modalHtml = `
                             <div class="postMoreModal">
                                 <button class="menuItem danger" onclick="doReport(${info.postId})">신고</button>
@@ -132,5 +143,25 @@ window.addEventListener("load", () => {
             })
             .catch(err => console.error("데이터 로딩 실패:", err))
             .finally(() => loading = false);
+    }
+
+    // [추가] 카테고리별 UI 업데이트 함수
+    function updateCategoryUI(cat) {
+        const titles = {
+            "1": "General",
+            "2": "Travel",
+            "3": "K-POP",
+            "4": "Trend",
+            "5": "Game",
+            "6": "Ask"
+        };
+
+        // 1. 페이지 제목 변경
+        if (cat && titles[cat]) {
+            pageTitle.innerText = titles[cat];
+        } else {
+            pageTitle.innerText = "Community Main";
+        }
+
     }
 });

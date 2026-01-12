@@ -25,5 +25,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
     """)
     List<PostMainFileDto> findFilesByPostIds(@Param("postIds") List<Long> postIds);
 
+    List<File> findAllByPost(Post post);
+
     void deleteByPost(Post post);
 }

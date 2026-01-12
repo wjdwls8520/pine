@@ -19,4 +19,9 @@ public interface ReplyLikeRepository extends JpaRepository<ReplyLike, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM ReplyLike rl WHERE rl.reply = :reply")
     void deleteByReply(@Param("reply") Reply reply);
+
+    // 게시글 ID를 기준으로, 그 글에 달린 모든 댓글의 좋아요를 한 번에 삭제
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from ReplyLike rl where rl.reply.id in (select r.id from Reply r where r.post.id = :postId)")
+    void deleteAllByPostId(@Param("postId") Long postId);
 }

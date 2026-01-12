@@ -31,18 +31,30 @@
                     <div class="bestGroupTitle">BEST GROUP</div>
                     <div class="bestGroupListWrap">
                         <ul class="bestGroupList">
-                            <%-- 5개 노출 후 더보기--%>
-                            <li>
-                                <a>
-                                    <div class="bGroupImg">
-                                        <img src="/images/banner02.png"/>
-                                    </div>
-                                    <div class="bGroupInfo">
-                                        <span class="bGroupName">방탄팬클럽</span>
-                                        <span class="bGroupCount">멤버 2,200명</span>
-                                    </div>
-                                </a>
-                            </li>
+                            <%-- [변경] 데이터가 있을 때만 반복문 실행 --%>
+                                <c:choose>
+                                    <c:when test="${not empty bestGroups}">
+                                        <c:forEach var="group" items="${bestGroups}">
+                                            <li>
+                                                <a href="/group/detail/${group.id}">
+                                                    <div class="bGroupImg">
+                                                        <img src="${not empty group.groupImg ? group.groupImg.path : '/images/icon_pindory.png'}"
+                                                             alt="group_img"/>
+                                                    </div>
+                                                    <div class="bGroupInfo">
+                                                        <span class="bGroupName">${group.groupName}</span>
+                                                        <span class="bGroupCount">멤버 ${group.groupMemberCount}명</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <li style="text-align: center; padding: 20px; color: #999;">
+                                            아직 생성된 그룹이 없습니다.
+                                        </li>
+                                    </c:otherwise>
+                                </c:choose>
                         </ul>
                     </div>
                 </div>
