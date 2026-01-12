@@ -3,6 +3,7 @@ package com.site.pine.repository.like;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.Reply;
 import com.site.pine.entity.like.ReplyLike;
+import com.site.pine.entity.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,9 @@ public interface ReplyLikeRepository extends JpaRepository<ReplyLike, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM ReplyLike rl WHERE rl.reply = :reply")
     void deleteByReply(@Param("reply") Reply reply);
+
+    // 댓글의 좋아요 삭제
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM ReplyLike rl WHERE rl.reply.id IN (SELECT r.id FROM Reply r WHERE r.post = :post)")
+    void deleteAllByPost(@Param("post") Post post);
 }

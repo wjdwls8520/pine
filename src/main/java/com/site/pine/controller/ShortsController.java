@@ -173,6 +173,35 @@ public class ShortsController {
     }
 
 
+    @ResponseBody
+    @DeleteMapping("/shorts/delete/{postId}")
+    public Map<String, Object> deleteShorts(
+            @AuthenticationPrincipal MemberDto memberDto,
+            @PathVariable("postId") Long postId
+    ) {
+        Map<String, Object> map = new HashMap<>();
+
+        if (memberDto == null) {
+            map.put("success", false);
+            map.put("msg", "로그인 후 이용해주세요.");
+            return map;
+        }
+
+        try {
+            ss.deleteShorts(postId, memberDto.getId());
+            map.put("success", true);
+            map.put("msg", "삭제되었습니다.");
+        } catch (IllegalArgumentException e) {
+            map.put("success", false);
+            map.put("msg", e.getMessage());
+        } catch (Exception e) {
+            log.error("쇼츠 삭제 중 오류", e);
+            map.put("success", false);
+            map.put("msg", "삭제 중 오류가 발생했습니다.");
+        }
+
+        return map;
+    }
 
 
 }

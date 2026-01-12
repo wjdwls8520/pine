@@ -710,7 +710,7 @@ function increaseViewCount(postId) {
         .catch(err => console.error("[View] 통신 오류:", err));
 }
 
-// [유틸] DOM 내 조회수 업데이트 (필요 시 사용)
+// DOM 내 조회수 업데이트
 function updateViewCountInDOM(postId) {
     const card = document.querySelector(`.shortsCard[data-post-id="${postId}"]`);
     if (!card) return;
@@ -742,11 +742,28 @@ function updateShorts(postId) {
     location.href = `/shorts/shortsUpdate/${postId}`;
 }
 
-// 쇼츠 삭제 (미구현)
+// 쇼츠 삭제
 function deleteShorts(postId) {
-    if (confirm("정말 이 쇼츠를 삭제하시겠습니까?")) {
-        alert("삭제 요청이 전송되었습니다. (기능 연결 필요)");
+    if (!confirm("정말 이 쇼츠를 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.")) {
+        return;
     }
+
+    fetch(`/shorts/delete/${postId}`, {
+        method: 'DELETE',
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.msg);
+            location.href = '/shorts';
+        } else {
+            alert(data.msg);
+        }
+    })
+    .catch(err => {
+        console.error("삭제 실패:", err);
+        alert("시스템 오류가 발생했습니다.");
+    });
 }
 
 // 링크 복사 (공유 버튼 이벤트 위임)
