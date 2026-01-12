@@ -15,9 +15,9 @@ public interface ShortsViewRepository extends JpaRepository<ShortsViewHistory, L
      * 기준 시간(timeLimit) 이후에 조회한 기록이 있는지 확인 (COUNT > 0)
      */
     @Query("SELECT COUNT(h) > 0 FROM ShortsViewHistory h " +
-            "WHERE h.targetId.postId = :shortsId " +  // ShortsPost의 ID는 postId
+            "WHERE h.targetId.postId = :shortsId " +
             "AND h.viewer.id = :memberId " +
-            "AND h.viewedAt > :timeLimit") // viewedAt으로 변경됨
+            "AND h.viewedAt > :timeLimit")
     boolean existsByMemberRecent(@Param("shortsId") Long shortsId,
                                  @Param("memberId") Long memberId,
                                  @Param("timeLimit") LocalDateTime timeLimit);

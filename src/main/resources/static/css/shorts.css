@@ -483,7 +483,7 @@ body {
     font-size: 18px;
     color: #0f172a;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-top: 12px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -513,7 +513,7 @@ body {
 
 .descriptionPanel .authorDetails {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 2px;
 }
 
@@ -524,8 +524,11 @@ body {
 }
 
 .descriptionPanel .authorDate {
+    display: flex;
+    align-items: center;
     font-size: 11px;
     color: #94a3b8;
+    margin-left: 4px;
 }
 
 /* 설명 패널 본문 */
@@ -553,9 +556,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 16px 0;
+    padding-top: 16px;
     border-top: 1px solid #f1f5f9;
-    border-bottom: 1px solid #f1f5f9;
 }
 
 .descriptionPanel .descTags .tag-item {
@@ -579,6 +581,7 @@ body {
     display: flex;
     gap: 24px;
     padding: 16px 0;
+    border-top: 1px solid #f1f5f9;
 }
 
 .descriptionPanel .statItem {
@@ -602,6 +605,10 @@ body {
 
 .descriptionPanel .statItem .statIcon.view {
     background-image: url('../images/ico_view.png');
+}
+
+.descriptionPanel .statItem .statIcon.reply {
+    background-image: url('../images/ico_reply.png');
 }
 
 .descriptionPanel .statItem .statLabel {
@@ -640,7 +647,6 @@ body {
     display: block;
 }
 
-.panelTitle strong { display: block; font-size: 18px; color: #0f172a; margin-bottom: 8px;}
 .panelTitle span { font-size: 13px; color: #94a3b8; }
 
 .closeBtn {

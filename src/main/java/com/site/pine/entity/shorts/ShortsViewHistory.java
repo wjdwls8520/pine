@@ -52,5 +52,6 @@ public class ShortsViewHistory {
         this.targetId = targetId;
         this.viewer = viewer;
         this.viewerCookie = viewerCookie;
+        this.viewedAt = LocalDateTime.now();
     }
 }

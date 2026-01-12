@@ -8,10 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface ShortsPostRepository extends JpaRepository<ShortsPost, Long> {
 
-    /**
-     * [조회수 증가 - Atomic Update]
-     * Java 메모리가 아닌 DB에서 직접 +1 연산을 수행하여 동시성 문제 해결
-     */
+    // 쇼츠 재생수 증가
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE ShortsPost s SET s.viewCount = s.viewCount + 1 WHERE s.postId = :id")
     void increaseViewCount(@Param("id") Long id);

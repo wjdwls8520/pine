@@ -25,6 +25,7 @@ public class ShortsMainDto {
     private int replyCount;
     private int likeCount;
     private boolean liked;
+    private Long viewCount;
 
     private List<String> tags;
 
@@ -41,7 +42,8 @@ public class ShortsMainDto {
             String profileImg,
             int replyCount,
             int likeCount,
-            boolean liked
+            boolean liked,
+            Long viewCount
     ) {
         this.postId = postId;
         this.title = title;
@@ -54,6 +56,7 @@ public class ShortsMainDto {
         this.replyCount = replyCount;
         this.likeCount = likeCount;
         this.liked = liked;
+        this.viewCount = viewCount;
     }
 
     public void addFile(PostMainFileDto file) {
