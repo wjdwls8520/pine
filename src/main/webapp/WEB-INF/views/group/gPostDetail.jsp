@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<sec:authentication property="principal" var="loginUser" />
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -8,12 +10,27 @@
     <jsp:include page="../include/head.jsp"></jsp:include>
     <link rel="stylesheet" href="/css/post.css">
     <link rel="stylesheet" href="/css/swiper-bundle.min.css">
+    <link rel="stylesheet" href="/css/shorts.css">
 </head>
 <body>
 <jsp:include page="../include/header.jsp"></jsp:include>
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
     <article id="commuDtailPage" class="article workspace commu">
+
+        <%-- [필수] reply.js가 사용하는 로그인 정보 hidden input --%>
+        <sec:authorize access="isAuthenticated()">
+            <input type="hidden" id="loginCheck" value="true">
+            <input type="hidden" id="loginUser" value="${loginUser.id}">
+        </sec:authorize>
+        <sec:authorize access="isAnonymous()">
+            <input type="hidden" id="loginCheck" value="false">
+            <input type="hidden" id="loginUser" value=""> <%-- 비로그인 시 빈 값 --%>
+        </sec:authorize>
+
+        <%-- [필수] 현재 보고 있는 게시글 ID (reply.js용) --%>
+        <%-- 쇼츠는 계속 변하지만, 커뮤니티는 고정값이므로 여기서 세팅 --%>
+        <input type="hidden" id="targetPostId" value="${post.id}">
 
         <h2 class="pageTitle">community detail</h2>
         <section class="section section01 commuSection">
@@ -96,21 +113,22 @@
                                 </div>
                             </div>
 
-                            <%-- 댓글영역 --%>
+                            <%--[댓글 영역] --%>
                             <div class="replyWrap">
                                 <div class="writeBox">
-                                    <input type="text" id="mainReplyInput" class="replyTextBox" placeholder="댓글을 남겨보세요">
-                                    <button id="btnMainReply" class="replyBtn">등록</button>
+                                    <%-- ID: replyInput (쇼츠 공통) --%>
+                                    <input type="text" id="replyInput" class="replyTextBox" placeholder="댓글을 남겨보세요">
+                                    <%-- ID: btnReplyRegist (쇼츠 공통) --%>
+                                    <button id="btnReplyRegist" class="replyBtn">등록</button>
                                 </div>
 
-                                <ul class="replyList" id="replyListArea">
+                                <%-- ID: commentListUl (쇼츠 공통) --%>
+                                <ul class="replyList commentList" id="commentListUl">
+                                    <%-- JS가 여기에 li를 꽂아넣습니다 --%>
                                 </ul>
 
-                                <div id="replyMoreBtnWrap" class="replyMoreBtnWrap">
-                                    <button class="btnMoreReply" onclick="loadMainReplies()">
-                                        댓글 더보기 +
-                                    </button>
-                                </div>
+                                <%-- 무한 스크롤 감지용 센서 (Observer용) --%>
+                                <div id="scrollTrigger" style="height: 10px;"></div>
                             </div>
                             <%-- 댓글영역 끝 --%>
 
@@ -151,8 +169,9 @@
 </script>
 <script src="/js/toggleLike.js"></script>
 <script src="/js/commujs/commuCommon.js"></script>
-<script src="/js/commujs/commuDetail.js"></script>
+<script src="/js/replyLoader.js"></script>
 <script src="/js/swiper-bundle.min.js"></script>
+<script src="/js/reply.js"></script>
 
 <script>
     window.addEventListener("load", () => {

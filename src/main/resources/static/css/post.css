@@ -499,102 +499,153 @@
    8. 댓글 섹션 (Reply Section) - 업데이트
    ========================================= */
 
-/* ... (기존 입력창, 리스트 스타일 등은 유지) ... */
+/* =========================================
+   [통합] 쇼츠 댓글 스타일 (for reply.js compatibility)
+   ========================================= */
 
-/* 1. 댓글이 없을 때 (Empty State) */
-.replyWrap .emptyReplyMsg {
-    text-align: center;
-    padding: 40px;
-    color: #94a3b8; /* var(--apple-text-gray) */
+/* 댓글 목록 래퍼 */
+.replyList.commentList {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* 개별 댓글 아이템 */
+.replyItem {
+    display: flex;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+.replyItem:last-child { border-bottom: none; }
+
+/* 프로필 이미지 박스 */
+.replyProfileBox {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+.replyProfileBox img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #eee;
+}
+
+/* 댓글 내용 영역 */
+.replyContentBox {
+    flex: 1;
+    min-width: 0; /* flex 자식 overflow 방지 */
+}
+
+/* 댓글 상단 (닉네임, 날짜, 메뉴) */
+.commentTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.commentTop b {
     font-size: 14px;
+    color: #333;
+    margin-right: 6px;
+}
+.commentTop .date {
+    font-size: 12px;
+    color: #999;
 }
 
-/* 2. 댓글 더보기 버튼 영역 (Wrapper) */
-.replyWrap .replyMoreBtnWrap {
-    text-align: center;
-    margin-top: 24px;
-    display: none; /* JS에서 제어 */
+/* 댓글 본문 */
+.replyContentBox p {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.5;
+    white-space: pre-wrap; /* 줄바꿈 유지 */
+    margin-bottom: 6px;
 }
-
-/* 3. 댓글 더보기 버튼 스타일 */
-.replyWrap .replyMoreBtnWrap .btnMoreReply {
-    padding: 10px 24px;
-    border-radius: 99px;
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    cursor: pointer;
-    color: #64748b;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.replyWrap .replyMoreBtnWrap .btnMoreReply:hover {
-    background: #f8fafc;
-    color: #334155;
-    transform: translateY(-1px);
-}
-
-/* 4. 삭제된 댓글 텍스트 */
-.replyWrap .replyBox .replyContent .deletedTxt {
-    color: #94a3b8;
+.replyContentBox p.deleted {
+    color: #bbb;
     font-style: italic;
 }
 
-/* 5. 삭제 버튼 (빨간색) */
-.replyWrap .replyBox .replyBottom .replyDeleteBtn {
-    color: #ef4444; /* var(--apple-red) */
-    margin-left: 12px;
+/* 액션 버튼 (좋아요, 답글) */
+.commentAction {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #666;
+    align-items: center;
+}
+.commentAction button {
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
-    font-weight: 500;
-    transition: opacity 0.2s;
-}
-
-.replyWrap .replyBox .replyBottom .replyDeleteBtn:hover {
-    opacity: 0.7;
-}
-
-/* 6. 대댓글 보기 버튼 래퍼 */
-.replyWrap .replyBox .infoContent .viewChildWrap {
-    margin-top: 12px;
-}
-
-/* 7. 대댓글 보기/숨기기 토글 버튼 */
-.replyWrap .replyBox .infoContent .viewChildWrap .btnViewChild {
-    color: #fa233b; /* var(--apple-red) */
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
+    font-size: 12px;
+    color: #666;
+    display: flex;
     align-items: center;
     gap: 4px;
 }
+.commentAction button:hover { color: #333; }
 
-.replyWrap .replyBox .infoContent .viewChildWrap .btnViewChild:hover {
-    text-decoration: underline;
+/* 좋아요 아이콘 */
+.btnCommentLike .ico {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background: url('/images/ico_like.png') no-repeat center/contain;
+}
+.btnCommentLike.on .ico {
+    background-image: url('/images/ico_like_pull.png'); /* 활성 이미지 */
 }
 
-/* 8. 대댓글 입력 폼 영역 */
-.replyWrap .replyBox .infoContent .subReplyFormArea {
-    margin-top: 16px;
+/* 답글 작성 폼 */
+.reReplyFormArea {
+    margin-top: 8px;
+}
+.reReplyForm {
+    display: flex;
+    gap: 8px;
+}
+.reReplyForm input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 13px;
+}
+.reReplyForm button {
+    background: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0 12px;
+    font-size: 12px;
+    cursor: pointer;
 }
 
-/* 9. 대댓글 목록 (초기엔 숨김) */
-.replyWrap .replyBox .childList {
-    display: none; /* 초기 상태 숨김 */
-    margin-top: 16px;
+/* 대댓글 영역 (들여쓰기) */
+.sub-reply-area {
+    margin-top: 10px;
+    padding-left: 0;
+    /* 대댓글은 아이템 자체를 들여쓰는 게 아니라,
+       보통 reply.js가 재귀적으로 .replyItem을 그릴 때
+       isSubReply=true면 CSS나 구조로 처리함.
+       여기선 reply.js가 ul.sub-reply-area 안에 다시 li.replyItem을 넣는 구조임 */
 }
 
-/* 10. 대댓글 입력창 스타일 (재정의) */
-/* 메인 입력창(.writeBox) 스타일을 상속받지만 마진 등 미세조정 */
-.replyWrap .replyBox .infoContent .subReplyFormArea .writeBox {
-    margin-bottom: 0;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+/* 대댓글 보기 버튼 */
+.btnViewReply {
+    background: none;
+    border: none;
+    color: #3b82f6; /* 파란색 */
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    padding: 0;
 }
-
 
 /* =========================================
    6. 이미지 원본보기 모달 (Lightbox) - JS 기능용
