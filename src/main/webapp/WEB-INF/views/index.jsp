@@ -19,12 +19,12 @@
         <article class="article home">
         <%-- section page  --%>
             <section class="section section01">
-                <h2 class="bigTitle">새로운 소식 <a href="#">더 보기</a> </h2>
+                <h2 class="bigTitle">새로운 소식 </h2>
                 <h3 class="subTitle">숲은 늘 변하고 있어요!</h3>
                 <div class="swiper homeSlide">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
-                            <a href="#">
+                            <a href="/newsdetail/1">
                                 <div class="imgBox">
                                     <img src="/images/banner01.png" alt="배너이미지" />
                                 </div>
@@ -34,7 +34,7 @@
                             </a>
                         </div>
                         <div class="swiper-slide">
-                            <a href="#">
+                            <a href="/newsdetail/2">
                                 <div class="imgBox">
                                     <img src="/images/banner02.png" alt="배너이미지" />
                                 </div>
@@ -44,7 +44,7 @@
                             </a>
                         </div>
                         <div class="swiper-slide">
-                            <a href="#">
+                            <a href="/newsdetail/3">
                                 <div class="imgBox">
                                     <img src="/images/banner03.png" alt="배너이미지" />
                                 </div>
@@ -54,7 +54,7 @@
                             </a>
                         </div>
                         <div class="swiper-slide">
-                            <a href="#">
+                            <a href="/newsdetail/4">
                                 <div class="imgBox">
                                     <img src="/images/banner04.png" alt="배너이미지" />
                                 </div>
@@ -64,7 +64,7 @@
                             </a>
                         </div>
                         <div class="swiper-slide">
-                            <a href="#">
+                            <a href="/newsdetail/5">
                                 <div class="imgBox">
                                     <img src="/images/banner05.png" alt="배너이미지" />
                                 </div>
