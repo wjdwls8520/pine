@@ -32,7 +32,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         )
         from CommunityPost cp
         join cp.post p
-        left join p.member m 
+        left join p.member m
         WHERE (:category IS NULL OR cp.category = :category)
         order by p.writeDate desc
     """,
