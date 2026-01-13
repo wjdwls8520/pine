@@ -17,12 +17,12 @@
 
         <li class="line"></li>
 
-        <li>
+        <%--<li>
             <a href="#">
                 <div class="iconBox"><img src="/images/ico_news.png" alt="새소식" /></div>
                 <span class="tit">News</span>
             </a>
-        </li>
+        </li>--%>
 
         <li>
             <a href="/group">
@@ -40,6 +40,7 @@
             </a>
 
             <ul class="subMenu">
+                <li><a href="/community" class="${param.category == null ? 'current' : ''}">All</a></li>
                 <li><a href="/community?category=1" class="${param.category == '1' ? 'current' : ''}">General</a></li>
                 <li><a href="/community?category=2" class="${param.category == '2' ? 'current' : ''}">Travel</a></li>
                 <li><a href="/community?category=3" class="${param.category == '3' ? 'current' : ''}">K-POP</a></li>

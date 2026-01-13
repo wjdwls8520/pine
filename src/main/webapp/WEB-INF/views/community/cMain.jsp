@@ -36,7 +36,7 @@
                                     <c:when test="${not empty bestGroups}">
                                         <c:forEach var="group" items="${bestGroups}">
                                             <li>
-                                                <a href="/group/detail/${group.id}">
+                                                <a href="/group/gdetail/${group.id}">
                                                     <div class="bGroupImg">
                                                         <img src="${not empty group.groupImg ? group.groupImg.path : '/images/icon_pindory.png'}"
                                                              alt="group_img"/>
