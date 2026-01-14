@@ -28,18 +28,18 @@ document.addEventListener('click', function() {
 // 3. 기능 함수들 (수정, 삭제, 신고, 저장)
 function goEdit(postId) {
     // 수정 페이지로 이동
-    location.href = `/community/edit/${postId}`;
+    location.href = `/group/${groupId}/post/${postId}/edit`;
 }
 
 function deletePost(postId) {
     if(!confirm("정말로 삭제하시겠습니까? 복구할 수 없습니다.")) return;
 
-    fetch(`/community/${postId}`,{
+    fetch(`/group/${groupId}/post/${postId}/delete`,{
         method: "DELETE",
     }).then(res => {
         if(res.ok) {
             alert("삭제되었습니다.");
-            location.href = '/community'; // 삭제 후 목록으로 이동
+            location.href = `/group/${groupId}/post/main`; // 삭제 후 목록으로 이동
         } else {
             alert("삭제 실패");
         }

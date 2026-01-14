@@ -2,12 +2,16 @@ package com.site.pine.controller;
 
 import com.site.pine.dto.community.CommunityCreateReqDto;
 import com.site.pine.dto.community.CommunityDetailResDto;
+import com.site.pine.dto.community.PostDetailDto;
+import com.site.pine.dto.community.PostModifyDto;
+import com.site.pine.dto.group.GroupPostDetailDto;
 import com.site.pine.dto.group.GroupPostDetailResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupAuthorizationService;
 import com.site.pine.service.GroupPostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -97,9 +101,85 @@ public class GroupPostController {
         Long memberId = memberDto.getId();
         GroupPostDetailResDto post = groupPostService.getDetail(memberId, id); // 서비스에서 memberId가 null인 경우 좋아요 체크를 생략하도록
         model.addAttribute("post", post);
+        model.addAttribute("groupId", groupId);
         if (memberId != null) {
             model.addAttribute("loginUserId", memberId);
         }
         return "group/gPostDetail"; // JSP에서 ${post.필드} 로 접근
+    }
+
+    // 1. 수정 페이지로 이동 (기존 데이터 들고 감)
+    @GetMapping("/group/{groupId}/post/{id}/edit")
+    public String editPage(@AuthenticationPrincipal MemberDto memberDto, @PathVariable Long groupId, @PathVariable Long id, Model model) {
+        groupAuthorizationService.validateLoginMember(); // 로그인 여부 확인
+        groupAuthorizationService.getGroupMemberOrThrow(groupId, memberDto.getId()); // 그룹멤버인지 확인
+
+        // 서비스에서 기존 게시글 정보 가져오기
+        GroupPostDetailDto postDto = groupPostService.getPostDetail(id);
+
+        // 모델에 담아서 write.html (또는 edit.html)로 보냄
+        model.addAttribute("post", postDto);
+
+        model.addAttribute("isEdit", true); // 프론트에서 수정모드인지 구분하려고
+
+        model.addAttribute("groupId", groupId);
+        return "group/gPostCreate";
+    }
+
+    // 2. 실제 수정 처리 (AJAX 요청)
+    @PostMapping("/group/{groupId}/post/{id}/edit")
+    @ResponseBody
+    public ResponseEntity<String> modifyPost(
+            @PathVariable Long groupId,
+            @PathVariable Long id,
+            @ModelAttribute PostModifyDto dto,
+            @AuthenticationPrincipal MemberDto memberDto // 현재 로그인한 사용자
+    ) {
+        if (memberDto == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        groupAuthorizationService.validateLoginMember(); // 로그인 여부 확인
+        groupAuthorizationService.getGroupMemberOrThrow(groupId, memberDto.getId()); // 그룹멤버인지 확인
+
+        try {
+            // 서비스 호출 (게시글 번호, 수정 데이터, 작성자 ID)
+            groupPostService.modifyPost(id, dto, memberDto.getId());
+            return ResponseEntity.ok("수정 성공");
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(403).body(e.getMessage()); // 권한 없음 등
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("수정 중 오류 발생");
+        }
+    }
+
+    @DeleteMapping("/group/{groupId}/post/{id}/delete")
+    public ResponseEntity<String> deletePost(
+            @PathVariable Long groupId,
+            @PathVariable Long id,
+            @AuthenticationPrincipal MemberDto memberDto // 현재 로그인한 사람
+    ) {
+        if (memberDto == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        groupAuthorizationService.validateLoginMember(); // 로그인 여부 확인
+        groupAuthorizationService.getGroupMemberOrThrow(groupId, memberDto.getId()); // 그룹멤버인지 확인
+
+        try {
+            // 서비스 호출 (게시글번호, 내 회원번호)
+            groupPostService.deletePost(id, memberDto.getId());
+            return ResponseEntity.ok("삭제되었습니다."); // 200 OK
+
+        } catch (IllegalArgumentException e) {
+            // 권한이 없거나 글이 없는 경우
+            return ResponseEntity.status(403).body(e.getMessage());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("삭제 중 오류가 발생했습니다.");
+        }
     }
 }

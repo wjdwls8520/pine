@@ -28,6 +28,10 @@
             <input type="hidden" id="loginUser" value=""> <%-- 비로그인 시 빈 값 --%>
         </sec:authorize>
 
+        <script>
+            window.groupId = ${groupId}
+        </script>
+
         <%-- [필수] 현재 보고 있는 게시글 ID (reply.js용) --%>
         <%-- 쇼츠는 계속 변하지만, 커뮤니티는 고정값이므로 여기서 세팅 --%>
         <input type="hidden" id="targetPostId" value="${post.id}">
@@ -162,13 +166,13 @@
     </article>
 </div>
 <<div id="commonToast" class="toastMsg"></div>
-<jsp:include page="../include/commu_footer.jsp"></jsp:include>
+<jsp:include page="../include/groupPost_footer.jsp"></jsp:include>
 
 <script>
     const POST_ID = ${post.id};
 </script>
 <script src="/js/toggleLike.js"></script>
-<script src="/js/commujs/commuCommon.js"></script>
+<script src="/js/groupjs/groupCommon.js"></script>
 <script src="/js/replyLoader.js"></script>
 <script src="/js/swiper-bundle.min.js"></script>
 <script src="/js/reply.js"></script>

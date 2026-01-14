@@ -13,6 +13,10 @@
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
+    <script>
+        window.groupId = ${groupId}
+    </script>
+
     <article class="article workspace commuCreatePage">
         <%--이 페이지에서 작성,수정 둘다 함--%>
         <h2>${not empty post ? '커뮤니티 포스트 수정' : '커뮤니티 포스트 작성'}</h2>
@@ -25,7 +29,20 @@
             <section class="formGrid">
                 <div class="formMain">
 
-<%--                    본문    --%>
+                    <%--                카테고리--%>
+<%--                    <div class="fieldGroup">--%>
+<%--                        <label for="communitySelect" class="fieldLabel">카테고리</label>--%>
+<%--                        <select id="communitySelect" class="fieldControl" name="category">--%>
+<%--                            <option value="1" ${post.category == 1 ? 'selected' : ''}>General</option>--%>
+<%--                            <option value="2" ${post.category == 2 ? 'selected' : ''}>Travel</option>--%>
+<%--                            <option value="3" ${post.category == 3 ? 'selected' : ''}>K-POP</option>--%>
+<%--                            <option value="4" ${post.category == 4 ? 'selected' : ''}>Trend</option>--%>
+<%--                            <option value="5" ${post.category == 5 ? 'selected' : ''}>Game</option>--%>
+<%--                            <option value="6" ${post.category == 6 ? 'selected' : ''}>Ask</option>--%>
+<%--                        </select>--%>
+<%--                    </div>--%>
+
+                    <%--                    본문    --%>
                     <div class="fieldGroup">
                         <label for="postBody" class="fieldLabel">본문</label>
                         <div id="editor"></div>
@@ -41,10 +58,9 @@
                             <c:forEach items="${post.tags}" var="tag" varStatus="status">${tag}${!status.last ? ',' : ''}
                             </c:forEach>
                         </c:if>" />
-
                     </div>
 
-<%--                        업로드--%>
+                    <%--                        업로드--%>
                     <section class="mediaManager">
                         <div class="mediaHeader">
                             <div>
@@ -61,7 +77,8 @@
                         </div>
 
                         <%-- 1.새 파일 업로드용 input --%>
-                        <input type="file" name="files" id="mediaUploadInput" multiple accept="image/*,video/*" hidden />
+                        <input type="file" name="files" id="mediaUploadInput" multiple hidden />
+                        <input type="file" id="tempFileInput" multiple accept="image/*,video/*" hidden />
                         <input type="hidden" id="mediaJsonInput" name="mediaJson" />
 
                         <%-- 2.삭제할 기존 파일 ID들을 담을 곳 (서버 전송용) --%>
@@ -105,7 +122,7 @@
 <script src="/js/toastui_bundle.js"></script>
 <script src="/js/toastUI.js"></script>
 <script src="/js/sortable.min.js"></script>
-<script src="/js/commujs/commuCreate.js"></script>
+<script src="/js/groupjs/gPostCreate.js"></script>
 <script src="/js/commujs/tag.js"></script>
 </body>
 </html>

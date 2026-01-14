@@ -2,9 +2,8 @@ package com.site.pine.service;
 
 import com.site.pine.dto.FileDto;
 import com.site.pine.dto.S3DeleteEventDto;
-import com.site.pine.dto.community.CommunityCreateReqDto;
-import com.site.pine.dto.community.CommunityDetailResDto;
-import com.site.pine.dto.community.CommunityListDto;
+import com.site.pine.dto.community.*;
+import com.site.pine.dto.group.GroupPostDetailDto;
 import com.site.pine.dto.group.GroupPostDetailResDto;
 import com.site.pine.dto.group.GroupPostListDto;
 import com.site.pine.dto.member.MemberDto;
@@ -18,9 +17,11 @@ import com.site.pine.entity.community.CommunityPost;
 import com.site.pine.entity.group.GroupPost;
 import com.site.pine.entity.post.Post;
 import com.site.pine.repository.*;
+import com.site.pine.repository.community.CommunityPostRepository;
 import com.site.pine.repository.group.GroupContentsRepository;
 import com.site.pine.repository.group.GroupPostRepository;
 import com.site.pine.repository.like.PostLikeRepository;
+import com.site.pine.repository.like.ReplyLikeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -53,6 +54,9 @@ public class GroupPostService {
     private final PostLikeRepository postLikeRepository;
     private final GroupPostRepository groupPostRepository;
     private final GroupContentsRepository groupContentsRepository;
+    private final CommunityPostRepository communityPostRepository;
+    private final ReplyRepository replyRepository;
+    private final ReplyLikeRepository replyLikeRepository;
 
 
     @Transactional
@@ -245,5 +249,149 @@ public class GroupPostService {
         return dto;
     }
 
+    // 수정 페이지 진입 시 기존 데이터 조회
+    @Transactional(readOnly = true)
+    public GroupPostDetailDto getPostDetail(Long postId) {
+        // Fetch Join으로 Post까지 한 번에 조회
+        GroupPost cp = groupPostRepository.findByIdWithPost(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
+        //태그가져오기
+        List<String> tags = tagService.getTags(postId);
+
+        return new GroupPostDetailDto(cp, tags);
+    }
+
+
+    @Transactional
+    public void modifyPost(Long postId, PostModifyDto dto, Long memberId) {
+
+        // 1. 게시글 조회 (CommunityPost + Post + Member 까지 페치 조인 추천)
+        GroupPost groupPost = groupPostRepository.findByIdWithPost(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        Post post = groupPost.getPost();
+
+        // 2. 권한 체크 (내 글인지?)
+        if (!post.getMember().getId().equals(memberId)) {
+            throw new IllegalArgumentException("수정 권한이 없습니다."); // Controller에서 403 처리됨
+        }
+
+        // ==================================================
+        // 3. 기본 정보 수정 (Dirty Checking)
+        // ==================================================
+        post.setContent(dto.getContent());       // 본문 수정
+        post.setStatus(dto.getStatus());         // 공개/비공개 수정
+
+        // ==================================================
+        // 4. 태그 수정
+        // ==================================================
+        if (dto.getTags() != null) {
+            tagService.updateTags(postId, dto.getTags());
+        }
+
+        // 5. 파일 삭제 (사용자가 삭제 버튼 누른 파일들)
+        if (dto.getDeleteFileIds() != null && !dto.getDeleteFileIds().isEmpty()) {
+            // 1. DB에서 파일 정보 조회
+            List<File> deleteFiles = fileRepository.findAllById(dto.getDeleteFileIds());
+
+            // 2. S3에서 실제 파일 삭제
+            for (File file : deleteFiles) {
+                sus.deleteFile(file.getPath());
+            }
+
+            // 3. DB에서 삭제
+            fileRepository.deleteAll(deleteFiles);
+        }
+
+        // =========================================================
+        // 6.새 파일 업로드 (insertPost 로직 재사용)
+        // =========================================================
+        if (dto.getNewFiles() != null && !dto.getNewFiles().isEmpty()) {
+
+            for (MultipartFile file : dto.getNewFiles()) {
+                if (file.isEmpty()) continue;
+
+                String fileUrl;
+                try {
+                    fileUrl = sus.saveFile(file); // S3 업로드
+                } catch (IOException e) {
+                    log.error("S3 업로드 실패", e);
+                    throw new RuntimeException("파일 업로드 실패");
+                }
+
+                // S3 롤백 이벤트 발행 (필요시)
+                applicationEventPublisher.publishEvent(new S3DeleteEventDto(file.getOriginalFilename(), file.getSize(), fileUrl));
+
+                // 파일 엔티티 저장
+                File fileEntity = new File();
+                fileEntity.setPath(fileUrl);
+                fileEntity.setOriginalname(file.getOriginalFilename());
+                fileEntity.setContentType(file.getContentType());
+                fileEntity.setSize(file.getSize());
+                fileEntity.setStatus(2);
+                fileEntity.setPost(post); // 현재 게시글에 연결
+
+                fileRepository.save(fileEntity);
+            }
+        }
+
+        // 트랜잭션 종료 시 update 쿼리가 자동으로 날아감
+    }
+
+    @Transactional
+    public void deletePost(Long postId, Long memberId) {
+        // 1. 게시글 조회 (없으면 에러)
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        // 2. 주인 확인 (내 글 아니면 에러)
+        if (!post.getMember().getId().equals(memberId)) {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
+
+        // ==========================================
+        // 3. 연관 데이터 삭제 (청소 시작!) 🧹
+        // ==========================================
+
+        // 3-1. 태그 매핑 삭제
+        tagService.deleteTags(postId);
+
+        // 3-2. 게시글 좋아요 삭제
+        postLikeRepository.deleteByPost(post);
+
+        // (1) 댓글 좋아요 삭제
+        replyLikeRepository.deleteAllByPost(post);
+
+        // (2) 대댓글(자식) 먼저 삭제 🧹
+        replyRepository.deleteChildRepliesByPostId(postId);
+
+        // (3) 메인댓글(부모) 나중에 삭제 🧹
+        replyRepository.deleteParentRepliesByPostId(postId);
+
+        // S3 삭제가 끝난 후 DB 데이터 삭제
+        fileRepository.deleteByPost(post);
+
+        // 3-4. CommunityPost(카테고리 연결) 삭제
+        groupPostRepository.deleteByPostId(postId);
+
+        // 4. 게시글 삭제
+        postRepository.delete(post);
+
+        // 파일(S3 + DB) 삭제
+        // post.getFiles() 대신 리포지토리에서 직접 조회 (LazyInitializationException 방지)
+        List<File> files = fileRepository.findAllByPost(post);
+
+        if (files != null && !files.isEmpty()) {
+            for (File file : files) {
+                try {
+                    sus.deleteFile(file.getPath()); // S3 삭제
+                } catch (Exception e) {
+                    log.error("S3 파일 삭제 실패: {}", file.getPath());
+                }
+            }
+        }
+
+
+    }
 }
