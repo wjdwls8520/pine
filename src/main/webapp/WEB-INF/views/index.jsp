@@ -111,6 +111,26 @@
                     </div>
                 </div>
             </section>
+            <section class="section sectionShorts">
+                <h2 class="bigTitle">BEST 쇼츠 <a href="/shorts">더 보기</a></h2>
+                <div class="swiper shortsSlide">
+                    <div class="swiper-wrapper">
+                        <c:forEach items="${shortsAll}" var="shorts">
+                            <div class="swiper-slide">
+                                <a href="/shorts/view/${shorts.id}">
+                                    <div class="imgBox">
+                                        <img src="${shorts.thumbnailPath}" alt="쇼츠 썸네일" />
+                                    </div>
+                                    <div class="infoBox">
+                                        <div class="tit">${shorts.title}</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    <div class="swiper-pagination"></div>
+                </div>
+            </section>
             <section class="section section03">
                 <h2 class="bigTitle">BEST 모임 <a href="/group">더 보기</a> </h2>
                 <div class="contentsWrap">
@@ -397,6 +417,36 @@
             // If we need pagination
             pagination: {
                 el: '.swiper-pagination',
+            },
+        });
+
+        const shortsSwiper = new Swiper('.shortsSlide', {
+            speed: 400,
+            direction: 'horizontal',
+            loop: true,
+            slidesPerView: 4.5,
+            spaceBetween: 30,
+            breakpoints: {
+                // when window width is >= 320px
+                320: {
+                    slidesPerView: 1.3,
+                    spaceBetween: 20
+                },
+                // when window width is >= 480px
+                480: {
+                    slidesPerView: 2.2,
+                    spaceBetween: 30
+                },
+                // when window width is >= 640px
+                768: {
+                    slidesPerView: 3.5,
+                    spaceBetween: 30
+                }
+            },
+
+            // If we need pagination
+            pagination: {
+                el: '.shortsSlide .swiper-pagination',
             },
         });
 
