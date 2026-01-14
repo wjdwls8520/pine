@@ -18,6 +18,7 @@ public class RouterController {
         model.addAttribute("postAll", mainService.getBestPost());
         model.addAttribute("groupAll", mainService.getBestGroup());
         model.addAttribute("memberAll", mainService.getRandomMemberWithPosts());
+        model.addAttribute("shortsAll", mainService.getBestShorts());
 
         return "index";
     }

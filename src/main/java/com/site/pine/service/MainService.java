@@ -5,11 +5,13 @@ import com.site.pine.dto.member.MemberAndCPostResDto;
 import com.site.pine.dto.member.MemberPostItemDto;
 import com.site.pine.dto.member.MemberWithPostsDto;
 import com.site.pine.dto.post.PostAllDto;
+import com.site.pine.dto.shorts.ShortsBestDto;
 import com.site.pine.entity.Member;
 import com.site.pine.repository.MemberRepository;
 import com.site.pine.repository.PostRepository;
 import com.site.pine.repository.community.CommunityPostRepository;
 import com.site.pine.repository.group.GroupContentsRepository;
+import com.site.pine.repository.shorts.ShortsPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +30,7 @@ public class MainService {
     private final GroupContentsRepository groupContentsRepository;
     private final MemberRepository memberRepository;
     private final CommunityPostRepository communityPostRepository;
+    private final ShortsPostRepository shortsPostRepository;
 
     @Transactional(readOnly = true)
     public List<PostAllDto> getBestPost() {
@@ -76,5 +79,11 @@ public class MainService {
         }
 
         return resultList; // 최종 구조: [ 멤버A[글1, 글2], 멤버B[글3, 글4]... ]
+    }
+
+    @Transactional(readOnly = true)
+    public List<ShortsBestDto> getBestShorts() {
+        Pageable limitTen = PageRequest.of(0, 10);
+        return shortsPostRepository.findBestShorts(limitTen);
     }
 }
