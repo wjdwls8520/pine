@@ -19,7 +19,7 @@
 
     <article class="article workspace commuCreatePage">
         <%--이 페이지에서 작성,수정 둘다 함--%>
-        <h2>${not empty post ? '커뮤니티 포스트 수정' : '커뮤니티 포스트 작성'}</h2>
+        <h2>${not empty post ? '포스트 수정' : '포스트 작성'}</h2>
         <form class="createForm" id="commuCreateForm" method="post" action="/group/${groupId}/post/create" enctype="multipart/form-data">
 
             <%-- JS에서 수정/작성 구분하기 위한 히든 값 추가 --%>

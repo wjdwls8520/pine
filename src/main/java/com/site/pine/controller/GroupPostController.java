@@ -9,6 +9,7 @@ import com.site.pine.dto.group.GroupPostDetailResDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.service.GroupAuthorizationService;
 import com.site.pine.service.GroupPostService;
+import com.site.pine.service.MainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class GroupPostController {
     private final GroupAuthorizationService groupAuthorizationService;
 
     private final GroupPostService groupPostService;
+    private final MainService mainService;
 
     @GetMapping("/group/{groupId}/post/main")
     public String groupPostMain(@PathVariable("groupId") Long groupId, Model model) {
@@ -37,6 +39,8 @@ public class GroupPostController {
         model.addAttribute("groupName", groupName);
 
         model.addAttribute("groupId", groupId);
+
+        model.addAttribute("groupAll", mainService.getBestGroup());
         return "group/gPostMain";
     }
 

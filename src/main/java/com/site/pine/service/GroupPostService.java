@@ -394,4 +394,33 @@ public class GroupPostService {
 
 
     }
+
+    public Page<GroupPostListDto> getGroupPost(Long groupId) { // 로그인 유저 ID 추가
+        Pageable pageable = PageRequest.of(0, 5);
+
+        // 1. 엔티티 조회 (Fetch Join으로 이미 연관 데이터 다 가져옴)
+        Page<GroupPost> groupPosts = groupPostRepository.findByGroupPost(groupId, pageable);
+
+        // 2. 엔티티 -> DTO 변환 (map 함수 사용)
+        Page<GroupPostListDto> dtoPage = groupPosts.map(gp -> {
+            Post post = gp.getPost();
+            Member member = post.getMember();
+
+            GroupPostListDto dto = new GroupPostListDto(
+                    post.getId(),          // postId
+                    post.getContent(),     // content
+                    gp.getGroupContents().getId(), // groupId
+                    post.getLikeCount(),
+                    post.getReplyCount(),
+                    post.getWriteDate(),
+                    member.getId(),
+                    member.getNickname(),
+                    member.getProfile_img()
+            );
+
+            return dto;
+        });
+
+        return dtoPage; // List보다는 Page를 그대로 리턴하는 게 프론트에서 '다음 페이지' 처리하기 좋습니다.
+    }
 }

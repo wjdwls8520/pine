@@ -269,42 +269,41 @@
                     </div>
 
                     <ul class="trackList">
-                        <%-- 예시 데이터: 실제 개발 시 c:forEach로 대체 --%>
-                        <c:forEach var="i" begin="1" end="5" step="1">
-                            <li class="trackItem" onclick="
-                                <c:choose>
-                                    <c:when test="${not empty isGroupMember and isGroupMember.role > 0}">
-                                            location.href = '/group/${groupDetail.id}/post/main'
-                                    </c:when>
-                                    <c:otherwise>
-                                            alert('그룹멤버만 이용 가능합니다.');
-                                    </c:otherwise>
-                                </c:choose>
-                            ">
-                                <div class="trackIndexWrap">
-                                    <span class="trackIndex">${i}</span>
-                                    <img src="/images/icon_pinedory.png" alt="play" class="trackPlayIcon">
-                                </div>
-                                <div class="trackInfo">
-                                    <p class="trackTitle">
+                        <c:choose>
+                            <c:when test="${not empty groupPosts.content}">
+                                <c:forEach items="${groupPosts.content}" var="groupPost" varStatus="status">
+                                    <li class="trackItem" onclick="
                                         <c:choose>
-                                            <c:when test="${i == 1}">[공지] 이번 앨범 활동 관련 필독 사항입니다.</c:when>
-                                            <c:when test="${i == 2}">오늘자 무대 직캠 공유합니다 (화질 좋음)</c:when>
-                                            <c:otherwise>그룹 활동 게시글 제목 예시입니다 ${i}</c:otherwise>
+                                            <c:when test="${not empty isGroupMember and isGroupMember.role > 0}">
+                                                    location.href = '/group/${groupDetail.id}/post/detail/${groupPost.postId}'
+                                            </c:when>
+                                            <c:otherwise>
+                                                    alert('그룹멤버만 이용 가능합니다.');
+                                            </c:otherwise>
                                         </c:choose>
-                                    </p>
-                                    <span class="trackArtist">
-                                        <c:choose>
-                                            <c:when test="${i == 1}">관리자</c:when>
-                                            <c:otherwise>팬덤명${i}</c:otherwise>
-                                        </c:choose>
-                                    </span>
-                                </div>
-                                <div class="trackMeta">
-                                    <span class="trackDate">2026.01.08</span>
-                                </div>
-                            </li>
-                        </c:forEach>
+                                    ">
+                                        <div class="trackIndexWrap">
+                                            <span class="trackIndex">${(groupPosts.number * groupPosts.size) + status.count}</span>
+                                            <img src="/images/icon_pinedory.png" alt="play" class="trackPlayIcon">
+                                        </div>
+                                        <div class="trackInfo">
+                                            <div class="trackTitle">
+                                                ${groupPost.content}
+                                            </div>
+                                            <span class="trackArtist">
+                                                ${groupPost.nickname}
+                                            </span>
+                                        </div>
+                                        <div class="trackMeta">
+                                            <span class="trackDate"><fmt:formatDate value="${groupPost.writeDate}" pattern="yyyy.MM.dd"/></span>
+                                        </div>
+                                    </li>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <li class="trackItem">게시글이 없습니다.</li>
+                            </c:otherwise>
+                        </c:choose>
                     </ul>
                 </section>
 
