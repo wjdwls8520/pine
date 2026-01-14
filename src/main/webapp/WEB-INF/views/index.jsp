@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <html>
 <head>
     <jsp:include page="./include/head.jsp"></jsp:include>
@@ -125,8 +126,26 @@
                                         </div>
                                         <div class="txtWrap">
                                             <div class="tit">${shorts.title}</div>
+<%--                                            <c:choose>--%>
+<%--                                                <c:when test="${fn:length(shorts.title) > 12}">--%>
+<%--                                                    ${fn:substring(shorts.title, 0, 12)}...--%>
+<%--                                                </c:when>--%>
+<%--                                                <c:otherwise>--%>
+<%--                                                    ${shorts.title}--%>
+<%--                                                </c:otherwise>--%>
+<%--                                            </c:choose>--%>
                                             <div class="meta">
-                                                <span class="nick">${shorts.nickname}</span>
+                                                <span class="nick">
+                                                    <span class="nick">${shorts.nickname}</span>
+<%--                                                    <c:choose>--%>
+<%--                                                        <c:when test="${fn:length(shorts.nickname) > 7}">--%>
+<%--                                                            ${fn:substring(shorts.nickname, 0, 7)}...--%>
+<%--                                                        </c:when>--%>
+<%--                                                        <c:otherwise>--%>
+<%--                                                            ${shorts.nickname}--%>
+<%--                                                        </c:otherwise>--%>
+<%--                                                    </c:choose>--%>
+                                                </span>
                                                 <span class="view">조회수 ${shorts.viewCount}회</span>
                                                 <fmt:formatDate value="${shorts.writeDate}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="isoDate" />
                                                 <span class="date timeAgo" data-date="${isoDate}">

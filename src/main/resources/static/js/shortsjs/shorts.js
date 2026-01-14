@@ -221,6 +221,12 @@ function renderShortCard(info, isPrepend = false) {
     let userProfile = info.profileImg ? info.profileImg : '/images/user.png';
     let likeClass = info.liked ? 'on' : '';
 
+    // 유저 패널 : 닉네임 8자 이상 ...
+    let displayNick = info.nickname;
+    if (displayNick && displayNick.length > 8) {
+        displayNick = displayNick.substring(0, 8) + '...';
+    }
+
     // 태그 HTML 생성
     let tagHtml = '';
     if (info.tags && info.tags.length > 0) {
@@ -280,7 +286,7 @@ function renderShortCard(info, isPrepend = false) {
                         <div class="userHeader">
                             <div class="avatar"><img src="${userProfile}" alt="user"></div>
                             <div class="userInfo">
-                                <strong class="nickname">@${escapeHtml(info.nickname)}</strong>
+                                <strong class="nickname">@${escapeHtml(displayNick)}</strong>
                                 <span class="writeDate">· ${dateStr}</span>
                             </div>
                         </div>
