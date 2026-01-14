@@ -32,7 +32,7 @@
                 <div class="panelTitle">
                     <div class="authorInfo">
                         <div class="authorAvatar">
-                            <img id="commentPanelProfileImg" src="/images/icon_pinedory.png" alt="프로필">
+                            <img id="commentPanelProfileImg" src="/images/user.png" alt="프로필">
                         </div>
                         <div class="authorDetails">
                             <span class="authorName" id="commentPanelUser">@작성자</span>
@@ -58,7 +58,7 @@
                 <div class="panelTitle">
                     <div class="authorInfo">
                         <div class="authorAvatar">
-                            <img id="descPanelProfileImg" src="/images/icon_pinedory.png" alt="프로필">
+                            <img id="descPanelProfileImg" src="/images/user.png" alt="프로필">
                         </div>
                         <div class="authorDetails">
                             <span class="authorName" id="descPanelUser">@작성자</span>

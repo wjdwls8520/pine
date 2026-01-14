@@ -189,7 +189,7 @@ function createReplyItemHtml(reply, isSubReply = false) {
     let nickname = isDeleted ? '(알수없음)' : `@${reply.nickname}`;
 
     // 프로필 이미지
-    let defaultImg = '/images/icon_pinedory.png';
+    let defaultImg = '/images/user.png';
     let profileSrc = (reply.profileImg && !isDeleted) ? reply.profileImg : defaultImg;
 
     // 1. 드롭다운 메뉴 HTML 생성

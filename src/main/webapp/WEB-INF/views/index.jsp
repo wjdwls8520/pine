@@ -111,6 +111,7 @@
                     </div>
                 </div>
             </section>
+
             <section class="section sectionShorts">
                 <h2 class="bigTitle">BEST 쇼츠 <a href="/shorts">더 보기</a></h2>
                 <div class="swiper shortsSlide">
@@ -118,11 +119,24 @@
                         <c:forEach items="${shortsAll}" var="shorts">
                             <div class="swiper-slide">
                                 <a href="/shorts/view/${shorts.id}">
+                                    <div class="shortsHeader">
+                                        <div class="profile">
+                                            <img src="${not empty shorts.profileImg ? shorts.profileImg : '/images/user.png'}" alt="프로필" />
+                                        </div>
+                                        <div class="txtWrap">
+                                            <div class="tit">${shorts.title}</div>
+                                            <div class="meta">
+                                                <span class="nick">${shorts.nickname}</span>
+                                                <span class="view">조회수 ${shorts.viewCount}회</span>
+                                                <fmt:formatDate value="${shorts.writeDate}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="isoDate" />
+                                                <span class="date timeAgo" data-date="${isoDate}">
+                                                    <fmt:formatDate value="${shorts.writeDate}" pattern="yyyy.MM.dd"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="imgBox">
                                         <img src="${shorts.thumbnailPath}" alt="쇼츠 썸네일" />
-                                    </div>
-                                    <div class="infoBox">
-                                        <div class="tit">${shorts.title}</div>
                                     </div>
                                 </a>
                             </div>
@@ -131,6 +145,7 @@
                     <div class="swiper-pagination"></div>
                 </div>
             </section>
+
             <section class="section section03">
                 <h2 class="bigTitle">BEST 모임 <a href="/group">더 보기</a> </h2>
                 <div class="contentsWrap">
@@ -386,6 +401,7 @@
     <jsp:include page="./include/footer.jsp"></jsp:include>
 
     <script src="/js/swiper-bundle.min.js"></script>
+    <script src="/js/home.js"></script>
     <script>
         const swiper = new Swiper('.homeSlide', {
             speed: 400,

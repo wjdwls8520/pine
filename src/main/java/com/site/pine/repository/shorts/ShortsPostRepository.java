@@ -23,7 +23,10 @@ public interface ShortsPostRepository extends JpaRepository<ShortsPost, Long> {
             sp.postId,
             sp.title,
             m.nickname,
-            (SELECT f.path FROM File f WHERE f.post = sp.post AND f.contentType LIKE 'image/%' AND f.status = 2 ORDER BY f.id ASC LIMIT 1)
+            (SELECT f.path FROM File f WHERE f.post = sp.post AND f.contentType LIKE 'image/%' AND f.status = 2 ORDER BY f.id ASC LIMIT 1),
+            sp.viewCount,
+            p.writeDate,
+            m.profile_img            
         )
         from ShortsPost sp
         join sp.post p
@@ -37,4 +40,6 @@ public interface ShortsPostRepository extends JpaRepository<ShortsPost, Long> {
         order by sp.viewCount desc, p.likeCount desc, p.writeDate desc
     """)
     List<ShortsBestDto> findBestShorts(Pageable pageable);
+
+
 }
