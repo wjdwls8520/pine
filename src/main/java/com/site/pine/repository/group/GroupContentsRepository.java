@@ -1,6 +1,8 @@
 package com.site.pine.repository.group;
 
 import com.site.pine.dto.group.GroupContentsJpqlResDto;
+import com.site.pine.dto.group.GroupSelectDto;
+import com.site.pine.dto.search.SearchGroupDto;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.like.GroupLike;
@@ -16,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public interface GroupContentsRepository extends JpaRepository<GroupContents, Long> {
+public interface GroupContentsRepository extends JpaRepository<GroupContents, Long>, GroupContentsRepositoryCustom{
     @Query(
             value = """
             select new com.site.pine.dto.group.GroupContentsJpqlResDto(
@@ -139,4 +141,11 @@ public interface GroupContentsRepository extends JpaRepository<GroupContents, Lo
     """
     )
     List<GroupContentsJpqlResDto> findGroupBestResDto(Pageable limitSix);
+
+
+    // 내가 가입한 그룹 목록 조회 (검색 필터용)
+    @Query("SELECT new com.site.pine.dto.group.GroupSelectDto(gc.id, gc.groupName) " +
+            "FROM GroupMember gm JOIN gm.groupContents gc " +
+            "WHERE gm.member.id = :memberId")
+    List<GroupSelectDto> findJoinedGroups(@Param("memberId") Long memberId);
 }
