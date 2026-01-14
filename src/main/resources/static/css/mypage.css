@@ -1,14 +1,174 @@
-.mypage{ display: flex; }
-.mypage_info{ display: flex; flex-direction: column; padding: 20px; flex: 1; align-items: center; }
-.mypage_profile{ display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.mypage_profile > button{ width: 40%; height: 50px; background: #138044; color: white; margin: 20px; }
-.mypage_image{ width: 500px; height: 500px; }
-.mypage_image > img{ width: 100%; height: 100%; border-radius: 50%; border: 1px solid #ccc }
-.mypage_infolist{ display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 40px; }
-.mypage_infolist > ul{ text-align: center; list-style: none; width: 100%; font-size: 15pt; }
-.mypage_infolist > ul > li{ cursor: pointer; padding: 15px 0; border-bottom: 1px solid #ccc; }
-.mypage_infolist > ul > li:last-child{ border-bottom: none; }
-.mypage_list{ display: flex; flex-direction: column; justify-content: flex-start; padding: 20px; }
-.mypage_list_mylist{ display: flex; flex-direction: column; }
-.mypage_list_mylist_post{ display: flex; justify-content: space-evenly; width: 100%; overflow: scroll; }
-.mypage_list_mylist_post_01{ width: 300px; height: 300px; border: 1px solid #aaa }
+/* =========================================
+   Apple Music Style MyPage (Updated V2)
+   ========================================= */
+
+:root {
+    --mp-bg: #ffffff;
+    --mp-gray-bg: #f5f5f7;
+    --mp-text-primary: #1d1d1f;
+    --mp-text-secondary: #86868b;
+    --mp-accent: #fa233b;
+    --mp-border: #d2d2d7;
+    --mp-radius-l: 12px;
+    --mp-radius-s: 8px;
+}
+
+/* 레이아웃 */
+.mpContainer {
+    max-width: 1000px;
+    width: 100%;
+    min-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "San Francisco", sans-serif;
+    color: var(--mp-text-primary);
+    box-sizing: border-box;
+}
+
+/* 헤더 & 탭 (기존 유지) */
+.mpHeader { display: flex; align-items: flex-end; gap: 24px; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.mpProfileImg { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+.mpProfileInfo { flex: 1; margin-bottom: 10px; }
+.mpNickname { font-size: 34px; font-weight: 800; margin: 0 0 4px 0; }
+.mpTabNav { display: flex; gap: 30px; margin-bottom: 24px; }
+.mpTabBtn { background: none; border: none; font-size: 17px; font-weight: 600; color: var(--mp-text-secondary); cursor: pointer; }
+.mpTabBtn.active { color: var(--mp-text-primary); }
+.mpSubNav { display: inline-flex; background-color: #e5e5ea; padding: 3px; border-radius: 9px; margin-bottom: 30px; }
+.mpSubBtn { border: none; background: transparent; padding: 6px 16px; font-size: 13px; font-weight: 600; color: #000; border-radius: 7px; cursor: pointer; }
+.mpSubBtn.active { background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+/* =========================================
+   1. 그리드 뷰 (쇼츠 탭 & 내 그룹 탭)
+   ========================================= */
+.mpGrid {
+    display: grid;
+    /* 카드가 너무 작아지지 않게 minmax 200px로 설정 */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 30px 24px;
+    width: 100%;
+}
+
+.mpGridCard {
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+.mpGridCard:hover { transform: scale(1.02); }
+
+/* 그리드 썸네일 */
+.mpGridThumb {
+    width: 100%;
+    /* 쇼츠는 세로 비율, 그룹은 1:1 비율 (JS에서 클래스로 제어하거나 CSS로 통일) */
+    aspect-ratio: 1 / 1;
+    border-radius: var(--mp-radius-l);
+    background-color: #eee;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+/* 쇼츠일 경우 비율 재정의를 위해 별도 클래스 사용 가능 */
+.mpGridThumb.shortsRatio { aspect-ratio: 9 / 16; }
+
+.mpGridThumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 그리드 텍스트 정보 */
+.mpGridInfo { padding: 0 4px; }
+.mpGridTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--mp-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+.mpGridMeta {
+    font-size: 13px;
+    color: var(--mp-text-secondary);
+    font-weight: 500;
+}
+
+/* =========================================
+   2. 리스트 뷰 (전체 탭, 커뮤니티 등) - [수정] 크기 확대
+   ========================================= */
+.mpList {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.mpListCard {
+    display: flex;
+    align-items: center;
+    gap: 24px; /* 간격 넓힘 */
+    padding: 24px 16px; /* [수정] 패딩 대폭 증가 (목록 크기 키움) */
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.mpListCard:hover {
+    background-color: var(--mp-gray-bg);
+    border-radius: var(--mp-radius-l);
+}
+
+/* 리스트 썸네일 - [수정] 크기 확대 */
+.mpListThumb {
+    width: 100px; /* [수정] 60px -> 100px */
+    height: 100px; /* [수정] 60px -> 100px */
+    border-radius: 12px;
+    background-color: #eee;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.mpListThumb img { width: 100%; height: 100%; object-fit: cover; }
+.mpListThumbPlaceholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #aaa; background-color: #f0f0f0; }
+
+/* 리스트 콘텐츠 */
+.mpListContent {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px; /* 간격 조정 */
+}
+
+/* 리스트 텍스트 - [수정] 폰트 크기 확대 */
+.mpContentText {
+    font-size: 17px; /* [수정] 16px -> 17px */
+    font-weight: 600;
+    color: var(--mp-text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+.mpMetaInfo {
+    font-size: 14px; /* [수정] 13px -> 14px */
+    color: var(--mp-text-secondary);
+}
+
+/* 뱃지 */
+.mpSmallBadge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background-color: #eee;
+    color: #666;
+    margin-right: 8px;
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+/* 유틸리티 */
+.hidden { display: none !important; }
+.mpLoader { text-align: center; padding: 40px; }
+.mpEmpty { text-align: center; padding: 80px 0; color: #999; }
+.mpPagination { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }

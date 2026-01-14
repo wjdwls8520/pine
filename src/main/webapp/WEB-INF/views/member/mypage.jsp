@@ -1,80 +1,68 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <html>
 <head>
     <jsp:include page="../include/head.jsp"></jsp:include>
-    <link rel="stylesheet" href="/css/home.css">
-    <link rel="stylesheet" href="/css/login.css">
     <link rel="stylesheet" href="/css/mypage.css">
-
-    <script src="/js/login.js"></script>
 </head>
 <body>
 <jsp:include page="../include/header.jsp"></jsp:include>
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
-    <div class="mypage">
-        <article>
-        <div class="mypage_info">
-            <div class="mypage_profile">
-                <c:if test="${member.profileimg}">
-                    <div class="mypage_image"><img src="${member.profileimg}" /></div>
-                </c:if>
-                <div class="mypage_image"><img src="../image/user.png" /></div>
-                <div style="margin: 20px 0">${member.name}</div>
-                <button onclick="window.location.href='/GoEditProfile'">프로필 수정</button>
-            </div>
-            <div class="mypage_infolist">
-                <ul>
-                    <li>내 포인트</li>
-                    <li>좋아요 한 글</li>
-                    <li>내 게시글 / 영상</li>
-                    <li>포인트 상점</li>
-                </ul>
-            </div>
-        </div>
-        <div class="mypage_list">
-            <div class="mypage_list_mylist">
-                <h2>MY POST</h2>
-                <div class="mypage_list_mylist_post" id="mypageListMylistPost">
-                <%-- 여기에 포스트 나옴 --%>
-                    <c:if test="${empty post}">
-                        <div>작성된 포스트가 없습니다.</div>
-                    </c:if>
-                    <c:forEach var="post" items="${post}">
-                        <div>
-                            <a href="/post/detail/${post.id}">
-                                <span>${post.content}</span>
-                            </a>
-                        </div>
-                    </c:forEach>
-                </div>
-            </div>
-            <div class="mypage_list_mylist">
-                <h2>MY GROUP</h2>
-                <div class="mypage_list_mylist_post">
-                    <div class="mypage_list_mylist_post_01">
-                        그룹1
-                    </div>
-                    <div class="mypage_list_mylist_post_01">
-                        그룹2
-                    </div>
-                    <div class="mypage_list_mylist_post_01">
-                        그룹3
-                    </div>
-                    <div class="mypage_list_mylist_post_01">
-                        그룹4
-                    </div>
-                </div>
-            </div>
-        </div>
-            </article>
-    </div>
+    <article class="article workspace">
+        <div class="mpContainer">
 
+            <header class="mpHeader">
+                <div class="mpProfileImgWrapper">
+                    <c:choose>
+                        <c:when test="${not empty member.profileimg}">
+                            <img src="${member.profileimg}" alt="${member.nickname}" class="mpProfileImg" />
+                        </c:when>
+                        <c:otherwise>
+                            <img src="/images/user.png" alt="Profile" class="mpProfileImg" onerror="this.src='/images/user.png'"/>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+                <div class="mpProfileInfo">
+                    <span class="mpRoleBadge">Profile</span>
+                    <h1 class="mpNickname">${member.nickname}</h1>
+                    <p class="mpEmail">${member.email}</p>
+                </div>
+            </header>
+
+            <nav class="mpTabNav">
+                <button class="mpTabBtn active" data-tab="posts">작성 글</button>
+                <button class="mpTabBtn" data-tab="comments">댓글 단 글</button>
+                <button class="mpTabBtn" data-tab="likes">좋아요 한 글</button>
+                <button class="mpTabBtn" data-tab="groups">내 그룹</button>
+            </nav>
+
+            <div class="mpSubNav hidden" id="postSubTabs">
+                <button class="mpSubBtn active" data-subtab="all">전체</button>
+                <button class="mpSubBtn" data-subtab="COMMUNITY">커뮤니티</button>
+                <button class="mpSubBtn" data-subtab="SHORTS">쇼츠</button>
+                <button class="mpSubBtn" data-subtab="GROUP">그룹</button>
+            </div>
+
+            <div class="mpGrid" id="mpContentArea">
+            </div>
+
+            <div class="mpLoader hidden" id="mpLoader"><div class="mpSpinner"></div></div>
+            <div class="mpEmpty hidden" id="mpEmptyState">콘텐츠가 없습니다.</div>
+
+            <div class="mpPagination hidden" id="mpPagination">
+                <button class="mpPageBtn" id="prevBtn">이전</button>
+                <span style="font-size: 14px; color: #86868b; align-self: center;" id="pageInfo"></span>
+                <button class="mpPageBtn" id="nextBtn">다음</button>
+            </div>
+
+        </div>
+    </article>
 </div>
 <jsp:include page="../include/footer.jsp"></jsp:include>
-
+<script src="/js/mypage.js"></script>
 </body>
 </html>
