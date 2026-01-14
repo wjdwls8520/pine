@@ -1,5 +1,6 @@
 package com.site.pine.service;
 
+import com.site.pine.dto.S3DeleteEventDto;
 import com.site.pine.dto.post.PostMainFileDto;
 import com.site.pine.dto.member.MemberDto;
 import com.site.pine.dto.shorts.ShortsMainDto;
@@ -284,8 +285,13 @@ public class ShortsService {
 
             if (oldThumbFile != null) {
                 try {
-                    // 기존 파일 S3 삭제 (S3UploadService 메서드명 확인 필요)
-                    sus.deleteFile(oldThumbFile.getPath());
+                    // 기존 파일 S3 삭제 직접 지우지 않고 이벤트를 통해 트랜잭션 성공 후 삭제되도록 위임
+                    S3DeleteEventDto deleteEvent = new S3DeleteEventDto(
+                            oldThumbFile.getOriginalname(),
+                            oldThumbFile.getSize(),
+                            oldThumbFile.getPath()
+                    );
+                    applicationEventPublisher.publishEvent(deleteEvent);
 
                     // 새 파일 업로드
                     String newPath = sus.saveFile(newThumb);
@@ -324,7 +330,12 @@ public class ShortsService {
         List<File> files = fr.findAllByPost(post);
         if (!files.isEmpty()) {
             for (File file : files) {
-                sus.deleteFile(file.getPath());
+                S3DeleteEventDto deleteEvent = new S3DeleteEventDto(
+                        file.getOriginalname(),
+                        file.getSize(),
+                        file.getPath()
+                );
+                applicationEventPublisher.publishEvent(deleteEvent);
             }
             // 파일 DB 삭제
             fr.deleteAllByPost(post);
