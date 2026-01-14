@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,6 +103,47 @@ public class GroupService {
 
         result.put("groupList", groupContentsE_List.getContent());
         result.put("totalPage", groupContentsE_List.getTotalPages());
+        return result;
+    }
+    // group페이지의 메인에서 모든 그룹을 보여줌
+    @Transactional(readOnly = true)
+    public HashMap<String, Object> getAllMyGroups(Long memberId, Integer page) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        Pageable pageable = PageRequest.of(page, 6);
+
+        // 1. 엔티티 Page 조회
+        Page<GroupMember> gms = gmr.findAllByMemberId(memberId, pageable);
+
+        // 2. [핵심 수정] 엔티티 Page -> DTO Page로 한방에 변환 (.map 사용)
+        Page<GroupContentsJpqlResDto> groupContentsE_List = gms.map(gm -> new GroupContentsJpqlResDto(
+                gm.getGroupContents().getId(),
+                gm.getGroupContents().getGroupName(),
+                gm.getGroupContents().getGroupDescription(),
+                gm.getGroupContents().getJoinState(),
+                gm.getGroupContents().getAutoJoin(),
+                gm.getGroupContents().getUserLimit(),
+                gm.getGroupContents().getAllViewCount(),
+                gm.getGroupContents().getLikeCount(),
+                gm.getGroupContents().getPostCount(),
+                gm.getGroupContents().getGroupMemberCount(),
+                gm.getGroupContents().getTodayViewCount(),
+                gm.getGroupContents().getIndate(),
+                gm.getGroupContents().getFile() != null ? gm.getGroupContents().getFile().getId() : null, // 파일 null 체크 권장
+                gm.getGroupContents().getFile() != null ? gm.getGroupContents().getFile().getPath() : null
+        ));
+
+        // 3. 조회한 그룹이 없다면 리턴
+        if(groupContentsE_List.isEmpty()) {
+            result.put("msg", "조회된 그룹이 없습니다.");
+            // 빈 리스트라도 프론트 처리를 위해 result를 넘기는 게 좋을 수 있습니다.
+            // return result;
+        }
+
+        // 4. 결과 담기
+        result.put("groupList", groupContentsE_List.getContent()); // 실제 DTO 리스트
+        result.put("totalPage", groupContentsE_List.getTotalPages()); // 전체 페이지 수
+
         return result;
     }
 

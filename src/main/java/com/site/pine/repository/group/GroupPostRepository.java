@@ -20,4 +20,6 @@ public interface GroupPostRepository extends JpaRepository<GroupPost, Long> {
     @Query(value = "SELECT gp FROM GroupPost gp JOIN FETCH gp.post p JOIN FETCH p.member m WHERE gp.groupContents.id = :groupId order by p.writeDate",
             countQuery = "SELECT count(gp) FROM GroupPost gp WHERE gp.groupContents.id = :groupId")
     Page<GroupPost> findByGroupPost(@Param("groupId") Long groupId, Pageable pageable);
+
+    GroupPost findByPost(Post post);
 }

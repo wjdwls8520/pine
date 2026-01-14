@@ -41,7 +41,7 @@
         <section class="section groupMain">
             <div class="tabWrap">
                 <div class="tabTitle active" onclick="getAllData(this);">메인</div>
-                <div class="tabTitle" onclick="getAllMyData(this);">내 그룹</div>
+                <sec:authorize access="isAuthenticated()"><div class="tabTitle" onclick="getAllMyData(this);">내 그룹</div> </sec:authorize>
             </div>
 
 

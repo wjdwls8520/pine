@@ -113,6 +113,14 @@ public interface GroupContentsRepository extends JpaRepository<GroupContents, Lo
     @Query("update GroupContents g set g.likeCount = g.likeCount - 1 where g.id = :id")
     void decreaseLikeCount(Long id);
 
+    @Modifying
+    @Query("update GroupContents g set g.postCount = g.postCount + 1 where g.id = :id")
+    void increasePostCount(Long id);
+
+    @Modifying
+    @Query("update GroupContents g set g.postCount = g.postCount - 1 where g.id = :id")
+    void decreasePostCount(Long id);
+
     @Query("select gc.likeCount from GroupContents gc where gc.id = :id")
     Integer findLikeCountById(@Param("id") Long id);
 
@@ -148,4 +156,6 @@ public interface GroupContentsRepository extends JpaRepository<GroupContents, Lo
             "FROM GroupMember gm JOIN gm.groupContents gc " +
             "WHERE gm.member.id = :memberId")
     List<GroupSelectDto> findJoinedGroups(@Param("memberId") Long memberId);
+
+
 }

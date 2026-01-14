@@ -1,7 +1,7 @@
 package com.site.pine.repository.group;
 
+import com.site.pine.dto.group.GroupContentsJpqlResDto;
 import com.site.pine.dto.group.GroupMemberResDto;
-import com.site.pine.dto.member.MemberDto;
 import com.site.pine.entity.Member;
 import com.site.pine.entity.group.GroupContents;
 import com.site.pine.entity.group.GroupMember;
@@ -62,4 +62,9 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
     Page<GroupMemberResDto> findAllByGroupContents_Id(@Param("groupId") Long groupId, Pageable pageable);
 
     GroupMember findByMemberId(Long id);
+
+    // 반환 타입을 Page<GroupMember>로 변경
+    @Query(value = "SELECT gm FROM GroupMember gm JOIN FETCH gm.member m JOIN FETCH gm.groupContents gc WHERE m.id = :memberId",
+            countQuery = "SELECT count(gm) FROM GroupMember gm WHERE gm.member.id = :memberId")
+    Page<GroupMember> findAllByMemberId(@Param("memberId") Long memberId, Pageable pageable);
 }

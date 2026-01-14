@@ -45,6 +45,17 @@ public class GroupController {
         result.put("resDto", gorupsResDto);
         return result;
     }
+    @GetMapping("/group/my/{page}")
+    @ResponseBody
+    public HashMap<String, Object> getAllMyGroups(@AuthenticationPrincipal MemberDto memberdto, @PathVariable("page") Integer page) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        // 초기 페이지는 첫 페이지(0페이지)만 가져오기
+        HashMap<String, Object> gorupsMyResDto = gs.getAllMyGroups(memberdto.getId(), page);
+
+        result.put("resDto", gorupsMyResDto);
+        return result;
+    }
 
 
 

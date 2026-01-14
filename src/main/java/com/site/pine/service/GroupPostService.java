@@ -114,6 +114,9 @@ public class GroupPostService {
         groupPost.setGroupContents(groupAuthorizationService.getGroupOrThrow(groupId));
         groupPostRepository.save(groupPost);
 
+        // 그룹포스트 증가
+        groupContentsRepository.increasePostCount(groupId);
+
     }
 
 
@@ -354,6 +357,12 @@ public class GroupPostService {
         // 3. 연관 데이터 삭제 (청소 시작!) 🧹
         // ==========================================
 
+        // 그룹포스트 감소
+        GroupPost gp = groupPostRepository.findByPost(post);
+        if(gp.getGroupContents().getPostCount() > 0) {
+            groupContentsRepository.decreasePostCount(gp.getGroupContents().getId());
+        }
+
         // 3-1. 태그 매핑 삭제
         tagService.deleteTags(postId);
 
@@ -378,6 +387,7 @@ public class GroupPostService {
         // 4. 게시글 삭제
         postRepository.delete(post);
 
+
         // 파일(S3 + DB) 삭제
         // post.getFiles() 대신 리포지토리에서 직접 조회 (LazyInitializationException 방지)
         List<File> files = fileRepository.findAllByPost(post);
@@ -391,7 +401,6 @@ public class GroupPostService {
                 }
             }
         }
-
 
     }
 
