@@ -43,6 +43,42 @@ async function getData(page) {
         });
 }
 
+// 에이잭스요청
+async function getMyData(page) {
+    loading = true; // 요청 시작
+    fetch(`/group/my/${page}`, { method: "GET" })
+        .then(response => {
+            if (!response.ok) throw new Error(`상태 코드: ${response.status}`);
+            return response.json(); // 성공하면 JSON 반환
+        })
+        .then(data => {
+            // 성공 시 처리
+            console.log(data); // 서버에서 받은 값 콘솔
+
+            // 그룹이 비어있을시
+            if(data.resDto.msg) {
+                return groupWrap.insertAdjacentHTML("beforeend", `
+                        <span>그룹이 비어있습니다.</span>
+                    `);
+            }
+
+            // 토탈페이지 변경
+            totalPages = data.resDto.totalPage;
+
+            // js로 동적 태그 생성
+            data.resDto.groupList.forEach(info => {
+                renderGroup(info);
+            });
+        })
+        .catch(err => {
+            // 실패 시 처리
+            console.error("데이터 로딩 실패:", err);
+        })
+        .finally(() => {
+            loading = false; // 요청 종료
+        });
+}
+
 // getAllData
 function getAllData(targetTag) {
     groupWrap.innerHTML = ``;
@@ -57,7 +93,7 @@ function getAllData(targetTag) {
 function getAllMyData(targetTag) {
     groupWrap.innerHTML = ``;
     page = 0;
-    getData(page);
+    getMyData(page);
 
     targetTag.parentElement.querySelectorAll(".tabTitle").forEach((tab)=> {tab.classList.remove("active");})
     targetTag.classList.add("active");

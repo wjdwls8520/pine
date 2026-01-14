@@ -80,8 +80,8 @@
         }
     }
 
-    function createGroupPost() {
-        location.href = `/group/${groupDetail.id}/post/create`;
+    function moveGroupPost() {
+        location.href = `/group/${groupDetail.id}/post/main`;
     }
 
     window.addEventListener("load", () => {
@@ -138,7 +138,7 @@
                     formActions.innerHTML = `
                         <div class="cancelButton"><button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button></div>
                         <div class="stepButtons">
-                            <button type="button" class="btnWH btnNext" id="" onclick="createGroupPost();">그룹 포스트 작성</button>
+                            <button type="button" class="btnWH btnNext" id="" onclick="moveGroupPost();">그룹 포스트 보러가기</button>
                         </div>
                     `;
                 } else {
