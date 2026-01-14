@@ -53,13 +53,24 @@ public class CommunityController {
         }
 
         List<MultipartFile> fileList = reqDto.getFiles();
-        for(MultipartFile file : fileList) {
-            if(file.getSize() > 1000000) {
-                throw new IllegalArgumentException("파일 용량이 1MB를 초과했습니다: " + file.getOriginalFilename());
+        long maxImageSize = 5 * 1024 * 1024; // 5MB
+
+        if (fileList != null && !fileList.isEmpty()) {
+            for(MultipartFile file : fileList) {
+                if(file.isEmpty()) continue;
+
+                // 1. 이미지 파일인지 체크 (이미지가 아니면 차단)
+                if (file.getContentType() == null || !file.getContentType().startsWith("image")) {
+                    throw new IllegalArgumentException("이미지 파일만 업로드 가능합니다: " + file.getOriginalFilename());
+                }
+
+                // 2. 용량 체크 (5MB 초과 시 차단)
+                if (file.getSize() > maxImageSize) {
+                    throw new IllegalArgumentException("이미지 파일은 5MB를 초과할 수 없습니다: " + file.getOriginalFilename());
+                }
             }
         }
 
-        System.out.println(reqDto);
         cs.insertPost(mdto, reqDto);
         return "redirect:/community";
     }
@@ -70,9 +81,6 @@ public class CommunityController {
         CommunityDetailResDto post = cs.getDetail(memberId, id);
 
         model.addAttribute("post", post);
-        if (memberId != null) {
-            model.addAttribute("loginUserId", memberId);
-        }
 
         // [추가] 디테일 페이지에도 인기 그룹 리스트 전달
         model.addAttribute("bestGroups", cs.getBestGroup());

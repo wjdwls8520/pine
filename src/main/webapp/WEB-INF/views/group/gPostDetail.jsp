@@ -146,17 +146,20 @@
                     <div class="bestGroupTitle">BEST GROUP</div>
                     <div class="bestGroupListWrap">
                         <ul class="bestGroupList">
-                            <li>
-                                <a>
-                                    <div class="bGroupImg">
-                                        <img src="/images/banner02.png"/>
-                                    </div>
-                                    <div class="bGroupInfo">
-                                        <span class="bGroupName">방탄팬클럽</span>
-                                        <span class="bGroupCount">멤버 2,200명</span>
-                                    </div>
-                                </a>
-                            </li>
+                            <%-- 5개 노출 후 더보기--%>
+                            <c:forEach items="${groupAll}" var="group">
+                                <li>
+                                    <a>
+                                        <div class="bGroupImg">
+                                            <img src="${group.groupImg.path}"/>
+                                        </div>
+                                        <div class="bGroupInfo">
+                                            <span class="bGroupName">${group.groupName}</span>
+                                            <span class="bGroupCount">멤버 ${group.groupMemberCount}</span>
+                                        </div>
+                                    </a>
+                                </li>
+                            </c:forEach>
                         </ul>
                     </div>
                 </div>

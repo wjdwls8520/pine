@@ -40,7 +40,7 @@
                                 <li>
                                     <a>
                                         <div class="bGroupImg">
-                                            <img src="${group.groupImg}"/>
+                                            <img src="${group.groupImg.path}"/>
                                         </div>
                                         <div class="bGroupInfo">
                                             <span class="bGroupName">${group.groupName}</span>

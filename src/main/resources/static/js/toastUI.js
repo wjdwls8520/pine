@@ -1,6 +1,8 @@
 window.addEventListener("load", () => {
     const Editor = toastui.Editor;
 
+    const MAX_LENGTH = 20000; // 최대 글자 수 설정
+
     const editor = new Editor({
         el: document.querySelector('#editor'),
         height: '500px',
@@ -11,7 +13,48 @@ window.addEventListener("load", () => {
             ['hr', 'quote'],
         ],
 
-        usageStatistics: false //익명 통계 수집 비활성화
+        usageStatistics: false, //익명 통계 수집 비활성화
+
+        events: {
+            change: function() {
+                // 1. 내용 가져오기
+                const content = editor.getHTML();
+                const len = content.length;
+
+                // ============================================================
+                // [에러 원인 해결] 변수를 여기서 확실하게 선언해줘야 합니다!
+                // ============================================================
+                const currentLenSpan = document.getElementById('currentLen');
+                const maxLenSpan = document.getElementById('maxLen');
+                const countWrap = document.getElementById('charCountWrap');
+                const MAX_LENGTH = 20000; // 혹시 몰라서 여기도 상수로 박아둡니다.
+
+                // 2. 숫자 업데이트
+                if(currentLenSpan) {
+                    currentLenSpan.innerText = len.toLocaleString();
+                }
+
+                // 3. 색상 변경 로직 (부모 div + 숫자 span 둘 다 변경)
+                if (countWrap && currentLenSpan && maxLenSpan) {
+                    if (len > MAX_LENGTH) {
+                        // (빨강) 초과 시
+                        countWrap.style.color = 'red';
+                        countWrap.style.fontWeight = 'bold';
+
+                        currentLenSpan.style.color = 'red';
+                        maxLenSpan.style.color = 'red';
+                    } else {
+                        // (회색) 정상 시 - 원래대로 복구
+                        countWrap.style.color = '#666';
+                        countWrap.style.fontWeight = 'normal';
+
+                        currentLenSpan.style.color = '#666';
+                        maxLenSpan.style.color = '#666';
+                    }
+                }
+            }
+        }
+
     });
 
     window.editor = editor;

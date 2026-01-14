@@ -13,6 +13,18 @@
 <div class="wrap">
     <jsp:include page="../include/sideBar.jsp"></jsp:include>
 
+    <sec:authorize access="isAuthenticated()">
+        <script>
+            window.isLogin = true;
+        </script>
+    </sec:authorize>
+
+    <sec:authorize access="isAnonymous()">
+        <script>
+            window.isLogin = false;
+        </script>
+    </sec:authorize>
+
     <article class="article workspace commuCreatePage">
         <%--이 페이지에서 작성,수정 둘다 함--%>
         <h2>${not empty post ? '커뮤니티 포스트 수정' : '커뮤니티 포스트 작성'}</h2>
@@ -43,6 +55,9 @@
                         <label for="postBody" class="fieldLabel">본문</label>
                         <div id="editor"></div>
                         <textarea id="postBody" name="postBody" hidden>${post.content}</textarea>
+                        <div id="charCountWrap" style="text-align: right; margin-top: 5px; font-size: 13px; color: #666;">
+                            <span id="currentLen">0</span> / <span id="maxLen">20,000</span>
+                        </div>
                     </div>
 
                     <div class="fieldGroup tagInputWrapper">
@@ -61,7 +76,7 @@
                         <div class="mediaHeader">
                             <div>
                                 <p class="fieldLabel">미디어 업로드</p>
-                                <p class="mediaDescription">이미지 또는 영상 파일을 추가하면 피드에서 텍스트 아래 갤러리로 표시됩니다.</p>
+                                <p class="mediaDescription">이미지 파일을 추가하면 피드에서 텍스트 아래 갤러리로 표시됩니다.</p>
                             </div>
                         </div>
 
@@ -69,12 +84,12 @@
                             <p>여기로 파일을 드래그하거나</p>
                             <button type="button" id="dropzoneSelectBtn">파일 선택</button>
                             <div id="mediaSlider" class="mediaSlider"></div>
-                            <span>파일 업로드 제한 최대 10개 · 최대 크기 50MB</span>
+                            <span>파일 업로드 제한 최대 10개 · 최대 크기 5MB / 총 50MB</span>
                         </div>
 
                         <%-- 1.새 파일 업로드용 input --%>
                         <input type="file" name="files" id="mediaUploadInput" multiple hidden />
-                        <input type="file" id="tempFileInput" multiple accept="image/*,video/*" hidden />
+                        <input type="file" id="tempFileInput" multiple accept="image/*" hidden />
                         <input type="hidden" id="mediaJsonInput" name="mediaJson" />
 
                         <%-- 2.삭제할 기존 파일 ID들을 담을 곳 (서버 전송용) --%>

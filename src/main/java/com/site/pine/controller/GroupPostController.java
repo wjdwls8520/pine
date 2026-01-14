@@ -109,6 +109,7 @@ public class GroupPostController {
         if (memberId != null) {
             model.addAttribute("loginUserId", memberId);
         }
+        model.addAttribute("groupAll", mainService.getBestGroup());
         return "group/gPostDetail"; // JSP에서 ${post.필드} 로 접근
     }
 
