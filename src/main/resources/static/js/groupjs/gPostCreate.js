@@ -3,6 +3,8 @@ window.addEventListener("load", () => {
     // ==========================================
     // 1. 변수 설정
     // ==========================================
+    const groupId = window.groupId;
+
     const mode = document.getElementById('mode').value;
     const postId = document.getElementById('postId').value;
     const postBody = document.getElementById('postBody');
@@ -18,6 +20,8 @@ window.addEventListener("load", () => {
     // 기존 파일 관리용 변수
     const serverFileInput = document.getElementById('serverFileList');
     let deleteFileIds = [];
+
+    const MAX_LENGTH = 20000; // 최대 글자 수
 
 
     // ==========================================
@@ -45,20 +49,12 @@ window.addEventListener("load", () => {
         item.classList.add('mediaItem');
         item.dataset.id = file.id; // 중요: 기존 파일 ID 저장
 
-        // 이미지/비디오 구분
-        if (file.type && file.type.startsWith('video')) {
-            const video = document.createElement('video');
-            video.src = file.path;
-            video.controls = true;
-            video.classList.add('mediaThumb');
-            item.appendChild(video);
-        } else {
-            const img = document.createElement('img');
-            img.src = file.path;
-            img.alt = file.name;
-            img.classList.add('mediaThumb');
-            item.appendChild(img);
-        }
+        // 동영상은 보여주지 않음 (기존 데이터에 있어도 이미지 로직만 남김)
+        const img = document.createElement('img');
+        img.src = file.path;
+        img.alt = file.name;
+        img.classList.add('mediaThumb');
+        item.appendChild(img);
 
         // 삭제 버튼
         const removeBtn = document.createElement('button');
@@ -117,47 +113,35 @@ window.addEventListener("load", () => {
             return;
         }
 
+        const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
         files.forEach(file => {
-            // 유효성 검사
-            if (file.size > 50_000_000) return alert(`파일 "${file.name}" 용량이 50MB를 초과했습니다.`);
-            if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) return alert('이미지나 영상만 업로드 가능합니다.');
+            // 1. 이미지 형식 체크
+            if (!file.type.startsWith('image/')) {
+                return alert(`"${file.name}"은(는) 이미지 파일이 아닙니다.\n이미지 파일만 업로드해주세요.`);
+            }
+            // 2. 용량 체크 (5MB)
+            if (file.size > MAX_IMAGE_SIZE) {
+                return alert(`이미지 "${file.name}"의 용량이 5MB를 초과했습니다.`);
+            }
 
             const item = document.createElement('div');
             item.classList.add('mediaItem');
-
-            // [핵심] DOM 요소에 실제 File 객체를 붙여둡니다.
             item.fileRef = file;
 
-            if (file.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.alt = file.name;
-                img.classList.add('mediaThumb');
-                item.appendChild(img);
-            } else {
-                const video = document.createElement('video');
-                video.src = URL.createObjectURL(file);
-                video.controls = true;
-                video.classList.add('mediaThumb');
-                item.appendChild(video);
-            }
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.classList.add('mediaThumb');
+            item.appendChild(img);
 
             const removeBtn = document.createElement('button');
             removeBtn.type = "button";
             removeBtn.textContent = "삭제";
             removeBtn.classList.add('mediaRemoveBtn');
-
-            removeBtn.addEventListener('click', () => {
-                item.remove();
-                // 삭제 후 반드시 input 동기화!
-                updateFileInputOrder();
-            });
-
+            removeBtn.addEventListener('click', () => { item.remove(); updateFileInputOrder(); });
             item.appendChild(removeBtn);
             mediaSlider.appendChild(item);
         });
-
-        // [핵심] 파일 추가가 끝나면 input 태그를 최신 상태로 갱신합니다.
         updateFileInputOrder();
     }
 
@@ -195,6 +179,11 @@ window.addEventListener("load", () => {
     document.addEventListener('click', function(e) {
         if(e.target && e.target.id === 'submitBtn') {
 
+            if(!isLogin) {
+                alert("로그인이 필요한 서비스입니다.");
+                location.href='/login';
+            }
+
             if (!window.editor) return alert("에디터 로딩 중");
 
             const content = window.editor.getHTML();
@@ -202,6 +191,12 @@ window.addEventListener("load", () => {
 
             if (content.trim() === "<p><br></p>" || content.trim() === "") {
                 return alert("내용을 입력해주세요.");
+            }
+
+            // 글자 수 제한 체크 (20,000자)
+            if (content.length > MAX_LENGTH) {
+                alert(`내용이 너무 깁니다. (현재 ${content.length.toLocaleString()}자 / 최대 ${MAX_LENGTH.toLocaleString()}자)\n내용을 줄여주세요.`);
+                return;
             }
 
             // 3-1. 수정 모드 (Ajax - PUT/POST)

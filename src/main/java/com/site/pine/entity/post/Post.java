@@ -29,7 +29,7 @@ public class Post {
     private Long id;
 
     @Comment("포스트 내용")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
     @Comment("좋아요 수, 기본값 0")
