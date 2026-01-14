@@ -87,8 +87,8 @@
                 </div>
 
                 <div class="buttonGroup">
-                    <button type="button" class="btn btnCancel" onclick="history.back()">취소</button>
-                    <button type="submit" class="btn btnSubmit" id="submitBtn">업로드</button>
+<%--                    <button type="button" class="btn btnCancel" onclick="history.back()">취소</button>--%>
+<%--                    <button type="submit" class="btn btnSubmit" id="submitBtn">업로드</button>--%>
                 </div>
             </form>
         </div>

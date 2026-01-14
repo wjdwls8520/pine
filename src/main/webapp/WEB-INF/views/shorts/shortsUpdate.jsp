@@ -100,8 +100,8 @@
                 </div>
 
                 <div class="buttonGroup">
-                    <button type="button" class="btn btnCancel" onclick="history.back()">취소</button>
-                    <button type="button" class="btn btnSubmit" id="submitBtn" onclick="submitEdit()">수정 완료</button>
+<%--                    <button type="button" class="btn btnCancel" onclick="history.back()">취소</button>--%>
+<%--                    <button type="button" class="btn btnSubmit" id="submitBtn" onclick="submitEdit()">수정 완료</button>--%>
                 </div>
             </form>
         </div>

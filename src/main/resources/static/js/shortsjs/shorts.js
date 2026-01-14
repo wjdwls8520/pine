@@ -81,12 +81,18 @@ const observer = new IntersectionObserver((entries) => {
         const video = entry.target.querySelector('video');
         if (!video) return;
 
+        const videoShell = entry.target.querySelector('.videoShell');
         const currentPostId = entry.target.dataset.postId;
 
         if (entry.isIntersecting) {
             // [CASE 1] 화면에 들어옴 (60% 이상 보임)
             // -> 자동 재생 시작
             video.play().catch(e => console.log("자동 재생 막힘(브라우저 정책):", e));
+
+            // 재생 UI 초기화: 강제로 재생되므로 'paused' 클래스(재생 아이콘) 제거
+            if (videoShell) {
+                videoShell.classList.remove('paused');
+            }
 
             // 댓글 동기화 로직
             refreshCommentPanelIfOpen(entry.target);

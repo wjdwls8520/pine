@@ -8,6 +8,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const uploadForm = document.getElementById('shortsUploadForm'); // 업로드 페이지 폼
     const updateForm = document.getElementById('updateForm');       // 수정 페이지 폼
 
+    // 버튼이 나중에 생겨도 클릭 이벤트를 잡을 수 있도록 body에 이벤트를 겁니다.
+    document.body.addEventListener('click', (e) => {
+        // 클릭된 요소가 'submitBtn'인지 확인
+        if (e.target && e.target.id === 'submitBtn') {
+            if (uploadForm) {
+                // 업로드 폼이면 강제로 submit 이벤트 발생
+                uploadForm.dispatchEvent(new Event('submit'));
+            } else if (updateForm) {
+                // 수정 폼이면 수정 함수 실행
+                submitEdit();
+            }
+        }
+    });
+
     // ============================================================
     //  CASE 1: 쇼츠 업로드(작성) 페이지 로직
     // ============================================================
