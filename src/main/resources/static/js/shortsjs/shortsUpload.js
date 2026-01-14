@@ -28,77 +28,87 @@ document.addEventListener("DOMContentLoaded", () => {
         const thumbnailPreviewImg = document.getElementById('thumbnailPreviewImg');
 
         // 1. 비디오 업로드 영역 클릭
-        uploadArea.addEventListener('click', () => {
-            videoFileInput.click();
-        });
+        if (uploadArea) {
+            uploadArea.addEventListener('click', () => {
+                videoFileInput.click();
+            });
+
+            // 3. 드래그 앤 드롭
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('video/')) {
+                    videoFileInput.files = e.dataTransfer.files;
+                    handleVideoSelect(file, videoFileInput, previewVideo, videoPreview, videoInfo, thumbnailAuto, thumbnailPreviewImg, thumbnailPreview);
+                } else {
+                    alert('비디오 파일만 업로드 가능합니다.');
+                }
+            });
+        }
 
         // 2. 비디오 파일 선택 시
-        videoFileInput.addEventListener('change', (e) => {
-            handleVideoSelect(e.target.files[0], videoFileInput, previewVideo, videoPreview, videoInfo, thumbnailAuto, thumbnailPreviewImg, thumbnailPreview);
-        });
+        if (videoFileInput) {
+            videoFileInput.addEventListener('change', (e) => {
+                handleVideoSelect(e.target.files[0], videoFileInput, previewVideo, videoPreview, videoInfo, thumbnailAuto, thumbnailPreviewImg, thumbnailPreview);
 
-        // 3. 드래그 앤 드롭
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('video/')) {
-                videoFileInput.files = e.dataTransfer.files;
-                handleVideoSelect(file, videoFileInput, previewVideo, videoPreview, videoInfo, thumbnailAuto, thumbnailPreviewImg, thumbnailPreview);
-            } else {
-                alert('비디오 파일만 업로드 가능합니다.');
-            }
-        });
+                // 비디오 변경 시 수동 썸네일 초기화
+                if (thumbnailManual && thumbnailManual.checked) {
+                    if(thumbnailFileInput) thumbnailFileInput.value = '';
+                    if(thumbnailPreview) thumbnailPreview.classList.remove('active');
+                    if(thumbnailPreviewImg) thumbnailPreviewImg.src = '';
+                }
+            });
+        }
 
         // 4. 썸네일 타입 변경 (자동/수동)
-        thumbnailAuto.addEventListener('change', () => {
-            if (thumbnailAuto.checked) {
-                thumbnailUploadArea.classList.remove('active');
-                thumbnailFileInput.value = '';
-                // 비디오가 있으면 자동 썸네일 생성
-                if (previewVideo.src) {
-                    generateThumbnailFromVideo(previewVideo.src, thumbnailPreviewImg, thumbnailPreview);
+        if (thumbnailAuto) {
+            thumbnailAuto.addEventListener('change', () => {
+                if (thumbnailAuto.checked) {
+                    if(thumbnailUploadArea) thumbnailUploadArea.classList.remove('active');
+                    if(thumbnailFileInput) thumbnailFileInput.value = '';
+                    // 비디오가 있으면 자동 썸네일 생성
+                    if (previewVideo.src) {
+                        generateThumbnailFromVideo(previewVideo.src, thumbnailPreviewImg, thumbnailPreview);
+                    }
                 }
-            }
-        });
+            });
+        }
 
-        thumbnailManual.addEventListener('change', () => {
-            if (thumbnailManual.checked) {
-                thumbnailUploadArea.classList.add('active');
-                thumbnailPreview.classList.remove('active');
-                thumbnailPreviewImg.src = '';
-            }
-        });
-
-        // 비디오 변경 시 수동 썸네일 초기화
-        videoFileInput.addEventListener('change', () => {
-            if (thumbnailManual.checked) {
-                thumbnailFileInput.value = '';
-                thumbnailPreview.classList.remove('active');
-                thumbnailPreviewImg.src = '';
-            }
-        });
+        if (thumbnailManual) {
+            thumbnailManual.addEventListener('change', () => {
+                if (thumbnailManual.checked) {
+                    if(thumbnailUploadArea) thumbnailUploadArea.classList.add('active');
+                    if(thumbnailPreview) thumbnailPreview.classList.remove('active');
+                    if(thumbnailPreviewImg) thumbnailPreviewImg.src = '';
+                }
+            });
+        }
 
         // 썸네일 업로드 영역 클릭
-        thumbnailUploadArea.addEventListener('click', () => {
-            if (thumbnailManual.checked) {
-                thumbnailFileInput.click();
-            }
-        });
+        if (thumbnailUploadArea) {
+            thumbnailUploadArea.addEventListener('click', () => {
+                if (thumbnailManual && thumbnailManual.checked) {
+                    thumbnailFileInput.click();
+                }
+            });
+        }
 
         // 5. 수동 썸네일 파일 선택
-        thumbnailFileInput.addEventListener('change', (e) => {
-            handleThumbnailSelect(e.target.files[0], thumbnailFileInput, thumbnailPreviewImg, thumbnailPreview);
-        });
+        if (thumbnailFileInput) {
+            thumbnailFileInput.addEventListener('change', (e) => {
+                handleThumbnailSelect(e.target.files[0], thumbnailFileInput, thumbnailPreviewImg, thumbnailPreview);
+            });
+        }
 
         // 6. 폼 제출 (업로드용 - Fetch 적용)
         uploadForm.addEventListener('submit', (e) => {
@@ -127,7 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 formData.set("tags", hiddenTags.value);
             }
 
-            const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerText = "업로드 중...";
 
@@ -135,23 +144,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: 'POST',
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.msg); // ★ 성공 알림
-                    location.href = '/shorts';
-                } else {
-                    alert(data.msg); // 실패 알림
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.msg); // ★ 성공 알림
+                        location.href = '/shorts';
+                    } else {
+                        alert(data.msg); // 실패 알림
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "업로드";
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert("업로드 중 오류가 발생했습니다.");
                     submitBtn.disabled = false;
                     submitBtn.innerText = "업로드";
-                }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                alert("업로드 중 오류가 발생했습니다.");
-                submitBtn.disabled = false;
-                submitBtn.innerText = "업로드";
-            });
+                });
         });
     }
 
@@ -172,14 +181,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     // 공통 파일 처리 함수 재사용 가능하지만, 요청하신 로직 그대로 적용
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        thumbnailPreviewImg.src = e.target.result;
-                        thumbnailPreview.classList.add('active');
-                        thumbnailPreview.style.display = 'block';
+                        if(thumbnailPreviewImg) thumbnailPreviewImg.src = e.target.result;
+                        if(thumbnailPreview) {
+                            thumbnailPreview.classList.add('active');
+                            thumbnailPreview.style.display = 'block';
+                        }
                     }
                     reader.readAsDataURL(file);
                 } else {
-                    thumbnailPreviewImg.src = '';
-                    thumbnailPreview.style.display = 'none';
+                    if(thumbnailPreviewImg) thumbnailPreviewImg.src = '';
+                    if(thumbnailPreview) thumbnailPreview.style.display = 'none';
                 }
             });
         }
@@ -191,8 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ============================================================
 
 /**
- * [수정 페이지 전용] 수정 완료 버튼 클릭 시 호출 (AJAX)
- * 주의: JSP에서 onclick="submitEdit()"으로 호출하므로 전역 함수여야 함.
+ * 수정 완료 버튼 클릭 시 호출 (AJAX)
  */
 function submitEdit() {
     const submitBtn = document.getElementById('submitBtn');
@@ -204,7 +214,7 @@ function submitEdit() {
     const postId = document.getElementById("postId").value;
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
-    const thumbnailFile = document.getElementById("thumbnailFile").files[0];
+    const thumbnailFile = document.getElementById("thumbnailFile") ? document.getElementById("thumbnailFile").files[0] : null;
 
     // 유효성 검사
     if (!title.trim() || !content.trim()) {
@@ -284,14 +294,16 @@ function handleVideoSelect(file, input, previewVideo, videoPreview, videoInfo, t
 
     // 미리보기 설정
     const url = URL.createObjectURL(file);
-    previewVideo.src = url;
-    videoPreview.classList.add('active');
+    if(previewVideo) previewVideo.src = url;
+    if(videoPreview) videoPreview.classList.add('active');
 
     const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-    videoInfo.innerHTML =
-        '<strong>파일명:</strong> ' + file.name + '<br>' +
-        '<strong>크기:</strong> ' + fileSizeMB + ' MB<br>' +
-        '<strong>형식:</strong> ' + file.type;
+    if(videoInfo) {
+        videoInfo.innerHTML =
+            '<strong>파일명:</strong> ' + file.name + '<br>' +
+            '<strong>크기:</strong> ' + fileSizeMB + ' MB<br>' +
+            '<strong>형식:</strong> ' + file.type;
+    }
 
     // 자동 썸네일 생성
     if (thumbnailAuto && thumbnailAuto.checked) {
@@ -315,7 +327,7 @@ function generateThumbnailFromVideo(videoUrl, imgElement, previewContainer) {
 
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        imgElement.src = canvas.toDataURL('image/jpeg');
+        if(imgElement) imgElement.src = canvas.toDataURL('image/jpeg');
         if (previewContainer) previewContainer.classList.add('active');
     });
 }
@@ -329,7 +341,7 @@ function handleThumbnailSelect(file, input, imgElement, previewContainer) {
     if (!file.type.startsWith('image/')) {
         alert('썸네일은 이미지 파일만 업로드 가능합니다.');
         input.value = '';
-        imgElement.src = '';
+        if(imgElement) imgElement.src = '';
         if (previewContainer) previewContainer.classList.remove('active');
         return;
     }
@@ -343,9 +355,11 @@ function handleThumbnailSelect(file, input, imgElement, previewContainer) {
 
     const reader = new FileReader();
     reader.onload = (event) => {
-        imgElement.src = event.target.result;
-        if (previewContainer) previewContainer.classList.add('active');
-        previewContainer.style.display = 'block';
+        if(imgElement) imgElement.src = event.target.result;
+        if (previewContainer) {
+            previewContainer.classList.add('active');
+            previewContainer.style.display = 'block';
+        }
     };
     reader.readAsDataURL(file);
 }

@@ -1,6 +1,7 @@
-/* CSS 변수 정의 */
+/* shortsUpload.css - 복합 선택자(Combinator Selector) 적용 */
+
 :root {
-    --shorts-bg: #f5f6f9;
+    --shortsBg: #f5f6f9;
     --primary: #4f46e5;
     --accent: #fe7778;
 }
@@ -16,47 +17,48 @@ html, body {
 
 body {
     margin: 0;
-    background: var(--shorts-bg);
+    background: var(--shortsBg);
     font-family: "Pretendard", "Noto Sans KR", sans-serif;
     color: #111827;
 }
 
-/* Article 스타일 */
 .article {
     padding: 0;
 }
 
 .article.workspace.shorts {
-    background: var(--shorts-bg);
+    background: var(--shortsBg);
 }
 
-/* 업로드 페이지 스타일 */
-.shorts-upload-page {
+/* --- 업로드 페이지 전체 레이아웃 --- */
+.shortsUploadPage {
     padding: 40px;
     width: 100%;
     max-width: 900px;
     margin: 0 auto;
 }
 
-.upload-form {
+/* 폼 컨테이너 */
+.shortsUploadPage .uploadForm {
     background: #fff;
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.1);
 }
 
-.form-title {
+/* 폼 내부 요소들 */
+.shortsUploadPage .uploadForm .formTitle {
     font-size: 28px;
     font-weight: 700;
     color: #0f172a;
     margin-bottom: 32px;
 }
 
-.field-group {
+.shortsUploadPage .uploadForm .fieldGroup {
     margin-bottom: 32px;
 }
 
-.field-label {
+.shortsUploadPage .uploadForm .fieldGroup .fieldLabel {
     display: block;
     font-size: 16px;
     font-weight: 600;
@@ -64,7 +66,8 @@ body {
     margin-bottom: 12px;
 }
 
-.field-control {
+/* 입력 필드 (Input, Textarea) 공통 */
+.shortsUploadPage .uploadForm .fieldControl {
     width: 100%;
     padding: 14px 18px;
     border: 2px solid #e5e7eb;
@@ -74,17 +77,18 @@ body {
     transition: border-color 0.2s ease;
 }
 
-.field-control:focus {
+.shortsUploadPage .uploadForm .fieldControl:focus {
     outline: none;
     border-color: var(--primary, #4f46e5);
 }
 
-textarea.field-control {
+.shortsUploadPage .uploadForm textarea.fieldControl {
     min-height: 120px;
     resize: vertical;
 }
 
-.video-upload-area {
+/* --- 비디오 업로드 영역 --- */
+.videoUploadArea {
     border: 2px dashed #cbd5e1;
     border-radius: 16px;
     padding: 60px 40px;
@@ -94,43 +98,49 @@ textarea.field-control {
     cursor: pointer;
 }
 
-.video-upload-area:hover {
+.videoUploadArea:hover {
     border-color: var(--primary, #4f46e5);
     background: #f1f5f9;
 }
 
-.video-upload-area.dragover {
+.videoUploadArea.dragover {
     border-color: var(--primary, #4f46e5);
     background: #eef2ff;
 }
 
-.upload-icon {
+.videoUploadArea .uploadIcon {
     font-size: 48px;
     margin-bottom: 16px;
 }
 
-.upload-text {
+.videoUploadArea .uploadText {
     font-size: 18px;
     font-weight: 600;
     color: #0f172a;
     margin-bottom: 8px;
 }
 
-.upload-hint {
+.videoUploadArea .uploadHint {
     font-size: 14px;
     color: #64748b;
 }
 
-.video-preview {
+/* 파일 인풋 숨김 */
+.fileInput {
+    display: none;
+}
+
+/* --- 비디오 미리보기 --- */
+.videoPreview {
     margin-top: 24px;
     display: none;
 }
 
-.video-preview.active {
+.videoPreview.active {
     display: block;
 }
 
-.video-preview video {
+.videoPreview video {
     width: 100%;
     max-width: 420px;
     aspect-ratio: 9 / 16;
@@ -140,7 +150,7 @@ textarea.field-control {
     display: block;
 }
 
-.video-info {
+.videoPreview .videoInfo {
     margin-top: 16px;
     padding: 16px;
     background: #f1f5f9;
@@ -149,15 +159,12 @@ textarea.field-control {
     color: #475569;
 }
 
-.video-info strong {
+.videoPreview .videoInfo strong {
     color: #0f172a;
 }
 
-.file-input {
-    display: none;
-}
-
-.button-group {
+/* --- 버튼 그룹 --- */
+.shortsUploadPage .uploadForm .buttonGroup {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
@@ -166,7 +173,7 @@ textarea.field-control {
     border-top: 1px solid #e5e7eb;
 }
 
-.btn {
+.shortsUploadPage .uploadForm .buttonGroup .btn {
     padding: 14px 28px;
     border-radius: 12px;
     font-size: 16px;
@@ -176,43 +183,44 @@ textarea.field-control {
     border: none;
 }
 
-.btn-cancel {
+.shortsUploadPage .uploadForm .buttonGroup .btnCancel {
     background: #f1f5f9;
     color: #475569;
 }
 
-.btn-cancel:hover {
+.shortsUploadPage .uploadForm .buttonGroup .btnCancel:hover {
     background: #e2e8f0;
 }
 
-.btn-submit {
+.shortsUploadPage .uploadForm .buttonGroup .btnSubmit {
     background: var(--primary, #4f46e5);
     color: #fff;
 }
 
-.btn-submit:hover {
+.shortsUploadPage .uploadForm .buttonGroup .btnSubmit:hover {
     background: #4338ca;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
-.btn-submit:disabled {
+.shortsUploadPage .uploadForm .buttonGroup .btnSubmit:disabled {
     background: #cbd5e1;
     cursor: not-allowed;
     transform: none;
 }
 
-.thumbnail-section {
+/* --- 썸네일 섹션 --- */
+.thumbnailSection {
     display: flex;
     gap: 24px;
     align-items: flex-start;
 }
 
-.thumbnail-options {
+.thumbnailSection .thumbnailOptions {
     flex: 1;
 }
 
-.thumbnail-option {
+.thumbnailSection .thumbnailOption {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -224,30 +232,31 @@ textarea.field-control {
     transition: all 0.2s ease;
 }
 
-.thumbnail-option:hover {
+.thumbnailSection .thumbnailOption:hover {
     border-color: var(--primary, #4f46e5);
     background: #f8fafc;
 }
 
-.thumbnail-option input[type="radio"] {
+.thumbnailSection .thumbnailOption input[type="radio"] {
     width: 20px;
     height: 20px;
     cursor: pointer;
 }
 
-.thumbnail-option label {
+.thumbnailSection .thumbnailOption label {
     cursor: pointer;
     font-size: 15px;
     color: #0f172a;
     flex: 1;
 }
 
-.thumbnail-preview-area {
+/* 썸네일 미리보기 영역 */
+.thumbnailSection .thumbnailPreviewArea {
     flex: 1;
     min-width: 200px;
 }
 
-.thumbnail-preview {
+.thumbnailSection .thumbnailPreviewArea .thumbnailPreview {
     width: 100%;
     aspect-ratio: 9 / 16;
     border-radius: 12px;
@@ -257,17 +266,18 @@ textarea.field-control {
     display: none;
 }
 
-.thumbnail-preview.active {
+.thumbnailSection .thumbnailPreviewArea .thumbnailPreview.active {
     display: block;
 }
 
-.thumbnail-preview img {
+.thumbnailSection .thumbnailPreviewArea .thumbnailPreview img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.thumbnail-upload-area {
+/* 썸네일 업로드 영역 */
+.thumbnailUploadArea {
     border: 2px dashed #cbd5e1;
     border-radius: 12px;
     padding: 40px 20px;
@@ -278,70 +288,41 @@ textarea.field-control {
     display: none;
 }
 
-.thumbnail-update-area{
+.thumbnailUpdateArea {
     margin-top: 10px;
 }
 
-.thumbnail-upload-area.active {
+.thumbnailUploadArea.active {
     display: block;
 }
 
-.thumbnail-upload-area:hover {
+.thumbnailUploadArea:hover {
     border-color: var(--primary, #4f46e5);
     background: #f1f5f9;
 }
 
-.thumbnail-upload-icon {
+.thumbnailUploadArea .thumbnailUploadIcon {
     font-size: 32px;
     margin-bottom: 8px;
 }
 
-.thumbnail-upload-text {
+.thumbnailUploadArea .thumbnailUploadText {
     font-size: 14px;
     color: #64748b;
 }
 
-.tag-input-container {
+/* --- 태그 입력 --- */
+.tagInputContainer {
     position: relative;
 }
 
-.tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-}
-
-.tag-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    background: var(--primary, #4f46e5);
-    color: #fff;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.tag-item .tag-remove {
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
-    opacity: 0.8;
-}
-
-.tag-item .tag-remove:hover {
-    opacity: 1;
-}
-
-.tag-hint {
+.tagInputContainer .tagHint {
     font-size: 13px;
     color: #64748b;
     margin-top: 8px;
 }
 
-/* 태그 리스트 영역 */
+/* 태그 리스트 */
 #tagList {
     display: flex;
     flex-wrap: wrap;
@@ -349,8 +330,8 @@ textarea.field-control {
     margin-top: 10px;
 }
 
-/* 개별 태그 아이템 (tag.js에서 생성됨) */
-.tagItem {
+/* 개별 태그 아이템 */
+#tagList .tagItem {
     display: inline-flex;
     align-items: center;
     background-color: #f0f2f5;
@@ -362,16 +343,16 @@ textarea.field-control {
     transition: all 0.2s;
 }
 
-.tagItem:hover {
+#tagList .tagItem:hover {
     background-color: #e4e6eb;
 }
 
-.tagItem span {
+#tagList .tagItem span {
     margin-right: 6px;
 }
 
-/* 삭제 버튼 (x) */
-.delBtn {
+/* 태그 삭제 버튼 (x) */
+#tagList .tagItem .delBtn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -387,14 +368,12 @@ textarea.field-control {
     line-height: 1;
 }
 
-.delBtn:hover {
-    background-color: #ff4d4f; /* 삭제 시 빨간색 강조 */
+#tagList .tagItem .delBtn:hover {
+    background-color: #ff4d4f;
 }
 
-
-
-/* 수정 페이지 전용 스타일 */
-.info-box {
+/* --- 수정 페이지 전용 스타일 --- */
+.infoBox {
     padding: 20px;
     background-color: #fff8e1;
     border: 1px solid #ffe0b2;
@@ -406,20 +385,25 @@ textarea.field-control {
     gap: 10px;
     margin-bottom: 10px;
 }
-.info-box .icon { font-size: 20px; }
 
-.current-thumbnail {
+.infoBox .icon {
+    font-size: 20px;
+}
+
+.currentThumbnail {
     margin-bottom: 10px;
     padding: 10px;
     background: #f8f9fa;
     border-radius: 8px;
     text-align: center;
 }
-.current-thumbnail img {
+
+.currentThumbnail img {
     max-height: 150px;
     border-radius: 4px;
 }
-.current-thumbnail p {
+
+.currentThumbnail p {
     margin-bottom: 5px;
     font-weight: 600;
     color: #555;

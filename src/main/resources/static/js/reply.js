@@ -1,12 +1,13 @@
 /**
  * reply.js (shorts.js에서 분리된 공용 및 댓글 로직)
+ * - 모든 클래스명 및 ID 선택자는 camelCase 준수
  */
 
 // ==========================================
 //  1. 전역 변수 및 유틸리티 함수
 // ==========================================
 
-const loginUser = document.getElementById("loginUser") ? document.getElementById("loginUser").value : null;
+const loginUserVal = document.getElementById("loginUser") ? document.getElementById("loginUser").value : null;
 
 function escapeHtml(text) {
     if (!text) return text;
@@ -23,7 +24,7 @@ function escapeHtml(text) {
  * @returns {boolean} 로그인 상태면 true, 아니면 false
  */
 function requireLogin() {
-    if (!loginUser) {
+    if (!loginUserVal) {
         if (confirm("로그인이 필요한 서비스입니다.\n로그인 페이지로 이동하시겠습니까?")) {
             location.href = "/login";
         }
@@ -123,6 +124,7 @@ function loadReplies(postId, page) {
  * - 버튼 클릭 시 호출됨
  */
 function loadChildReplies(parentId, count) {
+    // sub-reply-area -> subReplyArea
     const listArea = document.getElementById(`subReplyArea-${parentId}`);
     const btn = document.getElementById(`btnViewReply-${parentId}`);
 
@@ -177,7 +179,7 @@ function createReplyItemHtml(reply, isSubReply = false) {
     let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(reply.writeDate) : reply.writeDate;
     // 수정된 댓글이면 날짜 뒤에 (수정됨) 추가
     if (reply.isEdited) {
-        dateStr += ' <span class="edited-text">(수정됨)</span>';
+        dateStr += ' <span class="editedText">(수정됨)</span>';
     }
     let isDeleted = reply.deleteYN === 'Y';
 
@@ -197,15 +199,9 @@ function createReplyItemHtml(reply, isSubReply = false) {
     if (!isDeleted) {
         let menuItems = '';
 
-        // 로그인 여부와 관계없이 일단 메뉴 버튼 구조는 준비할 수 있지만,
-        // 댓글의 경우 보통 '신고' 외에 '설명' 같은 게 없으므로
-        // 비로그인 상태면 아예 메뉴를 안 보여주는 게 나을 수도 있습니다.
-        // 하지만 "신고 시 로그인 유도"를 원하시므로 메뉴를 보여줍니다.
-
-        const isMine = loginUser && (String(reply.memberId) === String(loginUser));
+        const isMine = loginUserVal && (String(reply.memberId) === String(loginUserVal));
 
         if (isMine) {
-            // 내 댓글: 수정/삭제
             menuItems = `
                 <li><button type="button" class="dropdownItem" onclick="showEditForm('${reply.id}')">수정</button></li>
                 <li><button type="button" class="dropdownItem danger" onclick="deleteComment('${reply.id}')">삭제</button></li>
@@ -253,7 +249,7 @@ function createReplyItemHtml(reply, isSubReply = false) {
                 ─── 대댓글 ${reply.childCount}개 보기
             </button>
         `;
-        childrenHtml = `<ul class="replyList sub-reply-area" id="subReplyArea-${reply.id}" style="display:none;"></ul>`;
+        childrenHtml = `<ul class="replyList subReplyArea" id="subReplyArea-${reply.id}" style="display:none;"></ul>`;
     }
 
     // 최종 HTML 반환
@@ -265,7 +261,7 @@ function createReplyItemHtml(reply, isSubReply = false) {
             <div class="replyContentBox">
                 <div class="commentTop">
                     <b>${nickname}</b>
-                    <span class="date reply-date">${dateStr}</span>
+                    <span class="date replyDate">${dateStr}</span>
                     ${optionHtml}
                 </div>
 
@@ -463,18 +459,18 @@ function showEditForm(replyId) {
     const originalContent = pTag.innerText; // 현재 적혀있는 내용 가져오기
 
     // 이미 수정 창이 열려있다면 중복 실행 방지
-    if (replyItem.querySelector('.edit-form-container')) return;
+    if (replyItem.querySelector('.editFormContainer')) return;
 
     // 1. 기존 텍스트 숨기기
     pTag.style.display = 'none';
 
-    // 2. 수정 폼 HTML 생성 (백틱 `` 사용)
+    // 2. 수정 폼 HTML 생성
     const editFormHtml = `
-        <div class="edit-form-container" id="edit-form-${replyId}">
-            <textarea class="edit-textarea" id="edit-textarea-${replyId}" maxlength="500">${originalContent}</textarea>
-            <div class="edit-btn-group">
-                <button type="button" class="btn-cancel" onclick="cancelEdit(event, ${replyId})">취소</button>
-                <button type="button" class="btn-save" onclick="saveEdit(${replyId})">저장</button>
+        <div class="editFormContainer" id="edit-form-${replyId}">
+            <textarea class="editTextarea" id="edit-textarea-${replyId}" maxlength="500">${originalContent}</textarea>
+            <div class="editBtnGroup">
+                <button type="button" class="btnCancel" onclick="cancelEdit(event, ${replyId})">취소</button>
+                <button type="button" class="btnSave" onclick="saveEdit(${replyId})">저장</button>
             </div>
         </div>
     `;
@@ -547,11 +543,11 @@ function saveEdit(replyId) {
             pTag.innerText = newContent;
 
             // 2. (수정됨) 표시 즉시 붙이기
-            const dateSpan = replyItem.querySelector('.reply-date');
+            const dateSpan = replyItem.querySelector('.replyDate');
 
             // (1) 날짜 태그가 있고 (2) 아직 "(수정됨)" 표시가 없을 때만 추가
-            if (dateSpan && !replyItem.querySelector('.edited-text')) {
-                dateSpan.insertAdjacentHTML('beforeend', ' <span class="edited-text">(수정됨)</span>');
+            if (dateSpan && !replyItem.querySelector('.editedText')) {
+                dateSpan.insertAdjacentHTML('beforeend', ' <span class="editedText">(수정됨)</span>');
             }
 
             // 2. 폼 닫기 (취소 함수 재사용하면 됨)

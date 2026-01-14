@@ -3,6 +3,7 @@
  * - 쇼츠 목록 무한 스크롤
  * - 비디오 자동 재생/일시정지 (IntersectionObserver)
  * - 커스텀 비디오 컨트롤 (재생바, 시간 표시, 클릭 토글)
+ * - 모든 클래스명 및 ID 선택자는 camelCase 준수
  */
 
 // ==========================================
@@ -57,6 +58,8 @@ function formatTime(seconds) {
 // ==========================================
 //  1. 전역 변수 및 설정
 // ==========================================
+const loginUser = document.getElementById("loginUser") ? document.getElementById("loginUser").value : null;
+
 let page = 0;
 let totalPages = 10;
 let loading = false; // 중복 요청 방지용 플래그
@@ -215,9 +218,11 @@ function renderShortCard(info, isPrepend = false) {
     // 태그 HTML 생성
     let tagHtml = '';
     if (info.tags && info.tags.length > 0) {
-        tagHtml = `<div class="shorts-tags">`;
+        // shorts-tags -> shortsTags
+        tagHtml = `<div class="shortsTags">`;
         info.tags.forEach(tag => {
-            tagHtml += `<span class="tag-item">#${tag}</span>`;
+            // tag-item -> tagItem
+            tagHtml += `<span class="tagItem">#${tag}</span>`;
         });
         tagHtml += `</div>`;
     }
@@ -270,7 +275,7 @@ function renderShortCard(info, isPrepend = false) {
                             <div class="avatar"><img src="${userProfile}" alt="user"></div>
                             <div class="userInfo">
                                 <strong class="nickname">@${escapeHtml(info.nickname)}</strong>
-                                <span class="writedate">· ${dateStr}</span>
+                                <span class="writeDate">· ${dateStr}</span>
                             </div>
                         </div>
                         <div class="userBody">
@@ -305,7 +310,7 @@ function renderShortCard(info, isPrepend = false) {
                     
                     <button class="actionBtn share">
                         <span>링크공유</span>
-                        <em class="ico_link"></em>
+                        <em class="icoLink"></em>
                     </button>
                     
                     <button class="actionBtn commentToggle"
@@ -433,7 +438,8 @@ function openDescription(postData) {
         if (postData.tags && postData.tags.length > 0) {
             let tagsHtml = '';
             postData.tags.forEach(tag => {
-                tagsHtml += `<span class="tag-item">#${escapeHtml(tag)}</span>`;
+                // tag-item -> tagItem
+                tagsHtml += `<span class="tagItem">#${escapeHtml(tag)}</span>`;
             });
             tagsContainer.innerHTML = tagsHtml;
             tagsContainer.style.display = 'flex';
@@ -751,19 +757,19 @@ function deleteShorts(postId) {
     fetch(`/shorts/delete/${postId}`, {
         method: 'DELETE',
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.msg);
-            location.href = '/shorts';
-        } else {
-            alert(data.msg);
-        }
-    })
-    .catch(err => {
-        console.error("삭제 실패:", err);
-        alert("시스템 오류가 발생했습니다.");
-    });
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.msg);
+                location.href = '/shorts';
+            } else {
+                alert(data.msg);
+            }
+        })
+        .catch(err => {
+            console.error("삭제 실패:", err);
+            alert("시스템 오류가 발생했습니다.");
+        });
 }
 
 // 링크 복사 (공유 버튼 이벤트 위임)
@@ -771,15 +777,13 @@ shortsFeedWrap.addEventListener('click', (e) => {
     const shareBtn = e.target.closest('.actionBtn.share');
 
     if (shareBtn) {
-        const currentUrl = window.location.href;
-        navigator.clipboard.writeText(currentUrl)
-            .then(() => {
-                showToastMsg("링크가 복사되었습니다!");
-            })
-            .catch(err => {
-                console.error("복사 실패:", err);
-                prompt("자동 복사에 실패했습니다. 아래 링크를 직접 복사해주세요.", currentUrl);
-            });
+        // common.js에 정의된 링크 복사 함수 호출
+        if (typeof copyCurrentPostUrl === 'function') {
+            copyCurrentPostUrl();
+        } else {
+            console.error("copyCurrentPostUrl 함수를 찾을 수 없습니다.");
+            alert("링크를 복사할 수 없습니다.");
+        }
     }
 });
 
