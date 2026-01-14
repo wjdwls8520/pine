@@ -43,7 +43,7 @@
             alert("로그인 이후 이용하실 수 있습니다.");
             return location.href = '/login';
         }
-        location.href = '/community/ccreate';
+        location.href = '/group/${groupId}/post/create';
     }
 
     // 게시글 삭제 (수정 페이지에서 사용)
@@ -55,14 +55,14 @@
         // 현재 URL에서 ID 추출 (/community/edit/15 -> 15)
         const id = path.split('/').pop();
 
-        fetch(`/community/${'${id}'}`, { // EL표현식 충돌 방지 위해 '${id}' 사용
+        fetch(`/group/${groupId}/post/${post.id}/delete`, { // EL표현식 충돌 방지 위해 '${id}' 사용
             method: "DELETE",
             headers: { "Content-Type": "application/json" }
         })
             .then(res => {
                 if (res.ok) {
                     alert("삭제되었습니다.");
-                    location.href = '/community';
+                    location.href = '/group/${groupId}/post/main';
                 } else {
                     res.text().then(text => alert("삭제 실패: " + text));
                 }
@@ -75,59 +75,54 @@
         const formActions = document.getElementById("formActions");
         if (!formActions) return;
 
-        // (1) 커뮤니티 목록 페이지 (/group/{groupId}/post/main)
-        // [글쓰기] 버튼
-        const groupPostMainPattern = /^\/group\/\d+\/post\/main$/;
-        const groupPostCreatePattern = /^\/group\/\d+\/post\/create$/;
-        const groupPostUpdatePattern = /^\/group\/\d+\/post\/update$/;
-        const groupPostDetailPattern = /^\/group\/\d+\/post\/detail\/\d+$/;
-        if (groupPostMainPattern.test(path)) {
-            formActions.innerHTML = `
-                <div class="cancelButton">
-                    <button type="button" class="btnWH btnCancel" onclick="moveGroup();">그룹으로</button>
-                </div>
-                <div class="stepButtons">
-                    <button type="button" class="btnWH btnSubmit" onclick="moveCreate();">글쓰기</button>
-                </div>
-            `;
-        }
+        // 1. 현재 경로
+        const path = window.location.pathname;
 
-        // (2) 글 작성 페이지 (/group/{groupId}/post/create)
-        // [취소] [작성하기] 버튼
-        else if (groupPostCreatePattern.test(path)) {
-            formActions.innerHTML = `
-                <div class="cancelButton">
-                    <button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button>
-                </div>
-                <div class="stepButtons">
-                    <%-- commuCreate.js의 이벤트 리스너가 이 ID(submitBtn)를 찾습니다 --%>
-                    <button type="button" class="btnWH btnSubmit" id="submitBtn">게시하기</button>
-                </div>
-            `;
-        }
+        // 2. URL에서 ID값만 단순 추출 (URL 쪼개기)
+        // 예: /group/4/post/detail/12 -> '4'는 인덱스 2
+        const pathSegments = path.split('/');
+        const urlGroupId = pathSegments[2];
 
-            // (3) 글 수정 페이지 (/community/edit/숫자)
-        // [취소] [삭제] [수정하기] 버튼
-        else if (groupPostUpdatePattern.test(path)) {
+        // 3. 조건문: 정규식 대신 .includes() 사용 (무조건 작동함)
+        if (path.includes('/post/detail/')) {
+            formActions.innerHTML = `
+            <div class="cancelButton">
+                <button type="button" class="btnWH btnCancel"
+                        onclick="location.href='/group/' + groupId + '/post/main'">목록</button>
+            </div>
+        `;
+        }
+        else if (path.includes('/post/main')) {
+            formActions.innerHTML = `
+            <div class="cancelButton">
+                <button type="button" class="btnWH btnCancel" onclick="moveGroup();">그룹으로</button>
+            </div>
+            <div class="stepButtons">
+                <button type="button" class="btnWH btnSubmit" onclick="moveCreate();">글쓰기</button>
+            </div>
+        `;
+        }
+        else if (path.includes('/post/create')) {
+            formActions.innerHTML = `
+            <div class="cancelButton">
+                <button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button>
+            </div>
+            <div class="stepButtons">
+                <button type="button" class="btnWH btnSubmit" id="submitBtn">게시하기</button>
+            </div>
+        `;
+        }
+        else if (path.endsWith('/edit')) {
             formActions.innerHTML = `
                 <div class="cancelButton">
                     <button type="button" class="btnWH btnCancel" onclick="history.back()">취소</button>
                     <button type="button" class="btnWH btnCancel" onclick="deletePost()">삭제</button>
                 </div>
                 <div class="stepButtons">
-                    <%-- commuCreate.js가 mode='edit'인 걸 알고 PUT 요청을 보냅니다 --%>
+                    <%-- commuCreate.js가 mode='edit'인 걸 감지하고 PUT 요청 보냄 --%>
                     <button type="button" class="btnWH btnSubmit" id="submitBtn">수정하기</button>
                 </div>
             `;
-        }
-
-        // (4) 상세 페이지 (/community/cdetail/숫자) - 필요하다면 추가
-        else if (groupPostDetailPattern.test(path)) {
-            formActions.innerHTML = `
-                <div class="cancelButton">
-                    <button type="button" class="btnWH btnCancel" onclick="location.href='/community'">목록</button>
-                </div>
-             `;
         }
     });
 </script>
