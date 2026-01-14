@@ -212,7 +212,7 @@ function renderShortCard(info, isPrepend = false) {
     let videoFile = info.files.find(f => f.contentType.includes("video"));
     let thumbnailFile = info.files.find(f => f.contentType.includes("image"));
     let dateStr = typeof timeAgoAjax === 'function' ? timeAgoAjax(info.writeDate) : info.writeDate;
-    let userProfile = info.profileImg ? info.profileImg : '/images/icon_pinedory.png';
+    let userProfile = info.profileImg ? info.profileImg : '/images/user.png';
     let likeClass = info.liked ? 'on' : '';
 
     // 태그 HTML 생성
@@ -414,7 +414,7 @@ function openDescription(postData) {
 
     const profileImg = document.getElementById("descPanelProfileImg");
     if (profileImg) {
-        profileImg.src = postData.profileImg || '/images/icon_pinedory.png';
+        profileImg.src = postData.profileImg || '/images/user.png';
     }
 
     const nickname = postData.nickname ? postData.nickname : "알 수 없음";
@@ -573,7 +573,7 @@ function openComment(postId, title, writer, date) {
                 const postInfo = JSON.parse(postInfoStr.replace(/&quot;/g, '"'));
                 const profileImg = document.getElementById("commentPanelProfileImg");
                 if (profileImg) {
-                    profileImg.src = postInfo.profileImg || '/images/icon_pinedory.png';
+                    profileImg.src = postInfo.profileImg || '/images/user.png';
                 }
             } catch (e) {
                 console.error("프로필 이미지 설정 중 오류:", e);
@@ -628,7 +628,7 @@ function refreshCommentPanelIfOpen(cardElement) {
             const postInfo = JSON.parse(postInfoStr.replace(/&quot;/g, '"'));
             const profileImg = document.getElementById("commentPanelProfileImg");
             if (profileImg) {
-                profileImg.src = postInfo.profileImg || '/images/icon_pinedory.png';
+                profileImg.src = postInfo.profileImg || '/images/user.png';
             }
         } catch (e) {
             console.error("프로필 이미지 설정 중 오류:", e);

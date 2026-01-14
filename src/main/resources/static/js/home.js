@@ -19,3 +19,19 @@
 //
 // });
 //
+
+// 메인 쇼츠 날짜 변환 로직(공통js 메서드 사용)
+document.addEventListener("DOMContentLoaded", function() {
+    const timeAgoElements = document.querySelectorAll('.timeAgo');
+
+    timeAgoElements.forEach(function(element) {
+        const dateStr = element.getAttribute('data-date');
+
+        if (dateStr && typeof timeAgoAjax === 'function') {
+            const timeAgoText = timeAgoAjax(dateStr);
+            if (timeAgoText) {
+                element.textContent = timeAgoText;
+            }
+        }
+    });
+});
