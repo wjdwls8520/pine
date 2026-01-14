@@ -2,6 +2,7 @@ package com.site.pine.controller;
 
 import com.site.pine.dto.group.*;
 import com.site.pine.dto.member.MemberDto;
+import com.site.pine.service.GroupPostService;
 import com.site.pine.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class GroupController {
 
     private final GroupService gs;
+    private final GroupPostService groupPostService;
 
     // 그룹페이지화면
     @GetMapping("/group")
@@ -93,6 +95,8 @@ public class GroupController {
 
             model.addAttribute("groupDetail", getGroupDetail);
             model.addAttribute("isGroupMember", isGroupMember);
+
+            model.addAttribute("groupPosts", groupPostService.getGroupPost(groupId));
 
             if(memberdto != null) {
                 // 그룹 가입 신청중인지 확인 api

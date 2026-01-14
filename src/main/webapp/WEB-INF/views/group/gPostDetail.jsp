@@ -36,7 +36,7 @@
         <%-- 쇼츠는 계속 변하지만, 커뮤니티는 고정값이므로 여기서 세팅 --%>
         <input type="hidden" id="targetPostId" value="${post.id}">
 
-        <h2 class="pageTitle">community detail</h2>
+        <h2 class="pageTitle">포스트 상세보기</h2>
         <section class="section section01 commuSection">
             <div class="postSection" id="postList">
                 <div class="postBox">

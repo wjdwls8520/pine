@@ -19,7 +19,7 @@
         <script> window.groupId = ${groupId} </script>
 
         <%-- section page--%>
-        <h2 class="pageTitle">${groupName} Track</h2>
+        <h2 class="pageTitle cursor" onclick="location.href=`/group/gdetail/${groupId}`;">${groupName} Track</h2>
         <section class="section section01 commuSection">
 
             <%--  왼쪽 포스트 섹션--%>
@@ -36,17 +36,19 @@
                     <div class="bestGroupListWrap">
                         <ul class="bestGroupList">
                             <%-- 5개 노출 후 더보기--%>
-                            <li>
-                                <a>
-                                    <div class="bGroupImg">
-                                        <img src="/images/banner02.png"/>
-                                    </div>
-                                    <div class="bGroupInfo">
-                                        <span class="bGroupName">방탄팬클럽</span>
-                                        <span class="bGroupCount">멤버 2,200명</span>
-                                    </div>
-                                </a>
-                            </li>
+                            <c:forEach items="${groupAll}" var="group">
+                                <li>
+                                    <a>
+                                        <div class="bGroupImg">
+                                            <img src="${group.groupImg}"/>
+                                        </div>
+                                        <div class="bGroupInfo">
+                                            <span class="bGroupName">${group.groupName}</span>
+                                            <span class="bGroupCount">멤버 ${group.groupMemberCount}</span>
+                                        </div>
+                                    </a>
+                                </li>
+                            </c:forEach>
                         </ul>
                     </div>
                 </div>
