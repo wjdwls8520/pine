@@ -78,4 +78,25 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Query("delete from Reply r where r.post.id = :postId and r.parent is null")
     void deleteParentRepliesByPostId(@Param("postId") Long postId);
 
+    // 마이페이지: 내가 댓글을 단 게시글 목록 조회 (중복 제거, N+1 방지)
+    @Query(value = """
+        SELECT DISTINCT p FROM Post p
+        JOIN FETCH p.member m
+        WHERE p.id IN (
+            SELECT DISTINCT r.post.id FROM Reply r
+            WHERE r.member.id = :memberId
+            AND r.deleteYN = 'N'
+        )
+        ORDER BY p.writeDate DESC
+    """,
+    countQuery = """
+        SELECT COUNT(DISTINCT p.id) FROM Post p
+        WHERE p.id IN (
+            SELECT DISTINCT r.post.id FROM Reply r
+            WHERE r.member.id = :memberId
+            AND r.deleteYN = 'N'
+        )
+    """)
+    Page<Post> findPostsByMemberReplies(@Param("memberId") Long memberId, Pageable pageable);
+
 }

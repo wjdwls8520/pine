@@ -2,6 +2,7 @@ package com.site.pine.repository.shorts;
 
 import com.site.pine.dto.shorts.ShortsBestDto;
 import com.site.pine.entity.shorts.ShortsPost;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -41,5 +42,23 @@ public interface ShortsPostRepository extends JpaRepository<ShortsPost, Long> {
     """)
     List<ShortsBestDto> findBestShorts(Pageable pageable);
 
+    // 마이페이지: 내가 작성한 쇼츠 게시글 조회 (N+1 방지)
+    @Query(value = """
+        SELECT sp FROM ShortsPost sp
+        JOIN FETCH sp.post p
+        JOIN FETCH p.member m
+        WHERE m.id = :memberId
+        ORDER BY p.writeDate DESC
+    """,
+    countQuery = """
+        SELECT COUNT(sp) FROM ShortsPost sp
+        JOIN sp.post p
+        WHERE p.member.id = :memberId
+    """)
+    Page<ShortsPost> findByMemberId(@Param("memberId") Long memberId, Pageable pageable);
+
+    // Post ID 리스트로 ShortsPost 조회 (N+1 방지)
+    @Query("SELECT sp FROM ShortsPost sp WHERE sp.postId IN :postIds")
+    List<ShortsPost> findByPostIdIn(@Param("postIds") List<Long> postIds);
 
 }
