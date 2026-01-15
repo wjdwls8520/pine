@@ -54,19 +54,31 @@
                                     <span class="ico ico_more"></span>
 
                                     <div class="postMoreModal">
-                                        <c:choose>
-                                            <%-- loginUserId는 이제 컨트롤러에서 넘어온 값입니다 --%>
-                                            <c:when test="${not empty loginUser and loginUser == post.memberId}">
-                                                <%-- 내 글 --%>
-                                                <button class="menuItem" onclick="goEdit(${post.id})">수정</button>
-                                                <button class="menuItem danger" onclick="deletePost(${post.id})">삭제</button>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <%-- 남의 글 --%>
-                                                <button class="menuItem danger" onclick="doReport(${post.id})">신고</button>
-                                                <button class="menuItem" onclick="doSave(${post.id})">저장</button>
-                                            </c:otherwise>
-                                        </c:choose>
+                                        <sec:authorize access="isAuthenticated()">
+                                            <%-- 내 글 --%>
+                                            <button class="menuItem" onclick="goEdit(${post.id})">수정</button>
+                                            <button class="menuItem danger" onclick="deletePost(${post.id})">삭제</button>
+                                        </sec:authorize>
+                                        <sec:authorize access="isAnonymous()">
+                                            <%-- 남의 글 --%>
+                                            <button class="menuItem danger" onclick="doReport(${post.id})">신고</button>
+                                            <button class="menuItem" onclick="doSave(${post.id})">저장</button>
+                                        </sec:authorize>
+
+<%--                                        <c:choose>--%>
+<%--                                            &lt;%&ndash; loginUserId는 이제 컨트롤러에서 넘어온 값입니다 &ndash;%&gt;--%>
+<%--                                            <c:when test="${not empty loginUser and loginUser == post.memberId}">--%>
+<%--                                                &lt;%&ndash; 내 글 &ndash;%&gt;--%>
+<%--                                                <button class="menuItem" onclick="goEdit(${post.id})">수정</button>--%>
+<%--                                                <button class="menuItem danger" onclick="deletePost(${post.id})">삭제</button>--%>
+<%--                                            </c:when>--%>
+<%--                                            <c:otherwise>--%>
+<%--                                                &lt;%&ndash; 남의 글 &ndash;%&gt;--%>
+<%--                                                <button class="menuItem danger" onclick="doReport(${post.id})">신고</button>--%>
+<%--                                                <button class="menuItem" onclick="doSave(${post.id})">저장</button>--%>
+<%--                                            </c:otherwise>--%>
+<%--                                        </c:choose>--%>
+
                                     </div>
                                 </div>
 
