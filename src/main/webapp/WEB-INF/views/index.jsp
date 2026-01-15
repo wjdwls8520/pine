@@ -233,28 +233,28 @@
                                 <div class="userContents cursor" onclick="location.href='/community/cdetail/${post.postId}'">
                                     <div class="contentsList">
                                         <div class="tit">
-                                            <span class="headTitle">
-                                                <c:choose>
-                                                    <c:when test="${post.category == 1}">
-                                                        [General]
-                                                    </c:when>
-                                                    <c:when test="${post.category == 2}">
-                                                        [Travel]
-                                                    </c:when>
-                                                    <c:when test="${post.category == 3}">
-                                                        [K-POP]
-                                                    </c:when>
-                                                    <c:when test="${post.category == 4}">
-                                                        [Trend]
-                                                    </c:when>
-                                                    <c:when test="${post.category == 5}">
-                                                        [Game]
-                                                    </c:when>
-                                                    <c:when test="${post.category == 6}">
-                                                        [Ask]
-                                                    </c:when>
-                                                </c:choose>
-                                            </span>
+<%--                                            <span class="headTitle">--%>
+<%--                                                <c:choose>--%>
+<%--                                                    <c:when test="${post.category == 1}">--%>
+<%--                                                        [General]--%>
+<%--                                                    </c:when>--%>
+<%--                                                    <c:when test="${post.category == 2}">--%>
+<%--                                                        [Travel]--%>
+<%--                                                    </c:when>--%>
+<%--                                                    <c:when test="${post.category == 3}">--%>
+<%--                                                        [K-POP]--%>
+<%--                                                    </c:when>--%>
+<%--                                                    <c:when test="${post.category == 4}">--%>
+<%--                                                        [Trend]--%>
+<%--                                                    </c:when>--%>
+<%--                                                    <c:when test="${post.category == 5}">--%>
+<%--                                                        [Game]--%>
+<%--                                                    </c:when>--%>
+<%--                                                    <c:when test="${post.category == 6}">--%>
+<%--                                                        [Ask]--%>
+<%--                                                    </c:when>--%>
+<%--                                                </c:choose>--%>
+<%--                                            </span>--%>
                                             ${post.content}
                                         </div>
 
