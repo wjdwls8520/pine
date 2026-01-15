@@ -16,7 +16,7 @@ public class File {
     private Long id;
 
     @Comment("파일의 원래이름")
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String originalname;
 
     @Comment("파일 크기")
@@ -24,6 +24,7 @@ public class File {
     private Long size;
 
     @Comment("파일 경로")
+    @Column(length = 1000)
     private String path;
 
     @Comment("파일 확장자")
