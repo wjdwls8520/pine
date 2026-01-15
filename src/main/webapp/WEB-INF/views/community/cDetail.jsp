@@ -56,7 +56,7 @@
                                     <div class="postMoreModal">
                                         <c:choose>
                                             <%-- loginUserId는 이제 컨트롤러에서 넘어온 값입니다 --%>
-                                            <c:when test="${not empty loginUserId and loginUserId == post.memberId}">
+                                            <c:when test="${not empty loginUser and loginUser == post.memberId}">
                                                 <%-- 내 글 --%>
                                                 <button class="menuItem" onclick="goEdit(${post.id})">수정</button>
                                                 <button class="menuItem danger" onclick="deletePost(${post.id})">삭제</button>
