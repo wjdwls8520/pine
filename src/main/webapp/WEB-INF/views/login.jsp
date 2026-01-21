@@ -19,7 +19,7 @@
 
                 <div class="login_input">
                     <button onclick="googleLogin()">구글로 로그인</button>
-                    <button onclick="naverLogin()">네이버로 로그인</button>
+                    <button style="display: none;" onclick="naverLogin()">네이버로 로그인</button>
                     <button style="display: none;" onclick="kakaoLogin()">카카오로 로그인</button>
                 </div>
 
